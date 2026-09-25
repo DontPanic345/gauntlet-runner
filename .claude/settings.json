@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node tools/*)",
+      "Bash(ffmpeg *)",
+      "Bash(ffprobe *)",
+      "Bash(npm install)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git rev-parse*)",
+      "Bash(curl -s*)",
+      "Bash(jq *)",
+      "WebFetch(domain:itch.io)",
+      "WebFetch(domain:img.itch.zone)",
+      "WebSearch"
+    ]
+  }
+}

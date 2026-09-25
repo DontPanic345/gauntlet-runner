@@ -1,0 +1,16 @@
+{
+  "name": "gauntlet-runner",
+  "version": "1.0.0",
+  "description": "Voxel roguelite in three.js, built by the Hurdles loop",
+  "scripts": {
+    "serve": "python3 -m http.server 8173",
+    "capture": "node tools/capture.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "private": true
+}

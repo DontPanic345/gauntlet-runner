@@ -1,0 +1,6 @@
+{
+  "wave": 1,
+  "phase": "build",
+  "queue": ["foundation", "look", "hero", "movement", "combat", "vfx", "enemies", "arenas", "gauntlet", "boons", "boss", "hud", "audio", "title", "run-flow"],
+  "notes": "Run 1 set up the project, tooling and state only. Nothing has been built. src/main.js is a placeholder bootstrap (spinning cube); foundation replaces it."
+}
