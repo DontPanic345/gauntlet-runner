@@ -1,49 +1,64 @@
-// Bootstrap placeholder written during project setup (run 1).
-// The build wave replaces this; see hurdles/pieces.json for which piece owns what.
-// It exists only to prove the toolchain and debug-hook contract work end to end.
-import * as THREE from 'three';
+// Gauntlet-Runner entry point. Wires the engine together and picks the first scene.
+//
+// Frame order (see core/loop.js):
+//   frame:  input.beginFrame -> pause toggle -> scene.frame (menus, UI; runs while paused)
+//   tick:   input.beginTick -> scene.tick                  (60 Hz, never while paused/hitstop)
+//   render: scene.render(alpha) -> GL draw (+shake/flash) -> scene.ui(g) -> debug overlay
+// Scene changes requested with scenes.go() apply between these steps, never mid-tick.
+//
+// URL: ?scene=title|run|boss  ?seed=<int>  ?showcase=<piece-id>[&...]  ?debug=1
+
+import { display } from './core/display.js';
+import { loop } from './core/loop.js';
+import { input } from './core/input.js';
+import { scenes } from './core/scenes.js';
+import { reseed } from './core/rng.js';
+import { events } from './core/events.js';
+import { installContract, drawDebugOverlay } from './core/debug.js';
+import { startShowcase } from './core/showcase.js';
+import { drawText } from './core/pixelfont.js';
+import './core/placeholders.js';
+
+// ---- piece modules that define or override scenes: one import line each --------------
+// (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
 
 const params = new URLSearchParams(location.search);
+const seedParam = parseInt(params.get('seed') ?? '', 10);
+const seed = Number.isFinite(seedParam) ? seedParam : 1;
+reseed(seed);
 
-const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
-renderer.setPixelRatio(1);
-renderer.setSize(innerWidth, innerHeight);
-document.getElementById('app').appendChild(renderer.domElement);
+display.init(document.getElementById('app'));
+input.attach(window);
+const GR = installContract(seed);
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0d0b14);
-const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 200);
-camera.position.set(8, 10, 12);
-camera.lookAt(0, 0, 0);
-
-scene.add(new THREE.HemisphereLight(0xb8c4ff, 0x2a1d33, 1.2));
-const sun = new THREE.DirectionalLight(0xffe2b0, 2.0);
-sun.position.set(5, 10, 3);
-scene.add(sun);
-
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(2, 2, 2),
-  new THREE.MeshStandardMaterial({ color: 0xe0564a, flatShading: true }),
-);
-scene.add(cube);
-
-addEventListener('resize', () => {
-  renderer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
+loop.start({
+  frame(realDt) {
+    input.beginFrame();
+    scenes.flush();
+    if (input.ui.pressed('pause') && (scenes.paused || scenes.def?.pausable)) scenes.togglePause();
+    scenes.frame(realDt);
+    scenes.flush();
+  },
+  tick() {
+    input.beginTick(loop.tick);
+    scenes.tick();
+    scenes.flush();
+    events.emit('tick', { tick: loop.tick });
+  },
+  render(alpha, realDt) {
+    scenes.render(alpha, realDt);
+    display.render(realDt);
+    if (scenes.current) scenes.ui(display.ui, alpha);
+    else drawText(display.ui, 'LOADING', display.width / 2, display.height / 2 - 4, 'mist', { align: 'center' });
+    drawDebugOverlay();
+    if (!GR.ready && scenes.current) GR.ready = true;
+  },
 });
 
-let frame = 0;
-renderer.setAnimationLoop((t) => {
-  cube.rotation.y = t / 1000;
-  renderer.render(scene, camera);
-  frame++;
-});
-
-// Debug-hook contract (see hurdles/PROTOCOL.md, "Game contract").
-window.__GR = {
-  get frame() { return frame; },
-  scene: params.get('scene') ?? 'title',
-  seed: Number(params.get('seed') ?? 1),
-  ready: true,
-};
+const showcase = params.get('showcase');
+if (showcase !== null) {
+  startShowcase(showcase, params);
+} else {
+  const want = params.get('scene') ?? 'title';
+  scenes.go(['title', 'run', 'boss'].includes(want) ? want : 'title');
+}

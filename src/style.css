@@ -1,17 +1,24 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: #0d0b14;
+  background: #15131f; /* palette 'night', so no flash before the first frame */
   overflow: hidden;
 }
 
-#app, #app canvas {
+/* The GL canvas and the 2D UI canvas render at the internal resolution; display.js sizes
+   them to an integer multiple in CSS px and they are upscaled nearest-neighbour. */
+#app canvas {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: 0;
+  top: 0;
   display: block;
   image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+#ui2d {
+  pointer-events: none;
 }
 
 #ui {

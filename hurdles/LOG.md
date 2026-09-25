@@ -19,3 +19,9 @@ where the outputs are.
 - Decomposed the game into 15 pieces (`hurdles/pieces.json`): foundation (not judged)
   plus 14 judged pieces. The build wave has not run. `state.json` points at wave 1,
   phase `build`, with `foundation` first in the queue.
+
+## 2026-09-25 — w1 build: foundation
+
+- Builder built the engine skeleton in `src/core/` and `src/render/voxel/` and rewrote `src/main.js`. It includes a fixed 60 Hz loop, input with buffering, a scene machine, seeded RNG, a greedy mesher with AO, a showcase router with an unknown-id error screen, and `window.__GR`.
+- Cross-piece edits: it created `src/render/palette.js` (owned by `look`) and changed `src/style.css`. Notes are in `waves/w1/build/foundation.md`.
+- Smoke test: showcase, title and run all exit 0 with non-blank frames. The gamepad path is untested.

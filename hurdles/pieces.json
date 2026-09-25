@@ -5,7 +5,11 @@
       "id": "foundation",
       "title": "Engine foundation",
       "judged": false,
-      "owns": ["src/main.js", "src/core/", "src/render/voxel/"],
+      "owns": [
+        "src/main.js",
+        "src/core/",
+        "src/render/voxel/"
+      ],
       "depends_on": [],
       "goal": "The skeleton every other piece plugs into: fixed-timestep loop (60 Hz sim, interpolated render), input layer (keyboard/mouse/gamepad, buffering, rebinding table), scene state machine (title/run/pause/gameover/victory), seeded RNG, voxel model format plus greedy mesher with baked per-vertex AO, the showcase router and the window.__GR debug contract.",
       "must_have": [
@@ -19,15 +23,20 @@
       "judge_focus": "Not blind-judged. The integrator checks it against must_have: correctness, frame pacing, input latency.",
       "reference_hint": null,
       "reference": null,
-      "status": "unbuilt",
+      "status": "built",
       "history": []
     },
     {
       "id": "look",
       "title": "Render look",
       "judged": true,
-      "owns": ["src/render/", "!src/render/voxel/"],
-      "depends_on": ["foundation"],
+      "owns": [
+        "src/render/",
+        "!src/render/voxel/"
+      ],
+      "depends_on": [
+        "foundation"
+      ],
       "goal": "The frame itself: low-res render target with nearest upscale, orthographic three-quarter camera with texel-snapped motion, palette in src/render/palette.js, lighting (warm point lights against cool ambient), outline and AO treatment, fog/vignette, and any post (palette quantise, dithering). The screenshot someone sees on the itch page.",
       "must_have": [
         "pixels never swim or shimmer when the camera moves (texel snapping)",
@@ -47,8 +56,14 @@
       "id": "hero",
       "title": "Hero model and animation",
       "judged": true,
-      "owns": ["src/hero/model.js", "src/hero/anim.js"],
-      "depends_on": ["foundation", "look"],
+      "owns": [
+        "src/hero/model.js",
+        "src/hero/anim.js"
+      ],
+      "depends_on": [
+        "foundation",
+        "look"
+      ],
       "goal": "The hooded runner: voxel model with a readable silhouette, and procedural animation for idle breathing, run cycle, dash, a 3-hit attack combo, hurt, death, and spawn-in. Squash and stretch, secondary motion (cloak, scarf), anticipation and follow-through.",
       "must_have": [
         "silhouette readable at 1x internal resolution",
@@ -68,8 +83,15 @@
       "id": "movement",
       "title": "Movement and camera",
       "judged": true,
-      "owns": ["src/hero/controller.js", "src/core/collision.js", "src/render/camera.js"],
-      "depends_on": ["foundation", "hero"],
+      "owns": [
+        "src/hero/controller.js",
+        "src/core/collision.js",
+        "src/render/camera.js"
+      ],
+      "depends_on": [
+        "foundation",
+        "hero"
+      ],
       "goal": "How moving feels: acceleration and friction curves, 8-way movement with smooth facing, dash with i-frames, cooldown and after-images, wall collision that slides and never snags, and a camera that leads the movement with a dead-zone, eases, and takes shake from the shared channel.",
       "must_have": [
         "start and stop within 2-4 frames: snappy, never floaty, never instant",
@@ -88,8 +110,14 @@
       "id": "combat",
       "title": "Combat feel",
       "judged": true,
-      "owns": ["src/combat/"],
-      "depends_on": ["foundation", "hero", "movement"],
+      "owns": [
+        "src/combat/"
+      ],
+      "depends_on": [
+        "foundation",
+        "hero",
+        "movement"
+      ],
       "goal": "Hitting and being hit: 3-hit melee combo with hitboxes that match the swing, hitstop scaled to impact, enemy flash and knockback, damage numbers hook, player hurt with i-frames and red flash, health and death rules, and a crit or finisher on hit 3.",
       "must_have": [
         "hitstop, white flash, knockback, spark and sound on every hit, all scaled by damage",
@@ -108,8 +136,13 @@
       "id": "vfx",
       "title": "VFX and juice",
       "judged": true,
-      "owns": ["src/vfx/"],
-      "depends_on": ["foundation", "look"],
+      "owns": [
+        "src/vfx/"
+      ],
+      "depends_on": [
+        "foundation",
+        "look"
+      ],
       "goal": "A shared pooled particle and effect system in the voxel pixel style (cube particles, pixel sprites), and the effects library: hit-sparks, slash smears, dust puffs, dash after-images, death bursts, spawn portals, embers, light flashes, shockwave rings, pickup sparkles. Other pieces call it; they never make their own particles.",
       "must_have": [
         "pooled, no allocation per frame, 2000 particles at 60 fps in the showcase",
@@ -128,8 +161,13 @@
       "id": "enemies",
       "title": "Enemies",
       "judged": true,
-      "owns": ["src/enemies/"],
-      "depends_on": ["combat", "vfx"],
+      "owns": [
+        "src/enemies/"
+      ],
+      "depends_on": [
+        "combat",
+        "vfx"
+      ],
       "goal": "Four archetypes with distinct silhouettes and colour: Husk (shambling chaser), Ember Wisp (ranged, kites, fires slow orbs), Brute (telegraphed charge, stuns itself on walls), Mite swarm (tiny, fast, groups of 5). Each has spawn-in, idle, move, clear telegraph, attack, hurt, death, and simple readable AI with separation.",
       "must_have": [
         "every attack has a telegraph readable before it hits (pose, flash or ground marker)",
@@ -148,8 +186,16 @@
       "id": "arenas",
       "title": "Arenas and environment",
       "judged": true,
-      "owns": ["src/world/arena.js", "src/world/tiles.js", "src/world/props.js", "src/world/waves.js"],
-      "depends_on": ["look", "enemies"],
+      "owns": [
+        "src/world/arena.js",
+        "src/world/tiles.js",
+        "src/world/props.js",
+        "src/world/waves.js"
+      ],
+      "depends_on": [
+        "look",
+        "enemies"
+      ],
       "goal": "Seeded arena generation from hand-authored templates with variation: floor and wall voxel tiles, props (pillars, braziers, bones, rubble, banners), torches, doors that seal and open with ceremony, wave spawning with escalation, and a clear room-clear moment.",
       "must_have": [
         "rooms look hand-made, not random: composition, focal props, floor variation",
@@ -168,8 +214,15 @@
       "id": "gauntlet",
       "title": "Gauntlet corridors",
       "judged": true,
-      "owns": ["src/world/corridor.js", "src/world/traps.js", "src/world/collapse.js"],
-      "depends_on": ["arenas", "movement"],
+      "owns": [
+        "src/world/corridor.js",
+        "src/world/traps.js",
+        "src/world/collapse.js"
+      ],
+      "depends_on": [
+        "arenas",
+        "movement"
+      ],
       "goal": "The signature segments: short corridors chased by the collapse (a wall of falling rock and embers that advances and kills on contact), with traps (spike floors, swinging blades, fire jets, crumbling tiles) laid out in readable rhythms that reward dashing.",
       "must_have": [
         "the collapse is spectacular: falling voxels, dust, rumbling shake, ember glow",
@@ -188,8 +241,13 @@
       "id": "boons",
       "title": "Boons and pickups",
       "judged": true,
-      "owns": ["src/progression/"],
-      "depends_on": ["combat", "vfx"],
+      "owns": [
+        "src/progression/"
+      ],
+      "depends_on": [
+        "combat",
+        "vfx"
+      ],
       "goal": "About 16 boons with visible effects (for example chain sparks on hit, dash leaves an ember trail, third hit fires a wave, lifesteal motes), rarity tiers, a pick-1-of-3 shrine with beautiful cards, stacking rules, plus currency (soul shards) and heart pickups that are satisfying to collect.",
       "must_have": [
         "every boon changes something you can SEE in combat, not just a number",
@@ -208,8 +266,14 @@
       "id": "boss",
       "title": "Boss: The Warden",
       "judged": true,
-      "owns": ["src/boss/"],
-      "depends_on": ["enemies", "arenas", "vfx"],
+      "owns": [
+        "src/boss/"
+      ],
+      "depends_on": [
+        "enemies",
+        "arenas",
+        "vfx"
+      ],
       "goal": "A big voxel jailer-knight fought in a round arena: intro sequence with name card, 3 phases (sweeping chain, ground slams with shockwaves, summoning husks and caging the arena), each with learnable telegraphs, phase transitions with spectacle, a stagger or punish window, and a triumphant death sequence.",
       "must_have": [
         "the intro makes you nervous: camera, name card, roar, arena lights up",
@@ -228,8 +292,15 @@
       "id": "hud",
       "title": "HUD and in-game UI",
       "judged": true,
-      "owns": ["src/ui/hud.js", "src/ui/damage-numbers.js", "src/ui/widgets/"],
-      "depends_on": ["combat", "boons"],
+      "owns": [
+        "src/ui/hud.js",
+        "src/ui/damage-numbers.js",
+        "src/ui/widgets/"
+      ],
+      "depends_on": [
+        "combat",
+        "boons"
+      ],
       "goal": "In-run UI in the pixel style: hearts or health with a damage drain, dash pips, shard counter that ticks up, boon icon row with tooltips, room progress track (arena/corridor/boss), boss health bar, damage numbers, low-health vignette. Minimal, framed, animated.",
       "must_have": [
         "pixel-perfect: integer-scaled, palette-bound, pixel font",
@@ -248,8 +319,12 @@
       "id": "audio",
       "title": "Audio",
       "judged": true,
-      "owns": ["src/audio/"],
-      "depends_on": ["foundation"],
+      "owns": [
+        "src/audio/"
+      ],
+      "depends_on": [
+        "foundation"
+      ],
       "goal": "Everything synthesised in WebAudio: a jsfxr-style SFX bank (swings, hits by weight, dash, footsteps per surface, enemy barks, pickups ladder, doors, collapse rumble, boss) with per-play pitch variation, plus music: a title theme, an arena combat loop that layers up with intensity, a corridor chase layer, and a boss theme. A mixer with ducking and settings volumes.",
       "must_have": [
         "no sound repeats identically twice in a row (pitch or volume variation)",
@@ -268,8 +343,16 @@
       "id": "title",
       "title": "Title screen and menus",
       "judged": true,
-      "owns": ["src/ui/title.js", "src/ui/menus.js", "src/ui/settings.js"],
-      "depends_on": ["look", "audio", "vfx"],
+      "owns": [
+        "src/ui/title.js",
+        "src/ui/menus.js",
+        "src/ui/settings.js"
+      ],
+      "depends_on": [
+        "look",
+        "audio",
+        "vfx"
+      ],
       "goal": "The first frame: an animated voxel title scene (the runner at the Gauntlet's mouth, embers, torchlight), a crafted logo, and menus (Start, Settings, Controls, Credits) plus pause. Settings cover volumes, screen shake, flashes and key display. Everything navigable by keyboard, mouse and gamepad, with hover and select juice and sound.",
       "must_have": [
         "the first frame after load is already beautiful; no flash of unstyled content",
@@ -288,8 +371,17 @@
       "id": "run-flow",
       "title": "Run flow and endings",
       "judged": true,
-      "owns": ["src/run/"],
-      "depends_on": ["arenas", "gauntlet", "boons", "boss", "hud", "title"],
+      "owns": [
+        "src/run/"
+      ],
+      "depends_on": [
+        "arenas",
+        "gauntlet",
+        "boons",
+        "boss",
+        "hud",
+        "title"
+      ],
       "goal": "Stitches a run together: intro drop-in, arena/corridor/boss sequencing with transitions, death sequence (slow-mo, collapse of the screen), a game-over run summary (time, kills, boons taken, cause of death), a victory sequence, instant restart (one key, under 1 s to control), and light meta (best time, unlocked lore line).",
       "must_have": [
         "death to back in control takes under 3 s if the player wants",
