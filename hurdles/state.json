@@ -17,5 +17,5 @@
     "title",
     "run-flow"
   ],
-  "notes": "Wave 1 build in progress. foundation built and smoke-tested (3/3 URLs exit 0). Foundation created src/render/palette.js (owned by look) with 32 named colours; look may retune colours but should keep names. Later pieces register showcases via a row in SHOWCASES in src/core/showcase.js. Gamepad path untested (no pad headless)."
+  "notes": "Wave 1 build in progress. foundation built and smoke-tested (3/3 URLs exit 0). Foundation created src/render/palette.js (owned by look) with 32 named colours; look may retune colours but should keep names. Later pieces register showcases via a row in SHOWCASES in src/core/showcase.js. Gamepad path untested (no pad headless). Session stopped by the budget guard after foundation (weekly 97%, resets Sat 26 Sep 21:00); resume with look."
 }
