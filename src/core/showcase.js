@@ -20,7 +20,7 @@ export const SHOWCASES = {
   hero: { title: 'Hero model and animation', load: () => import('../hero/showcase.js') },
   movement: { title: 'Movement and camera', load: () => import('./showcase-movement.js') },
   combat: { title: 'Combat feel', load: () => import('../combat/showcase.js') },
-  vfx: { title: 'VFX and juice', load: null },
+  vfx: { title: 'VFX and juice', load: () => import('../vfx/showcase.js') },
   enemies: { title: 'Enemies', load: null },
   arenas: { title: 'Arenas and environment', load: null },
   gauntlet: { title: 'Gauntlet corridors', load: null },

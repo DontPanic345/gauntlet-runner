@@ -57,3 +57,9 @@ where the outputs are.
 ## 2026-09-26 — w1 build: budget stop
 
 - The budget guard tripped after combat: the session window was at 68%, over the 50% limit, and resets Sun 27 Sep 03:40. Weekly was at 10%. The next session resumes the build queue at `vfx`.
+
+## 2026-09-27 — w1 build: vfx
+
+- Builder added `src/vfx/` (`particles.js`, `ambient.js`, `marks.js`, `effects.js`, `index.js`, `showcase.js`): a pooled instanced cube-particle system, an effects library (hit, smear, dust, dash, death, portal, flash, shockwave, pickup), ambient embers and dust motes, and a looping labelled reel. Hooks: `vfx:play` event, `debug.vfx`, `debug.vfxStats`. Notes in `waves/w1/build/vfx.md`.
+- Cross-piece edit: the `vfx` row in `src/core/showcase.js`. No other piece calls vfx yet, and 60 fps was not verified on a real GPU.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors.
