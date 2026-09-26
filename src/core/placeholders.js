@@ -26,6 +26,8 @@ import { createCombatFx } from '../combat/fx.js';
 import '../combat/sfx.js';
 import { TrainingDummy, SparringDummy } from '../combat/dummy.js';
 import { debug } from './debug.js';
+import { vfx } from '../vfx/index.js';                    // vfx piece: shared effects
+import { createEnemySystem } from '../enemies/index.js';   // enemies piece: husk, wisp, brute, mite
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -58,7 +60,7 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx;
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, esys;
   return {
     pausable: true,
     enter(_d, root) {
@@ -82,10 +84,14 @@ function runScene(label) {
       cfx = createCombatFx(root);
       world.hero = hero;
       world.enemies = [];
-      // debug.spawn('dummy' | 'sparring', x, z): combat's training targets (enemies replaces this)
+      const b = { minX: -4.6, maxX: 4.6, minZ: -4.6, maxZ: 4.6 };
+      vfx.attach(root, { ambient: 'off' });
+      esys = createEnemySystem(root, { hero, collision: cw, bounds: b, list: world.enemies });
+      // debug.spawn('husk' | 'wisp' | 'brute' | 'mite' | 'mites', x, z) (enemies), 'dummy' | 'sparring' (combat)
       debug.handle('spawn', (type, x, z) => {
-        if (type !== 'dummy' && type !== 'sparring') return { ok: false, error: `no enemy type "${type}" yet (try 'dummy' or 'sparring')` };
-        const b = { minX: -4.6, maxX: 4.6, minZ: -4.6, maxZ: 4.6 };
+        const r = esys.handleSpawn(type, x, z);
+        if (r) return r;
+        if (type !== 'dummy' && type !== 'sparring') return { ok: false, error: `no enemy type "${type}" (try husk, wisp, brute, mite, mites, dummy, sparring)` };
         const d = type === 'dummy' ? new TrainingDummy(root, { id: `D${world.enemies.length}`, x, z, bounds: b })
           : new SparringDummy(root, { id: `S${world.enemies.length}`, x, z, bounds: b, health: hero });
         d.attachCollider(cw);
@@ -94,13 +100,15 @@ function runScene(label) {
       });
       world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
     },
-    exit() { setCollision(null); cfx.dispose(); },
+    exit() { setCollision(null); cfx.dispose(); esys.dispose(); vfx.detach(); },
     tick() {
       stage.tick();
       combat.tick();   // combo input, ctl.tick(), hits, hero hurt/death rules (combat piece)
       cam.tick(ctl);
-      for (const e of world.enemies) e.tick?.();
+      for (const e of world.enemies) if (!e.managed) e.tick?.();
+      esys.tick();
       cfx.tick();
+      vfx.tick();
       if (hero.dead && deadT < 0) deadT = 0;
       if (deadT >= 0 && ++deadT > 80) scenes.go('gameover', { cause: 'debug' });
     },
@@ -109,12 +117,16 @@ function runScene(label) {
       hero.render();
       const off = cam.render(alpha, ctl.at(alpha));
       rig.group.position.set(off.x, off.y, off.z);
-      for (const e of world.enemies) e.render?.(alpha);
+      for (const e of world.enemies) if (!e.managed) e.render?.(alpha);
+      esys.render(alpha);
       stage.render(alpha);
       cfx.render(alpha);
+      vfx.render(alpha);
     },
     ui(g) {
       cfx.ui(g);
+      esys.ui(g);
+      vfx.ui(g);
       drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
       drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
       note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`);
