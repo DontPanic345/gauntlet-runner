@@ -91,3 +91,7 @@ where the outputs are.
 - Builder added `src/progression/` (`boons.js`, `icons.js`, `sfx.js`, `pickups.js`, `effects.js`, `shrine.js`, `index.js`, `showcase.js`): 16 boons in 3 rarity tiers with stacking and 7 synergies, a pick-1-of-3 shrine with card deal-in, flip, hover, pick burst and reroll, soul shard and heart pickups with vacuum and a sound ladder, `debug.give` and `debug.boons`. Notes in `waves/w1/build/boons.md`.
 - Cross-piece edits: `src/core/showcase.js`, `src/combat/combat.js` (exported `hooks.damage`), `src/core/placeholders.js` (run placeholder runs progression; B opens the shrine).
 - Smoke test: showcase, title and run all exit 0. Builder-reported gaps: some icons weak, no frost/slow boons, balance untuned, sounds never listened to, `phoenix-spark` give-run unverified.
+
+## 2026-09-27 — w1 build: budget stop
+
+- The budget guard tripped after boons: the session window was at 54%, over the 50% limit, and resets Sun 27 Sep 15:20. Weekly was at 21%. The next session resumes the build queue at `boss`.
