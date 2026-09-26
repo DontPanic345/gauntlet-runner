@@ -21,6 +21,11 @@ import { HeroAnim } from '../hero/anim.js';
 import { HeroController } from '../hero/controller.js';  // movement piece: controller, collision, camera
 import { CollisionWorld, setCollision } from './collision.js';
 import { CameraRig } from '../render/camera.js';
+import { HeroCombat, HeroHealth } from '../combat/combat.js';   // combat piece: combo, hits, hurt rules
+import { createCombatFx } from '../combat/fx.js';
+import '../combat/sfx.js';
+import { TrainingDummy, SparringDummy } from '../combat/dummy.js';
+import { debug } from './debug.js';
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -53,7 +58,7 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, lastHp, deadT;
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx;
   return {
     pausable: true,
     enter(_d, root) {
@@ -71,32 +76,45 @@ function runScene(label) {
       ctl = new HeroController({ x: 0, z: 0, yaw: 0, anim, collision: cw });
       cam = new CameraRig({ bounds: { minX: -1.6, maxX: 1.6, minZ: -1.2, maxZ: 1.2 } });
       cam.reset(0, 0);
-      lastHp = 5; deadT = -1;
-      hero = { get x() { return ctl.x; }, get z() { return ctl.z; }, hp: 5, maxHp: 5, get invuln() { return ctl.invulnerable; } };
+      deadT = -1;
+      hero = new HeroHealth({ ctl, anim, rig, hp: 5 });
+      combat = new HeroCombat({ ctl, anim, health: hero, targets: () => world.enemies });
+      cfx = createCombatFx(root);
       world.hero = hero;
+      world.enemies = [];
+      // debug.spawn('dummy' | 'sparring', x, z): combat's training targets (enemies replaces this)
+      debug.handle('spawn', (type, x, z) => {
+        if (type !== 'dummy' && type !== 'sparring') return { ok: false, error: `no enemy type "${type}" yet (try 'dummy' or 'sparring')` };
+        const b = { minX: -4.6, maxX: 4.6, minZ: -4.6, maxZ: 4.6 };
+        const d = type === 'dummy' ? new TrainingDummy(root, { id: `D${world.enemies.length}`, x, z, bounds: b })
+          : new SparringDummy(root, { id: `S${world.enemies.length}`, x, z, bounds: b, health: hero });
+        d.attachCollider(cw);
+        world.enemies.push(d);
+        return { ok: true, id: d.id };
+      });
       world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
     },
-    exit() { setCollision(null); },
+    exit() { setCollision(null); cfx.dispose(); },
     tick() {
       stage.tick();
-      if (deadT >= 0) { ctl.tick(); cam.tick(ctl); if (++deadT > 80) scenes.go('gameover', { cause: 'debug' }); return; }
-      if (anim.canChain && ctl.state !== 'dash' && input.consume('attack')) {
-        const step = anim.state === 'attack' ? (anim.step + 1) % 3 : 0;
-        ctl.attack(step);
-      }
-      ctl.tick();
+      combat.tick();   // combo input, ctl.tick(), hits, hero hurt/death rules (combat piece)
       cam.tick(ctl);
-      if (hero.hp < lastHp && hero.hp > 0) { anim.hurt(); ctl.stun(6); }
-      lastHp = hero.hp;
-      if (hero.hp <= 0) { anim.die(); deadT = 0; }
+      for (const e of world.enemies) e.tick?.();
+      cfx.tick();
+      if (hero.dead && deadT < 0) deadT = 0;
+      if (deadT >= 0 && ++deadT > 80) scenes.go('gameover', { cause: 'debug' });
     },
     render(alpha) {
       anim.render(alpha);
+      hero.render();
       const off = cam.render(alpha, ctl.at(alpha));
       rig.group.position.set(off.x, off.y, off.z);
+      for (const e of world.enemies) e.render?.(alpha);
       stage.render(alpha);
+      cfx.render(alpha);
     },
     ui(g) {
+      cfx.ui(g);
       drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
       drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
       note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`);
