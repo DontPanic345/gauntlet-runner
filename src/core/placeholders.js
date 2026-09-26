@@ -18,6 +18,9 @@ import { voxelMesh, VOXEL } from '../render/voxel/index.js';
 import '../render/voxel/testmodels.js';
 import { createHeroRig } from '../hero/model.js';   // hero piece: the real rig and animator
 import { HeroAnim } from '../hero/anim.js';
+import { HeroController } from '../hero/controller.js';  // movement piece: controller, collision, camera
+import { CollisionWorld, setCollision } from './collision.js';
+import { CameraRig } from '../render/camera.js';
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -49,66 +52,48 @@ scenes.define('title', (() => {
 
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
-  let stage, pos, hero, dashT, atkT, vx, vz, facing, anim, lastHp, deadT;
+  const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
+  let stage, hero, anim, rig, ctl, cam, lastHp, deadT;
   return {
     pausable: true,
     enter(_d, root) {
       world.reset();
       display.setZoom(1);
-      stage = buildStage(root, { torches: [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]], rng: rng.fork(label + '-stage') });
-      const rig = createHeroRig();
+      stage = buildStage(root, { torches: TORCHES, rng: rng.fork(label + '-stage') });
+      rig = createHeroRig();
       root.add(rig.group);
       anim = new HeroAnim(rig, { x: 0, z: 0, yaw: 0 });
       anim.spawn();
+      const cw = new CollisionWorld();
+      cw.addRing(0, 0, 4.9);
+      for (const [x, z] of TORCHES) cw.addCircle(x, z, 0.22, 'torch');
+      setCollision(cw);
+      ctl = new HeroController({ x: 0, z: 0, yaw: 0, anim, collision: cw });
+      cam = new CameraRig({ bounds: { minX: -1.6, maxX: 1.6, minZ: -1.2, maxZ: 1.2 } });
+      cam.reset(0, 0);
       lastHp = 5; deadT = -1;
-      pos = new Interp({ x: 0, z: 0, yaw: 0, sy: 1 }).angle('yaw');
-      hero = { x: 0, z: 0, hp: 5, maxHp: 5 };
+      hero = { get x() { return ctl.x; }, get z() { return ctl.z; }, hp: 5, maxHp: 5, get invuln() { return ctl.invulnerable; } };
       world.hero = hero;
       world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
-      dashT = 0; atkT = 0; vx = 0; vz = 0; facing = 0;
     },
+    exit() { setCollision(null); },
     tick() {
-      pos.snap();
       stage.tick();
-      if (deadT >= 0) { anim.tick({ x: pos.cur.x, z: pos.cur.z }); if (++deadT > 80) scenes.go('gameover', { cause: 'debug' }); return; }
-      const m = anim.state === 'spawn' ? { x: 0, z: 0 } : input.move();
-      const c = pos.cur;
-      if (dashT > 0) dashT--;
-      else {
-        const speed = 4.2, acc = 0.35;
-        vx += (m.x * speed - vx) * acc;
-        vz += (m.z * speed - vz) * acc;
-        if (input.consume('dash')) {
-          const dx = m.x || Math.sin(facing), dz = m.z || Math.cos(facing);
-          const l = Math.hypot(dx, dz) || 1;
-          vx = (dx / l) * 13; vz = (dz / l) * 13; dashT = 8;
-          facing = Math.atan2(dx, dz); anim.dash(8);
-          feedback.shake(1.5, 90);
-        }
-      }
-      if (atkT > 0) atkT--;
-      else if (anim.canChain && input.consume('attack')) {
+      if (deadT >= 0) { ctl.tick(); cam.tick(ctl); if (++deadT > 80) scenes.go('gameover', { cause: 'debug' }); return; }
+      if (anim.canChain && ctl.state !== 'dash' && input.consume('attack')) {
         const step = anim.state === 'attack' ? (anim.step + 1) % 3 : 0;
-        const a = anim.attack(step);
-        atkT = a ? a.cancel : 14;
-        feedback.kick(Math.sin(facing), Math.cos(facing), 2);
+        ctl.attack(step);
       }
-      c.x += vx * DT; c.z += vz * DT;
-      const r = Math.hypot(c.x, c.z), R = 4.6;
-      if (r > R) { c.x *= R / r; c.z *= R / r; }
-      if (Math.hypot(m.x, m.z) > 0.1) facing = Math.atan2(m.x, m.z);
-      c.yaw = facing;
-      c.sy = atkT > 0 ? 1 + 0.12 * Math.sin((atkT / 14) * Math.PI) * (atkT > 9 ? -1 : 1) : dashT > 0 ? 0.85 : 1;
-      hero.x = c.x; hero.z = c.z;
-      if (hero.hp < lastHp && hero.hp > 0) anim.hurt();
+      ctl.tick();
+      cam.tick(ctl);
+      if (hero.hp < lastHp && hero.hp > 0) { anim.hurt(); ctl.stun(6); }
       lastHp = hero.hp;
-      anim.tick({ x: c.x, z: c.z, face: facing });
       if (hero.hp <= 0) { anim.die(); deadT = 0; }
     },
     render(alpha) {
-      const p = pos.at(alpha);
       anim.render(alpha);
-      display.setCameraTarget(p.x * 0.35, 0.5, p.z * 0.35);
+      const off = cam.render(alpha, ctl.at(alpha));
+      rig.group.position.set(off.x, off.y, off.z);
       stage.render(alpha);
     },
     ui(g) {
