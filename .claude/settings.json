@@ -15,6 +15,12 @@
       "Bash(jq *)",
       "WebFetch(domain:itch.io)",
       "WebFetch(domain:img.itch.zone)",
+      "WebFetch(domain:store.steampowered.com)",
+      "WebFetch(domain:steamcommunity.com)",
+      "WebFetch(domain:store.fastly.steamstatic.com)",
+      "WebFetch(domain:shared.fastly.steamstatic.com)",
+      "WebFetch(domain:community.fastly.steamstatic.com)",
+      "WebFetch(domain:images.steamusercontent.com)",
       "WebSearch"
     ]
   }
