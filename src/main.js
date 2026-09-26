@@ -18,6 +18,7 @@ import { installContract, drawDebugOverlay } from './core/debug.js';
 import { startShowcase } from './core/showcase.js';
 import { drawText } from './core/pixelfont.js';
 import './core/placeholders.js';
+import { look } from './render/look.js';
 
 // ---- piece modules that define or override scenes: one import line each --------------
 // (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
@@ -28,6 +29,7 @@ const seed = Number.isFinite(seedParam) ? seedParam : 1;
 reseed(seed);
 
 display.init(document.getElementById('app'));
+look.install(); // render look: post chain, lights, shadows (src/render/look.js)
 input.attach(window);
 const GR = installContract(seed);
 

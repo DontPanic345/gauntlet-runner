@@ -16,7 +16,7 @@ import { loop } from './loop.js';
 
 export const SHOWCASES = {
   foundation: { title: 'Engine foundation', load: () => import('./showcase-foundation.js') },
-  look: { title: 'Render look', load: null },
+  look: { title: 'Render look', load: () => import('../render/showcase.js') },
   hero: { title: 'Hero model and animation', load: null },
   movement: { title: 'Movement and camera', load: null },
   combat: { title: 'Combat feel', load: null },

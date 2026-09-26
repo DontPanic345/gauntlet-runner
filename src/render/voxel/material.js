@@ -15,12 +15,16 @@ import * as THREE from 'three';
 export const voxelUniforms = {
   aoMin: { value: 0.3 },
   emitBoost: { value: 1.0 },
+  // camera offset in whole screen texels; `look` sets it per frame so the AO dither is
+  // anchored to the world and does not crawl while the texel-snapped camera pans
+  ditherOrigin: { value: new THREE.Vector2() },
 };
 
 function patch(material, perMesh) {
   material.onBeforeCompile = (shader) => {
     shader.uniforms.aoMin = voxelUniforms.aoMin;
     shader.uniforms.emitBoost = voxelUniforms.emitBoost;
+    shader.uniforms.ditherOrigin = voxelUniforms.ditherOrigin;
     shader.uniforms.flashAmount = perMesh.flash;
     shader.uniforms.flashColor = perMesh.flashColor;
     shader.vertexShader = shader.vertexShader
@@ -30,6 +34,7 @@ function patch(material, perMesh) {
       .replace('#include <common>', `#include <common>
 uniform float aoMin;
 uniform float emitBoost;
+uniform vec2 ditherOrigin;
 uniform float flashAmount;
 uniform vec3 flashColor;
 varying float vAo;
@@ -42,13 +47,13 @@ float bayer4(vec2 p) {
 }`)
       .replace('#include <color_fragment>', `#include <color_fragment>
 vec3 voxelBase = diffuseColor.rgb;
-float aoLevel = clamp(floor(vAo * 3.0 + bayer4(gl_FragCoord.xy)), 0.0, 3.0) / 3.0;
+float aoLevel = clamp(floor(vAo * 3.0 + bayer4(gl_FragCoord.xy + ditherOrigin)), 0.0, 3.0) / 3.0;
 diffuseColor.rgb *= mix(aoMin, 1.0, aoLevel);`)
       .replace('#include <opaque_fragment>', `outgoingLight = mix(outgoingLight, voxelBase * emitBoost, vEmit);
 outgoingLight = mix(outgoingLight, flashColor, flashAmount);
 #include <opaque_fragment>`);
   };
-  material.customProgramCacheKey = () => 'gr-voxel-v1';
+  material.customProgramCacheKey = () => 'gr-voxel-v2';
   material.userData.flash = perMesh.flash;
   material.userData.flashColor = perMesh.flashColor;
   return material;

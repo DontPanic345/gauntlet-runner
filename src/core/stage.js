@@ -12,6 +12,7 @@ import '../render/voxel/testmodels.js';
 import { hex } from '../render/palette.js';
 import { Rng } from './rng.js';
 import { display, PPU } from './display.js';
+import { look } from '../render/look.js';
 
 const FLAME_CUBES = 6;
 const EMBERS = 48;
@@ -28,6 +29,7 @@ export function buildStage(root, { torches = [[-3.2, -2.4], [3.2, -2.4]], floor 
     const t = voxelMesh('test.torch');
     t.position.set(x, 0, z);
     root.add(t);
+    if (look.lights) look.torch(t, { y: 9 * VOXEL, intensity: 0.9, radius: 6 }); // real flickering light (look)
     torchTops.push(new THREE.Vector3(x, 8 * VOXEL, z));
   }
 
@@ -36,6 +38,7 @@ export function buildStage(root, { torches = [[-3.2, -2.4], [3.2, -2.4]], floor 
   const count = torchTops.length * FLAME_CUBES + EMBERS + DUST;
   const inst = new THREE.InstancedMesh(box, mat, Math.max(1, count));
   inst.frustumCulled = false;
+  look.noOutline(inst);
   root.add(inst);
   const col = new THREE.Color();
   const tmpM = new THREE.Matrix4();
