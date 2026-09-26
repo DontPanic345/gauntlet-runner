@@ -35,7 +35,17 @@ phase=$(jq -r .phase hurdles/state.json 2>/dev/null)
 if [ "$phase" = "done" ]; then say "skip: loop is done"; exit 0; fi
 
 # Fail closed: if usage can't be read, don't run.
-usage=$(python3 "$USAGE" --json --route direct 2>/dev/null) || { say "skip: usage check failed"; exit 0; }
+# The direct route reads the OAuth access token (8h life) without refreshing it, and
+# only running `claude` refreshes it. While the budget guard is skipping, nothing else
+# does, so the token expires and every check fails. On failure, refresh with a one-word
+# Haiku call and retry once; log the reason either way.
+uerr="$LOGDIR/usage.err"
+if ! usage=$(python3 "$USAGE" --json --route direct 2>"$uerr"); then
+  say "usage check failed ($(tr '\n' ' ' < "$uerr" | cut -c1-200)); refreshing token"
+  timeout 180 claude -p ok --model haiku >/dev/null 2>&1
+  usage=$(python3 "$USAGE" --json --route direct 2>"$uerr") \
+    || { say "skip: usage check failed after refresh ($(tr '\n' ' ' < "$uerr" | cut -c1-200))"; exit 0; }
+fi
 session=$(jq -r '.raw.five_hour.utilization // empty' <<<"$usage")
 weekly=$(jq -r '.raw.seven_day.utilization // empty' <<<"$usage")
 if [ -z "$session" ] || [ -z "$weekly" ]; then say "skip: usage unreadable"; exit 0; fi
