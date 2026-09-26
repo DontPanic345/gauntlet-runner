@@ -70,6 +70,9 @@ export const COMBO = [
     knock: 8.5, lift: 3.4, stop: 95, kick: 4, shake: 3, sparks: 16, finisher: true },
 ];
 
+/** Extension points for boons (progression piece). damage(amount, spec, target) -> amount. */
+export const hooks = { damage: null };
+
 export const RULES = {
   queueTicks: 12,        // an attack press waits this long for the hero to be free (dash, hurt stun)
   linger: 14,            // ticks after an attack ends in which the next press still continues the combo
@@ -117,7 +120,8 @@ export function strike(target, src, spec, { step = -1, tx = 0, tz = 0, dmg = nul
   let dx = target.x - src.x, dz = target.z - src.z;
   const l = Math.hypot(dx, dz) || 1;
   dx /= l; dz /= l;
-  const amount = dmg ?? spec.dmg;
+  let amount = dmg ?? spec.dmg;
+  if (hooks.damage) amount = hooks.damage(amount, spec, target) ?? amount;
   const power = Math.max(0.6, amount / 10) * (spec.finisher ? 1.1 : 1);
   const hit = {
     dmg: amount, dx, dz, tx, tz, power, step, finisher: !!spec.finisher,

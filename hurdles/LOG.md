@@ -85,3 +85,9 @@ where the outputs are.
 - Builder added `src/world/corridor.js`, `traps.js`, `collapse.js` and `showcase-gauntlet.js`: a generated corridor with spike floors, swinging axes, fire jets and crumbling tiles that telegraph safe/warn/live phases, a collapse wall that speeds up when you are close and eases when you are far ahead, a gate-slam ending, and a `debug.gauntlet` hook. Showcase keys: T overlay, Q slow-mo. Notes in `waves/w1/build/gauntlet.md`.
 - Cross-piece edit: the `gauntlet` row in `src/core/showcase.js`. Tuned by a bot only, never played by hand. Normal play does not use corridors until run-flow.
 - Smoke test: showcase, title and run all exit 0. Builder-reported gaps: dark scene, noisy heap, blunt axes, pit fall is a teleport.
+
+## 2026-09-27 — w1 build: boons
+
+- Builder added `src/progression/` (`boons.js`, `icons.js`, `sfx.js`, `pickups.js`, `effects.js`, `shrine.js`, `index.js`, `showcase.js`): 16 boons in 3 rarity tiers with stacking and 7 synergies, a pick-1-of-3 shrine with card deal-in, flip, hover, pick burst and reroll, soul shard and heart pickups with vacuum and a sound ladder, `debug.give` and `debug.boons`. Notes in `waves/w1/build/boons.md`.
+- Cross-piece edits: `src/core/showcase.js`, `src/combat/combat.js` (exported `hooks.damage`), `src/core/placeholders.js` (run placeholder runs progression; B opens the shrine).
+- Smoke test: showcase, title and run all exit 0. Builder-reported gaps: some icons weak, no frost/slow boons, balance untuned, sounds never listened to, `phoenix-spark` give-run unverified.
