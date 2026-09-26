@@ -16,6 +16,8 @@ import { drawText } from './pixelfont.js';
 import { buildStage } from './stage.js';
 import { voxelMesh, VOXEL } from '../render/voxel/index.js';
 import '../render/voxel/testmodels.js';
+import { createHeroRig } from '../hero/model.js';   // hero piece: the real rig and animator
+import { HeroAnim } from '../hero/anim.js';
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -47,15 +49,18 @@ scenes.define('title', (() => {
 
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
-  let stage, mesh, pos, hero, dashT, atkT, vx, vz, facing;
+  let stage, pos, hero, dashT, atkT, vx, vz, facing, anim, lastHp, deadT;
   return {
     pausable: true,
     enter(_d, root) {
       world.reset();
       display.setZoom(1);
       stage = buildStage(root, { torches: [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]], rng: rng.fork(label + '-stage') });
-      mesh = voxelMesh('test.runner');
-      root.add(mesh);
+      const rig = createHeroRig();
+      root.add(rig.group);
+      anim = new HeroAnim(rig, { x: 0, z: 0, yaw: 0 });
+      anim.spawn();
+      lastHp = 5; deadT = -1;
       pos = new Interp({ x: 0, z: 0, yaw: 0, sy: 1 }).angle('yaw');
       hero = { x: 0, z: 0, hp: 5, maxHp: 5 };
       world.hero = hero;
@@ -65,7 +70,8 @@ function runScene(label) {
     tick() {
       pos.snap();
       stage.tick();
-      const m = input.move();
+      if (deadT >= 0) { anim.tick({ x: pos.cur.x, z: pos.cur.z }); if (++deadT > 80) scenes.go('gameover', { cause: 'debug' }); return; }
+      const m = anim.state === 'spawn' ? { x: 0, z: 0 } : input.move();
       const c = pos.cur;
       if (dashT > 0) dashT--;
       else {
@@ -76,11 +82,17 @@ function runScene(label) {
           const dx = m.x || Math.sin(facing), dz = m.z || Math.cos(facing);
           const l = Math.hypot(dx, dz) || 1;
           vx = (dx / l) * 13; vz = (dz / l) * 13; dashT = 8;
+          facing = Math.atan2(dx, dz); anim.dash(8);
           feedback.shake(1.5, 90);
         }
       }
       if (atkT > 0) atkT--;
-      else if (input.consume('attack')) { atkT = 14; feedback.kick(Math.sin(facing), Math.cos(facing), 2); }
+      else if (anim.canChain && input.consume('attack')) {
+        const step = anim.state === 'attack' ? (anim.step + 1) % 3 : 0;
+        const a = anim.attack(step);
+        atkT = a ? a.cancel : 14;
+        feedback.kick(Math.sin(facing), Math.cos(facing), 2);
+      }
       c.x += vx * DT; c.z += vz * DT;
       const r = Math.hypot(c.x, c.z), R = 4.6;
       if (r > R) { c.x *= R / r; c.z *= R / r; }
@@ -88,13 +100,14 @@ function runScene(label) {
       c.yaw = facing;
       c.sy = atkT > 0 ? 1 + 0.12 * Math.sin((atkT / 14) * Math.PI) * (atkT > 9 ? -1 : 1) : dashT > 0 ? 0.85 : 1;
       hero.x = c.x; hero.z = c.z;
-      if (hero.hp <= 0) scenes.go('gameover', { cause: 'debug' });
+      if (hero.hp < lastHp && hero.hp > 0) anim.hurt();
+      lastHp = hero.hp;
+      anim.tick({ x: c.x, z: c.z, face: facing });
+      if (hero.hp <= 0) { anim.die(); deadT = 0; }
     },
     render(alpha) {
       const p = pos.at(alpha);
-      mesh.position.set(p.x, 0, p.z);
-      mesh.rotation.y = p.yaw;
-      mesh.scale.set(1 / Math.sqrt(p.sy), p.sy, 1 / Math.sqrt(p.sy));
+      anim.render(alpha);
       display.setCameraTarget(p.x * 0.35, 0.5, p.z * 0.35);
       stage.render(alpha);
     },
