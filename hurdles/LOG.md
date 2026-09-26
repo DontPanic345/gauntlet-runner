@@ -79,3 +79,9 @@ where the outputs are.
 ## 2026-09-27 — w1 build: budget stop
 
 - The budget guard tripped after arenas: the session window was at 73%, over the 50% limit, and resets Sun 27 Sep 10:20. Weekly was at 16%. The next session resumes the build queue at `gauntlet`.
+
+## 2026-09-27 — w1 build: gauntlet
+
+- Builder added `src/world/corridor.js`, `traps.js`, `collapse.js` and `showcase-gauntlet.js`: a generated corridor with spike floors, swinging axes, fire jets and crumbling tiles that telegraph safe/warn/live phases, a collapse wall that speeds up when you are close and eases when you are far ahead, a gate-slam ending, and a `debug.gauntlet` hook. Showcase keys: T overlay, Q slow-mo. Notes in `waves/w1/build/gauntlet.md`.
+- Cross-piece edit: the `gauntlet` row in `src/core/showcase.js`. Tuned by a bot only, never played by hand. Normal play does not use corridors until run-flow.
+- Smoke test: showcase, title and run all exit 0. Builder-reported gaps: dark scene, noisy heap, blunt axes, pit fall is a teleport.
