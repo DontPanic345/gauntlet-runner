@@ -8,7 +8,8 @@
       "owns": [
         "src/main.js",
         "src/core/",
-        "src/render/voxel/"
+        "src/render/voxel/",
+        "!src/core/showcase-movement.js"
       ],
       "depends_on": [],
       "goal": "The skeleton every other piece plugs into: fixed-timestep loop (60 Hz sim, interpolated render), input layer (keyboard/mouse/gamepad, buffering, rebinding table), scene state machine (title/run/pause/gameover/victory), seeded RNG, voxel model format plus greedy mesher with baked per-vertex AO, the showcase router and the window.__GR debug contract.",
@@ -58,7 +59,8 @@
       "judged": true,
       "owns": [
         "src/hero/model.js",
-        "src/hero/anim.js"
+        "src/hero/anim.js",
+        "src/hero/showcase.js"
       ],
       "depends_on": [
         "foundation",
@@ -86,7 +88,8 @@
       "owns": [
         "src/hero/controller.js",
         "src/core/collision.js",
-        "src/render/camera.js"
+        "src/render/camera.js",
+        "src/core/showcase-movement.js"
       ],
       "depends_on": [
         "foundation",
@@ -190,7 +193,8 @@
         "src/world/arena.js",
         "src/world/tiles.js",
         "src/world/props.js",
-        "src/world/waves.js"
+        "src/world/waves.js",
+        "src/world/showcase-arenas.js"
       ],
       "depends_on": [
         "look",
@@ -217,7 +221,8 @@
       "owns": [
         "src/world/corridor.js",
         "src/world/traps.js",
-        "src/world/collapse.js"
+        "src/world/collapse.js",
+        "src/world/showcase-gauntlet.js"
       ],
       "depends_on": [
         "arenas",
@@ -295,7 +300,8 @@
       "owns": [
         "src/ui/hud.js",
         "src/ui/damage-numbers.js",
-        "src/ui/widgets/"
+        "src/ui/widgets/",
+        "src/ui/showcase-hud.js"
       ],
       "depends_on": [
         "combat",
@@ -346,7 +352,8 @@
       "owns": [
         "src/ui/title.js",
         "src/ui/menus.js",
-        "src/ui/settings.js"
+        "src/ui/settings.js",
+        "src/ui/showcase-title.js"
       ],
       "depends_on": [
         "look",
