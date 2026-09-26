@@ -69,3 +69,13 @@ where the outputs are.
 - Builder added `src/enemies/` (`data.js`, `models.js`, `telegraph.js`, `enemy.js`, `index.js`, `sfx.js`, `showcase.js`): four archetypes (husk, ember wisp, brute, mite swarm) with spawn-in, floor-marker telegraphs, attack slots and flanking, hurt and death, difficulty knobs (`&hp=`, `&speed=`, `&aggr=`), `debug.enemies`. Notes in `waves/w1/build/enemies.md`.
 - Cross-piece edits: `src/core/showcase.js` (enemies row) and `src/core/placeholders.js` (attaches vfx and enemies; `debug.spawn` tries enemy types first, then dummy/sparring).
 - Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: brute low contrast, wisp orbs not battable, no aggro range or pathfinding.
+
+## 2026-09-27 — w1 build: arenas
+
+- Builder added `src/world/` (`tiles.js`, `props.js`, `arena.js`, `waves.js`, `showcase-arenas.js`): seeded arena generation from templates, props (a barrel and crate break when hit), enemy waves, a slam entry, "ROOM CLEARED" and door opening, and five rooms in the showcase. Notes in `waves/w1/build/arenas.md`.
+- Cross-piece edits: `src/core/showcase.js` (arenas row) and `src/combat/combat.js` (aim assist skips `noAssist` targets). Normal play is still the placeholder until run-flow uses `Arena`.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: rooms are dark, enemies slide on pillars, slam frame not re-captured.
+
+## 2026-09-27 — w1 build: budget stop
+
+- The budget guard tripped after arenas: the session window was at 73%, over the 50% limit, and resets Sun 27 Sep 10:20. Weekly was at 16%. The next session resumes the build queue at `gauntlet`.

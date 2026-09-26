@@ -421,7 +421,7 @@ export class HeroCombat {
     const fx = mouse ? ctl.aim.x : Math.sin(ctl.face), fz = mouse ? ctl.aim.z : Math.cos(ctl.face);
     let best = null, bestScore = Infinity;
     for (const t of this.targets() || []) {
-      if (!t || t.dead) continue;
+      if (!t || t.dead || t.noAssist) continue;   // props (arenas) can be hit but never pull the aim
       const dx = t.x - ctl.x, dz = t.z - ctl.z;
       const d = Math.hypot(dx, dz);
       if (d > RULES.assistRange + (t.r ?? 0.35) || d < 1e-3) continue;
