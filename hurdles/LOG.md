@@ -101,3 +101,13 @@ where the outputs are.
 - Builder added `src/boss/` (`models.js`, `arena.js`, `warden.js`, `fight.js`, `scene.js`, `sfx.js`, `showcase.js`, `index.js`): the Warden, a 3-phase fight (sweeping chain, slams with shockwaves, husk summons and a cage) with telegraphed attacks, an intro with name card, phase transitions, a death sequence, a bot-played showcase (`&intro=1`, `&phase=1|2|3`, `&death=1`) and `debug.boss`. `?scene=boss` now runs the real fight. Notes in `waves/w1/build/boss.md`.
 - Cross-piece edits: `src/core/showcase.js` (boss row) and `src/main.js` (lazy-loads the boss scene for `?scene=boss`).
 - Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: Warden top-heavy at zoom 1, awkward recover poses, standalone hero death revives after ~2s, stand-in sounds, never hand-played.
+
+## 2026-09-27 — w1 build: hud
+
+- Builder added `src/ui/hud.js`, `damage-numbers.js`, `showcase-hud.js` and `widgets/` (sprites, hearts, vignette, shards, boonrow, track, bossbar): hearts with a drain trail, a dash pip, a ticking shard counter, a boon row with tooltips, a 10-node room track, a boss bar, damage numbers, a low-health heartbeat and vignette, and dimming of elements the hero stands behind. Notes in `waves/w1/build/hud.md`.
+- Cross-piece edits: `src/core/showcase.js`, `src/core/placeholders.js` (run/boss placeholder uses the HUD, combat stand-in numbers off), `src/boss/scene.js` (HUD replaces hero pips) and `src/boss/fight.js` (`drawBar` uses the shared boss-bar renderer).
+- Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: engine font, small icons, track index base unconfirmed, corridor progress not fed, heartbeat silent.
+
+## 2026-09-27 — w1 build: budget stop
+
+- The budget guard tripped after hud: the session window was at 58%, over the 50% limit, and resets Sun 27 Sep 20:20. Weekly was at 26%. The next session resumes the build queue at `audio`.

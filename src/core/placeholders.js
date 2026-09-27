@@ -28,6 +28,7 @@ import { TrainingDummy, SparringDummy } from '../combat/dummy.js';
 import { debug } from './debug.js';
 import { vfx } from '../vfx/index.js';                    // vfx piece: shared effects
 import { createEnemySystem } from '../enemies/index.js';
+import { createHud } from '../ui/hud.js';                 // hud piece
 import { createProgression } from '../progression/index.js';   // boons piece: boons, pickups, shrine   // enemies piece: husk, wisp, brute, mite
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
@@ -61,7 +62,7 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, esys, prog;
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, esys, prog, hud;
   return {
     pausable: true,
     enter(_d, root) {
@@ -82,13 +83,14 @@ function runScene(label) {
       deadT = -1;
       hero = new HeroHealth({ ctl, anim, rig, hp: 5 });
       combat = new HeroCombat({ ctl, anim, health: hero, targets: () => world.enemies });
-      cfx = createCombatFx(root);
+      cfx = createCombatFx(root, { numbers: false });
       world.hero = hero;
       world.enemies = [];
       const b = { minX: -4.6, maxX: 4.6, minZ: -4.6, maxZ: 4.6 };
       vfx.attach(root, { ambient: 'off' });
       esys = createEnemySystem(root, { hero, collision: cw, bounds: b, list: world.enemies });
       prog = createProgression(root, { ctl, health: hero, rig, rng: rng.fork(label + '-boons'), bounds: b });
+      hud = createHud({ ctl, prog });
       // debug.spawn('husk' | 'wisp' | 'brute' | 'mite' | 'mites', x, z) (enemies), 'dummy' | 'sparring' (combat)
       debug.handle('spawn', (type, x, z) => {
         const r = esys.handleSpawn(type, x, z);
@@ -103,7 +105,7 @@ function runScene(label) {
       world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
     },
     frame(dt) { prog.frame(dt); if (input.ui.key('KeyB') && !prog.shrine.active) prog.offerShrine({}); },
-    exit() { prog.dispose(); setCollision(null); cfx.dispose(); esys.dispose(); vfx.detach(); },
+    exit() { hud.dispose(); prog.dispose(); setCollision(null); cfx.dispose(); esys.dispose(); vfx.detach(); },
     tick() {
       if (prog.blocking) return;
       stage.tick();
@@ -114,6 +116,7 @@ function runScene(label) {
       cfx.tick();
       vfx.tick();
       prog.tick();
+      hud.tick();
       if (hero.dead && deadT < 0) deadT = 0;
       if (deadT >= 0 && ++deadT > 80) scenes.go('gameover', { cause: 'debug' });
     },
@@ -133,10 +136,8 @@ function runScene(label) {
       cfx.ui(g);
       esys.ui(g);
       vfx.ui(g);
-      prog.hud(g, 6, 20, { scale: 1 });
+      hud.ui(g);
       prog.ui(g);
-      drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
-      drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
       note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE  B BOON SHRINE`);
     },
   };

@@ -23,6 +23,7 @@ import { ramp, F_BOUNCE, F_TWINKLE } from '../vfx/particles.js';
 import { BossArena, Zone, Rings, ARENA_R } from './arena.js';
 import { Warden, TUNE } from './warden.js';
 import './sfx.js';
+import { drawBossBar } from '../ui/widgets/bossbar.js';   // hud piece draws the bar
 
 const TAU = Math.PI * 2;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -494,26 +495,8 @@ export class BossFight {
     }
   }
   drawBar(g, W, H) {
-    const w = Math.min(260, W - 60), x = Math.round((W - w) / 2), y = H - 26, h = 8;
-    const fill = this.barFill;
-    const ph = this.boss.phase;
-    g.globalAlpha = clamp(fill * 3, 0, 1);
-    drawText(g, NAME, x, y - 12, 'bone', { outline: 'ink' });
-    const tag = `PHASE ${['I', 'II', 'III'][ph - 1]}`;
-    drawText(g, tag, x + w - textWidth(tag), y - 12, ph === 3 ? 'red' : ph === 2 ? 'ember' : 'fog', { outline: 'ink' });
-    g.fillStyle = css('ink'); g.fillRect(x - 2, y - 2, w + 4, h + 4);
-    g.fillStyle = css('night'); g.fillRect(x, y, w, h);
-    g.globalAlpha = 1;
-    const fw = Math.round(w * fill);
-    const pw = Math.round(w * Math.min(this.hpShown, fill)), gw = Math.round(w * Math.min(this.hpGhost, fill));
-    g.fillStyle = css('gold'); g.fillRect(x, y, Math.min(gw, fw), h);
-    const col = this.hpFlash > 4 ? 'white' : ph === 3 ? 'red' : ph === 2 ? 'ember' : 'red';
-    g.fillStyle = css(col); g.fillRect(x, y, Math.min(pw, fw), h);
-    g.fillStyle = css(this.hpFlash > 0 ? 'white' : ph === 3 ? 'rose' : 'flame'); g.fillRect(x, y, Math.min(pw, fw), 2);
-    // notches at the phase lines, with a filled gem when a phase is behind you
-    g.fillStyle = css('ink');
-    for (const f of [1 / 3, 2 / 3]) g.fillRect(x + Math.round(w * f) - 1, y - 2, 2, h + 4);
-    g.fillStyle = css('slate'); g.fillRect(x - 2, y + h + 2, w + 4, 1);
+    const w = Math.min(260, W - 60);
+    drawBossBar(g, (W - w) / 2, H - 26, w, { name: NAME, hp: this.hpShown, ghost: this.hpGhost, flash: this.hpFlash, fill: this.barFill, phase: this.boss.phase, phases: 3, t: this.t ?? this.dt ?? 0 });
   }
   drawBanner(g, W, H, b) {
     const k = b.t, len = b.len, inn = sstep(k / 10), out = sstep((len - k) / 16);

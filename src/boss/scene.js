@@ -25,6 +25,7 @@ import '../combat/sfx.js';
 import { vfx } from '../vfx/index.js';
 import { createEnemySystem } from '../enemies/index.js';
 import { BossFight } from './fight.js';
+import { createHud } from '../ui/hud.js';   // hud piece: hearts, dash, numbers, vignette
 import { ARENA_R } from './arena.js';
 import { TUNE } from './warden.js';
 
@@ -33,7 +34,7 @@ let current = null;                       // the live scene's parts, for the deb
 
 export function createBossScene(o = {}) {
   const P = { phase: 1, intro: false, bot: false, hud: true, help: false, hp: null, showcase: false, knobs: { aggression: 1 }, ...o };
-  let root, rig, anim, ctl, health, combat, cfx, cw, sys, fight, offs = [];
+  let root, rig, anim, ctl, health, combat, cfx, cw, sys, fight, ghud, offs = [];
   let bot = P.bot, deadT = -1, hurtFlash = 99, slowP = P.slow ?? null, hud = P.hud, help = P.help;
   const status = { text: '', until: 0 };
   const say = (t) => { status.text = t; status.until = loop.realTime + 1.6; };
@@ -136,8 +137,10 @@ export function createBossScene(o = {}) {
       display.setZoom(1);
       if (slowP && Number.isFinite(slowP)) loop.setTimeScale(slowP); else loop.setTimeScale(1);
       vfx.attach(root, { ambient: 'boss' });
-      cfx = createCombatFx(root, { numbers: true });
+      cfx = createCombatFx(root, { numbers: false });
       build();
+      ghud = createHud({ ctl, track: true });
+      ghud.track.doneUpTo = 8; ghud.track.goto(9); ghud.track.label = 'THE WARDEN';
       const on = (n, fn) => offs.push(events.on(n, fn));
       on('input:press', (e) => { if (bot && fight.state !== 'intro' && e.action !== 'pause' && e.action !== 'interact') goLive(); });
       on('hero:dead', () => { deadT = 0; });
@@ -146,7 +149,7 @@ export function createBossScene(o = {}) {
     },
     exit() {
       offs.forEach((f) => f()); offs = [];
-      cfx?.dispose(); fight?.dispose(); sys?.dispose(); vfx.detach();
+      ghud?.dispose(); cfx?.dispose(); fight?.dispose(); sys?.dispose(); vfx.detach();
       loop.setTimeScale(1); setCollision(null); current = null; rig = null;
       display.setZoom(1);
       debug.handle('spawn', () => ({ ok: false, error: 'no spawner in this scene' }));
@@ -173,6 +176,7 @@ export function createBossScene(o = {}) {
       sys.tick();
       cfx.tick();
       vfx.tick();
+      ghud.tick();
       hurtFlash++;
       if (health.dead && deadT >= 0 && ++deadT > 110) {
         deadT = -1; health.revive(); ctl.teleport(0, 4.8, Math.PI);
@@ -196,16 +200,7 @@ export function createBossScene(o = {}) {
       fight.ui(g);
       if (status.text && loop.realTime < status.until) drawText(g, status.text, W / 2, 20, 'gold', { align: 'center', outline: 'ink' });
       if (fight.state === 'intro' && fight.bars > 0.3) return;
-      // hero hp pips
-      const hp = health.hp, mx = health.maxHp;
-      const pw = 9, gap = 3, px0 = 10;
-      const sx = hurtFlash < 8 ? ((hurtFlash % 2) ? 1 : -1) : 0;
-      for (let i = 0; i < mx; i++) {
-        const x = px0 + i * (pw + gap) + sx, y = 10;
-        g.fillStyle = css('ink'); g.fillRect(x - 1, y - 1, pw + 2, pw + 2);
-        g.fillStyle = css(i >= hp ? 'shadow' : 'red'); g.fillRect(x, y, pw, pw);
-        if (i < hp) { g.fillStyle = css('rose'); g.fillRect(x + 1, y + 1, 3, 2); }
-      }
+      ghud.ui(g);
       if (health.dead) drawText(g, 'YOU FELL', W / 2, H * 0.4, 'rose', { align: 'center', scale: 2, outline: 'ink' });
       if (!hud) return;
       if (P.showcase) {
