@@ -24,6 +24,7 @@ import './audio/index.js'; // audio piece: mixer, SFX bank and music engine (sid
 // ---- piece modules that define or override scenes: one import line each --------------
 import './ui/title.js'; // title piece: title screen, main menu, settings, pause (scenes.define)
 import { drawFpsCorner } from './ui/settings.js'; // title piece: the settings screen's showFps toggle
+import './run/run.js'; // run-flow piece: replaces the run/gameover/victory placeholders (scenes.define)
 
 const params = new URLSearchParams(location.search);
 const seedParam = parseInt(params.get('seed') ?? '', 10);

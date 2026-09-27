@@ -127,3 +127,11 @@ where the outputs are.
 ## 2026-09-27 — w1 build: budget guard stop
 
 - The budget guard tripped after title: the session window was at 66%, over the 50% limit, and resets Mon 28 Sep 01:20. Weekly was at 31%. The next session resumes the build queue at `run-flow`, the last piece before `integrate`.
+
+## 2026-09-28 — w1 build: run-flow
+
+- Builder added `src/run/` (`run.js`, `transition.js`, `death.js`, `victory.js`, `summary.js`, `meta.js`, `showcase.js`): the real run sequencer replacing the placeholder, chaining 5 arenas and 4 corridors into the boss via `PLAN`, with one persistent hero/controller/combat/camera/vfx/hud/progression instance and boons carried across segments. A wipe transition covers segment changes, a death sequence (slow-mo, closing vignette, cause of death, skippable, well under 3s), a victory sequence, a shared screenshotable summary (time, kills, room reached, boons, seed, best time, lore line), localStorage best-time/lore meta, and instant restart (new seed or same seed). `debug.run(...)` hook added.
+- Cross-piece edits: `src/main.js` (registers run/gameover/victory scene definitions from `run.js`, replacing the placeholder), `src/core/showcase.js` (run-flow row now loads `../run/showcase.js`).
+- Smoke test: showcase, title and run all exit 0 with 0 console errors, non-blank frames. Builder-reported gaps: pickup bounds not set per room, world freezes during the death sequence (deliberate freeze-frame), cause-of-death is a last-event heuristic, no lore codex screen, untested with a gamepad or as one continuous 8-12 minute playthrough.
+
+All wave 1 pieces are now built. Advancing to `integrate`.
