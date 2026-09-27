@@ -149,3 +149,7 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 - Four critics ran in parallel, each pinning a reference and writing a review, matched blind packet, key and criteria: `look` vs Nuclear Throne (4.69★/511), `hero` vs 10 Minutes Till Dawn (4.8★/742), `movement` vs Bright Lancer (4.5★/140), `combat` vs Backstreet Warriors (4.8★/60). References copied into `pieces.json`.
 - Biggest gaps: look's torch light is a flat post decal that doesn't touch nearby voxels, and the default post pass is strictly worse than off; hero's dash visibly disassembles into floating parts mid-travel and hit-3's smear frame is a solid white blob; movement's dash after-image reads as visual noise rather than motion, and the hero renders very small in a real arena room; combat's third hit isn't heavier than the first and knockback swings 60x instead of scaling with damage.
 - All four: reviews, `waves/w1/critic/<id>/{ours,ref}`, `waves/w1/blind/<id>/{A,B,pair-NN.png,criteria.md}`, `waves/w1/keys/<id>.json` verified on disk before commit.
+
+## 2026-09-28 — w1 critique: budget guard stop
+
+- The budget guard tripped after the first critique batch (look, hero, movement, combat): the session window was at 86%, over the 50% limit, and resets Mon 28 Sep 11:20. Weekly was at 44%. The next session resumes the critique queue at the next batch of up to 4: vfx, enemies, arenas, gauntlet, boons, boss, hud, audio, title, run-flow.
