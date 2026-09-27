@@ -62,5 +62,9 @@ if (showcase !== null) {
   startShowcase(showcase, params);
 } else {
   const want = params.get('scene') ?? 'title';
-  scenes.go(['title', 'run', 'boss'].includes(want) ? want : 'title');
+  if (want === 'boss') {
+    // boss piece: the real fight (run-flow may replace this with its own define). ?intro=1 and ?phase=1|2|3 work here too.
+    import('./boss/scene.js').then((m) => { scenes.define('boss', m.createBossScene({ intro: params.get('intro') === '1', phase: parseInt(params.get('phase') ?? '1', 10) || 1 })); scenes.go('boss'); })
+      .catch((err) => { console.error('boss scene failed to load:', err); scenes.go('boss'); });
+  } else scenes.go(['title', 'run'].includes(want) ? want : 'title');
 }
