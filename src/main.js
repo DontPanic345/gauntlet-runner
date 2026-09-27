@@ -22,7 +22,8 @@ import { look } from './render/look.js';
 import './audio/index.js'; // audio piece: mixer, SFX bank and music engine (side-effect import)
 
 // ---- piece modules that define or override scenes: one import line each --------------
-// (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
+import './ui/title.js'; // title piece: title screen, main menu, settings, pause (scenes.define)
+import { drawFpsCorner } from './ui/settings.js'; // title piece: the settings screen's showFps toggle
 
 const params = new URLSearchParams(location.search);
 const seedParam = parseInt(params.get('seed') ?? '', 10);
@@ -38,7 +39,10 @@ loop.start({
   frame(realDt) {
     input.beginFrame();
     scenes.flush();
-    if (input.ui.pressed('pause') && (scenes.paused || scenes.def?.pausable)) scenes.togglePause();
+    // Opens pause only; closing it is the pause menu's own job (Resume item, or Esc/cancel from
+    // its top screen) — see title.md "Cross-piece edits": a menu that wants Esc to mean "back"
+    // one level at a time can't share this line with a plain open/close toggle.
+    if (input.ui.pressed('pause') && !scenes.paused && scenes.def?.pausable) scenes.pause();
     scenes.frame(realDt);
     scenes.flush();
   },
@@ -54,6 +58,7 @@ loop.start({
     if (scenes.current) scenes.ui(display.ui, alpha);
     else drawText(display.ui, 'LOADING', display.width / 2, display.height / 2 - 4, 'mist', { align: 'center' });
     drawDebugOverlay();
+    if (scenes.current) drawFpsCorner(display.ui); // title piece: settings.showFps, every scene
     if (!GR.ready && scenes.current) GR.ready = true;
   },
 });
