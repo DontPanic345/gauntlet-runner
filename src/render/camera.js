@@ -126,8 +126,20 @@ export class CameraRig {
   _clamp(p) {
     const b = this.bounds;
     if (!b) return;
-    p.x = Math.min(b.maxX, Math.max(b.minX, p.x));
-    p.z = Math.min(b.maxZ, Math.max(b.minZ, p.z));
+    // Inset by half the visible viewport (in world units) so the camera *centre* never sits
+    // close enough to a room edge to reveal the void beyond it. Without this, bounds only kept
+    // the hero's look-at point inside the room, which does nothing to stop the far half of the
+    // screen from showing past the wall whenever the hero (and so the camera) is near a door —
+    // i.e. always, since doors sit on the perimeter. A room narrower than the viewport collapses
+    // to its centre on that axis rather than an inverted (min > max) range.
+    const hx = (display.width / 2) / (PPU * display.zoom);
+    const hz = (display.height / 2) / (PPU * display.zoom * sp);
+    let minX = b.minX + hx, maxX = b.maxX - hx;
+    if (minX > maxX) { minX = maxX = (b.minX + b.maxX) / 2; }
+    let minZ = b.minZ + hz, maxZ = b.maxZ - hz;
+    if (minZ > maxZ) { minZ = maxZ = (b.minZ + b.maxZ) / 2; }
+    p.x = Math.min(maxX, Math.max(minX, p.x));
+    p.z = Math.min(maxZ, Math.max(minZ, p.z));
   }
 
   /**

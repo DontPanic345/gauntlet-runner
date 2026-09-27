@@ -481,9 +481,13 @@ export class BossFight {
     if (this.state === 'fight' || this.state === 'intro' && this.barFill > 0 || this.state === 'dying' && this.dt < 136) this.drawBar(g, W, H);
     // status text
     if (this.status.t > 0) drawText(g, this.status.text, W / 2, 36, 'gold', { align: 'center', outline: 'ink' });
-    // phase banner
+    // phase banner. The "WARDEN FALLS" banner (this.banner.victory) stays up long enough
+    // (len: 999) to still be on screen once the player takes the key: at that point run-flow's
+    // own victory sequence (src/run/victory.js) starts its "THE GAUNTLET IS BROKEN" banner in
+    // the same screen region, so stop drawing this one the instant boss:cleared fires (this.cleared)
+    // rather than let the two overlap illegibly.
     if (this.banner && !this.banner.victory) this.drawBanner(g, W, H, this.banner);
-    if (this.banner?.victory) this.drawVictory(g, W, H, this.banner);
+    if (this.banner?.victory && !this.cleared) this.drawVictory(g, W, H, this.banner);
     // intro
     if (this.state === 'intro') this.drawIntro(g, W, H);
     // full-screen flash from the director (in addition to feedback.flash)

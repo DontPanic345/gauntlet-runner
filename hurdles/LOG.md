@@ -135,3 +135,11 @@ where the outputs are.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors, non-blank frames. Builder-reported gaps: pickup bounds not set per room, world freezes during the death sequence (deliberate freeze-frame), cause-of-death is a last-event heuristic, no lore codex screen, untested with a gamepad or as one continuous 8-12 minute playthrough.
 
 All wave 1 pieces are now built. Advancing to `integrate`.
+
+## 2026-09-28 — w1 integrate
+
+- Integrator played the full loop: title -> main menu -> an arena (both waves, cleared, boon shrine) -> corridor (collapse chase, a death) -> gameover summary -> instant restart -> a second arena/corridor pair -> the boss (all 3 phases via showcase) -> victory sequence -> victory summary. Ran the foundation must_have checklist and two 60s-idle console-error checks; all 5 must_haves pass.
+- Fixed `src/render/camera.js` (`CameraRig._clamp`): the room-bounds camera clamp kept the camera centre inside the raw room bounds instead of insetting by half the visible viewport, showing a black void (up to ~35% of the screen) past the wall at arena entry. Now insets by the actual half-viewport, accounting for zoom and pitch.
+- Fixed `src/boss/fight.js` (`BossFight.ui`): the boss's own "THE WARDEN FALLS" banner kept drawing after `boss:cleared`, overlapping run-flow's victory banner. Now suppressed once `this.cleared` is true.
+- Seams left for critics: combat's private particle/fx system (`src/combat/fx.js`) still runs parallel to the shared `vfx` pooled system (too large a rewrite for a seam fix); a rare HUD boon-tooltip/death-iris clip if you die within ~3s of a pickup; arenas' fly-through showcase camera bypasses `CameraRig` and still shows void in one room template; headless sim tick rate is only 14-47 ticks/s (software GL, no real-GPU testing available). Full report in `hurdles/waves/w1/integration.md`.
+- Budget guard tripped after integrate: session window was at 67%, over the 50% limit, resets Mon 28 Sep 06:20; weekly 37%. The next session starts the critique phase (queue: look, hero, movement, combat, vfx, enemies, arenas, gauntlet, boons, boss, hud, audio, title, run-flow — every judged piece, none yet won).
