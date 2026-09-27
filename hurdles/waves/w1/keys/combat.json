@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/combat/ref/01-hit-connect.png",
+      "hurdles/waves/w1/critic/combat/ref/02-impact-flash.png",
+      "hurdles/waves/w1/critic/combat/ref/03-combo-strip.png",
+      "hurdles/waves/w1/critic/combat/ref/04-aftermath.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/combat/ours/01-hit-connect.png",
+      "hurdles/waves/w1/critic/combat/ours/02-impact-flash.png",
+      "hurdles/waves/w1/critic/combat/ours/03-combo-strip.png",
+      "hurdles/waves/w1/critic/combat/ours/04-aftermath.png"
+    ]
+  }
+}

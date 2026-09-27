@@ -1,0 +1,16 @@
+{
+  "ours": "B",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/movement/ref/01-start-stop.png",
+      "hurdles/waves/w1/critic/movement/ref/02-turn.png",
+      "hurdles/waves/w1/critic/movement/ref/03-dash-corner.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/movement/ours/01-start-stop.png",
+      "hurdles/waves/w1/critic/movement/ours/02-turn.png",
+      "hurdles/waves/w1/critic/movement/ours/03-dash-corner.png"
+    ]
+  }
+}

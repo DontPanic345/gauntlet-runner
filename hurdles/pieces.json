@@ -49,7 +49,12 @@
       "showcase": "?showcase=look: a static lit arena vignette with hero, two enemies, torches, props; slow camera pan to test snapping",
       "judge_focus": "Still frames and a slow pan strip. Which one looks like a finished, beautiful game?",
       "reference_hint": "top-rated pixel-art or voxel action/roguelite on itch.io with a strong visual identity",
-      "reference": null,
+      "reference": {
+        "url": "https://vlambeer.itch.io/nuclear-throne",
+        "rating": "4.69 stars, 511 ratings",
+        "why": "Top-down pixel-art action roguelite/roguelike with the strongest visual identity in the genre: per-biome palettes, a warm dynamic light pool that follows the player through dark rooms, chunky readable silhouettes even in chaotic combat, and hit/particle craft the whole \"juicy pixel action\" movement is built on. Structurally the closest real analogue to Gauntlet-Runner (fixed/near-top-down camera, arena waves, dash-based survival, environmental hazards).",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
@@ -77,7 +82,12 @@
       "showcase": "?showcase=hero: hero on a plinth cycling every animation with its name labelled; keys 1-9 pick an animation",
       "judge_focus": "Frame strips of idle, run, dash, attack combo, hurt, death. Which character feels more alive and appealing?",
       "reference_hint": "top-rated itch.io pixel-art action game with an expressive small player character",
-      "reference": null,
+      "reference": {
+        "url": "https://flanne.itch.io/10-minutes-till-dawn",
+        "rating": "4.8 stars from 742 ratings",
+        "why": "Top-rated, itch-native, HTML5-playable pixel-art action roguelite with a small, consistently expressive hero (idle, run, shoot, hurt, death all read cleanly at tiny on-screen size), exactly the \"expressive small player character\" bar this piece needs to clear.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
@@ -105,7 +115,12 @@
       "showcase": "?showcase=movement: an obstacle-course room with pillars, corners and narrow gaps, plus a ghost trail showing the last 2 s of positions",
       "judge_focus": "Bursts of starts, stops, turns and dashes around corners. Which movement looks tighter and more responsive?",
       "reference_hint": "top-rated itch.io top-down action game praised for tight movement or dash",
-      "reference": null,
+      "reference": {
+        "url": "https://slo-nod.itch.io/bright-lancer",
+        "rating": "4.5 stars, 140 ratings",
+        "why": "Top-down pixel-art action-adventure built specifically around a dash (quick dash plus a charged teleport-dash), browser-playable, the strongest available match for starts, stops, turns and dashes around corners.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
@@ -131,7 +146,12 @@
       "showcase": "?showcase=combat: hero vs 3 training dummies that show hit counts and knockback, plus one dummy that attacks back slowly",
       "judge_focus": "Bursts through a full combo landing on a target. Which hits feel heavier and more satisfying?",
       "reference_hint": "top-rated itch.io action game praised for juicy combat or hit feel",
-      "reference": null,
+      "reference": {
+        "url": "https://sebagamesdev.itch.io/backstreet-warriors",
+        "rating": "4.8 stars / 60 ratings",
+        "why": "A browser-playable (PICO-8/HTML5) beat-'em-up whose entire premise is landing satisfying punch combos on a stream of enemies, the closest itch.io match to combat's judge_focus (bursts through a full combo landing on a target).",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

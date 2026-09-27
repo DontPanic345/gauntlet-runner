@@ -2,10 +2,6 @@
   "wave": 1,
   "phase": "critique",
   "queue": [
-    "look",
-    "hero",
-    "movement",
-    "combat",
     "vfx",
     "enemies",
     "arenas",
@@ -17,5 +13,5 @@
     "title",
     "run-flow"
   ],
-  "notes": "Wave 1 integrate complete: integrator played the full loop (title->arena->boon shrine->corridor->death->restart->arena->corridor->boss all 3 phases->victory), fixed a camera room-bounds clamp bug (src/render/camera.js) and a boss/victory banner overlap (src/boss/fight.js). Foundation's 5 must_haves all pass. Full report in hurdles/waves/w1/integration.md; seams left for critics are listed there and in LOG.md. Budget guard tripped after integrate: session window 67%, over the 50% limit, resets Mon 28 Sep 06:20; weekly 37%. Next session starts critique: spawn critics in parallel batches of up to 4 (prompts/critic.md) for the queue above, every judged piece (none yet won this wave)."
+  "notes": "Wave 1 critique in progress. Batch 1 (look, hero, movement, combat) done: reviews, blind packets, keys and criteria all on disk; references pinned into pieces.json. Biggest gaps: look - torch light doesn't actually light nearby voxels, default post pass is worse than off; hero - dash disassembles into floating parts mid-travel, hit-3 smear is an unreadable white blob; movement - dash after-image reads as noise not motion, hero renders very small in a real arena room; combat - third hit isn't heavier, knockback swings 60x instead of scaling. Continuing critique with the next batch of 4."
 }
