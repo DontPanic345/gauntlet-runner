@@ -123,3 +123,7 @@ where the outputs are.
 - Builder added `src/ui/` (`title.js`, `menus.js`, `settings.js`, `showcase-title.js`): a torchlit title vignette (borrowed crypt models, ambient embers/dust, the real hero rig idling), a designed logo lockup, a closed->main->settings/controls/credits screen flow, a reusable menu toolkit (keyboard/mouse/gamepad list navigation with focus/hover juice and sfx), a live settings screen persisted to localStorage, and a pause scene reusing the same toolkit. Notes in `waves/w1/build/title.md`.
 - Cross-piece edits: `src/main.js` (registers the title/pause scenes, wires `drawFpsCorner` into the render loop, and changes the pause-toggle line to open-only, fixing a same-frame Esc double-fire bug where Esc both opened and closed the pause menu), `src/core/showcase.js` (title showcase wiring).
 - Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: title scene deliberately not pausable (its own Esc-stack), no rebind UI, gamepad untested physically, borrowed environment art.
+
+## 2026-09-27 — w1 build: budget guard stop
+
+- The budget guard tripped after title: the session window was at 66%, over the 50% limit, and resets Mon 28 Sep 01:20. Weekly was at 31%. The next session resumes the build queue at `run-flow`, the last piece before `integrate`.
