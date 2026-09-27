@@ -40,6 +40,7 @@ import { vfx } from '../vfx/index.js';
 import { buildFloor, buildBackWall, buildSideWall, doorRows, ARCH, MB, SW, WALL_H, SIDE_H } from './tiles.js';
 import { Prop, flameGeo } from './props.js';
 import { planWaves, describePlan, WaveDirector } from './waves.js';
+import { sfxContext, makeNoiseBuffer } from '../audio/mixer.js';
 
 const V = VOXEL;
 const HW = ARCH.hw / 8;          // half width of a doorway, units
@@ -225,22 +226,14 @@ export function generateLayout(seed = 1, index = 0) {
 
 export const arenaSfx = { enabled: true };
 let ctx = null, out = null, nbuf = null;
+// Routed through the audio piece's shared mixer (one AudioContext, one compressor) instead of
+// opening its own; see audio/mixer.js's header.
 function ac() {
   if (!arenaSfx.enabled) return null;
-  if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return ctx; }
-  if (typeof AudioContext === 'undefined') return null;
-  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
-  try {
-    ctx = new AudioContext();
-    out = ctx.createGain();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 6;
-    out.connect(comp).connect(ctx.destination);
-    nbuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-    const d = nbuf.getChannelData(0);
-    let s = 7;
-    for (let i = 0; i < d.length; i++) { s = (s * 16807) % 2147483647; d[i] = (s / 2147483647) * 2 - 1; }
-  } catch { ctx = null; return null; }
+  const m = sfxContext();
+  if (!m) { ctx = null; return null; }
+  ctx = m.ctx; out = m.out;
+  if (!nbuf) nbuf = makeNoiseBuffer(ctx, 7, 1);
   return ctx;
 }
 const vol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);

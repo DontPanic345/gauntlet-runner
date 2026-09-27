@@ -342,7 +342,7 @@
       "judge_focus": "Critic records audio via the page (MediaRecorder on the master bus) and describes it; judge compares spectrogram strips plus written descriptions. Which soundscape is more satisfying and coherent?",
       "reference_hint": "top-rated itch.io game praised for its soundtrack or sound design, ideally chiptune or synth",
       "reference": null,
-      "status": "unbuilt",
+      "status": "built",
       "history": []
     },
     {

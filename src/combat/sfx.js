@@ -11,26 +11,19 @@
 
 import { events } from '../core/events.js';
 import { settings } from '../core/settings.js';
+import { sfxContext, makeNoiseBuffer } from '../audio/mixer.js';
 
 let ctx = null, out = null, noiseBuf = null;
 let n = 0; // variation counter (deterministic pitch jitter)
 
+// The audio piece's shared mixer (one AudioContext, one compressor, settings-driven buses) now
+// owns the context; this stand-in just synthesizes into it. See audio/mixer.js's header.
 function ac() {
   if (!combatSfx.enabled) return null;
-  if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return ctx; }
-  if (typeof AudioContext === 'undefined') return null;
-  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
-  try {
-    ctx = new AudioContext();
-    out = ctx.createGain();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 6;
-    out.connect(comp).connect(ctx.destination);
-    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-    const d = noiseBuf.getChannelData(0);
-    let s = 1;
-    for (let i = 0; i < d.length; i++) { s = (s * 16807) % 2147483647; d[i] = (s / 2147483647) * 2 - 1; }
-  } catch { ctx = null; return null; }
+  const m = sfxContext();
+  if (!m) { ctx = null; return null; }
+  ctx = m.ctx; out = m.out;
+  if (!noiseBuf) noiseBuf = makeNoiseBuffer(ctx, 1, 1);
   return ctx;
 }
 

@@ -47,6 +47,7 @@ import './props.js';   // registers arena.sconce and the flame models
 import { SpikeStrip, Blades, FireJet, CrumbleTile, beamPost, gateModel } from './traps.js';
 import { Collapse, chase, TUNING } from './collapse.js';
 import { ramp as vfxRamp } from '../vfx/particles.js';
+import { sfxContext, makeNoiseBuffer } from '../audio/mixer.js';
 
 export const D = 5;                       // corridor depth (units); the back wall's face is at z = -D/2
 const HW = ARCH.hw / 8;
@@ -135,22 +136,14 @@ export function generateCorridor(seed = 1, index = 0) {
 export const gauntletSfx = { enabled: true };
 let ctx = null, out = null, nbuf = null, rum = null;
 let listener = { x: 0, z: 0 };
+// Routed through the audio piece's shared mixer (one AudioContext, one compressor) instead of
+// opening its own; see audio/mixer.js's header.
 function ac() {
   if (!gauntletSfx.enabled) return null;
-  if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return ctx; }
-  if (typeof AudioContext === 'undefined') return null;
-  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
-  try {
-    ctx = new AudioContext();
-    out = ctx.createGain();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 6;
-    out.connect(comp).connect(ctx.destination);
-    nbuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const d = nbuf.getChannelData(0);
-    let s = 11;
-    for (let i = 0; i < d.length; i++) { s = (s * 16807) % 2147483647; d[i] = (s / 2147483647) * 2 - 1; }
-  } catch { ctx = null; return null; }
+  const m = sfxContext();
+  if (!m) { ctx = null; return null; }
+  ctx = m.ctx; out = m.out;
+  if (!nbuf) nbuf = makeNoiseBuffer(ctx, 11, 2);
   return ctx;
 }
 const vol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);

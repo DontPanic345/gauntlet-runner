@@ -111,3 +111,9 @@ where the outputs are.
 ## 2026-09-27 — w1 build: budget stop
 
 - The budget guard tripped after hud: the session window was at 58%, over the 50% limit, and resets Sun 27 Sep 20:20. Weekly was at 26%. The next session resumes the build queue at `audio`.
+
+## 2026-09-27 — w1 build: audio
+
+- Builder added `src/audio/` (`mixer.js`, `bank.js`, `music.js`, `index.js`, `showcase.js`): one shared AudioContext/mixer with SFX and music buses (duck + muffle), a "never twice in a row" pitch/gain jitter helper, footsteps/dash whoosh/enemy spawn barks, and four reactive music tracks (title, field, chase, boss) driven by arena/gauntlet/boss/combat events and low-health/pause. Notes in `waves/w1/build/audio.md`.
+- Cross-piece edits: `src/combat/sfx.js`, `src/enemies/sfx.js`, `src/boss/sfx.js`, `src/progression/sfx.js`, `src/world/arena.js`, `src/world/corridor.js` (each now sources its AudioContext from the shared mixer instead of opening its own; existing sound design unchanged), `src/main.js` (imports `audio/index.js`), `src/core/showcase.js` (wires the audio showcase).
+- Smoke test: showcase, title and run all exit 0 with 0 console errors. Builder-reported gaps: no per-tile footstep material, enemy barks spawn-only, music intensity is event-heuristic not full-state, no spatialisation.

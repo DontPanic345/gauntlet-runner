@@ -19,6 +19,7 @@ import { startShowcase } from './core/showcase.js';
 import { drawText } from './core/pixelfont.js';
 import './core/placeholders.js';
 import { look } from './render/look.js';
+import './audio/index.js'; // audio piece: mixer, SFX bank and music engine (side-effect import)
 
 // ---- piece modules that define or override scenes: one import line each --------------
 // (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
