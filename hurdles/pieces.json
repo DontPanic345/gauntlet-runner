@@ -464,7 +464,12 @@
       "showcase": "?showcase=run-flow&at=death|victory|summary jumps to each ending; normal play covers the rest",
       "judge_focus": "Strips of the death sequence, summary and victory. Which run loop feels more complete and replayable?",
       "reference_hint": "top-rated itch.io roguelite with a strong death/restart loop",
-      "reference": null,
+      "reference": {
+        "url": "https://poncle.itch.io/vampire-survivors",
+        "rating": "4.8 stars, 1652 ratings",
+        "why": "Browser-playable HTML5 roguelite with the cleanest game-over summary screen in the genre: stats displayed beautifully, instant restart, and every death makes you want to try again immediately.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     }

@@ -1,0 +1,16 @@
+{
+  "ours": "B",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/run-flow/ref-images/01-stats.png",
+      "hurdles/waves/w1/critic/run-flow/ref-images/02-title.png",
+      "hurdles/waves/w1/critic/run-flow/ref-images/03-late-game.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/run-flow/ours/01-death-moment.png",
+      "hurdles/waves/w1/critic/run-flow/ours/02-summary-screen.png",
+      "hurdles/waves/w1/critic/run-flow/ours/03-victory-moment.png"
+    ]
+  }
+}
