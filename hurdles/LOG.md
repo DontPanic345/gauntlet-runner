@@ -201,3 +201,7 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 - Critic pinned Gun Knight (https://stepford.itch.io/gun-knight, 4.5 stars / 496 ratings). Its HTML5 web build is a broken test port per the dev, so the critic used the developer's own official screenshots and promo GIF instead of live capture. Wrote the review and 4 matched pairs (boss reveal, sweep-attack telegraph, slam-attack telegraph, motion strip), plus the blind packet, criteria and key; all verified on disk.
 - Biggest gap: phase transitions are not events. When the boss crosses an HP threshold the sim state flips to "transition" but the boss just freezes in place for well under a second with no camera work, re-announcement, or color/particle change before combat resumes, directly failing the phase-transitions-are-events must_have.
 - must_have: intro passes, telegraphed/dodgeable attacks partial (telegraphs read clearly but lead time looked short, ~150-300ms, untimed against dash i-frames), phase transitions fail, death sequence passes and is genuinely the best-looking moment (explosion, ring-flash, "THE WARDEN FALLS" banner, corpse + key prompt). No console errors.
+
+## 2026-09-28 — w1 critique: budget guard stop
+
+- The budget guard tripped after boss: the session window was at 62%, over the 50% limit, and resets Tue 29 Sep 03:10. Weekly was at 60%, resetting Sat 03 Oct 22:00. The next session resumes the critique queue serially at `hud`: hud, audio, title, run-flow.
