@@ -1,0 +1,14 @@
+{
+  "ours": "A",
+  "pairs": 2,
+  "sources": {
+    "A": [
+      "hurdles/waves/w2/critic/hud/ours/01-idle.png",
+      "hurdles/waves/w2/critic/hud/ours/02-combat.png"
+    ],
+    "B": [
+      "hurdles/waves/w2/critic/hud/ref/01-idle-state.png",
+      "hurdles/waves/w2/critic/hud/ref/02-mid-combat.png"
+    ]
+  }
+}

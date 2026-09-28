@@ -312,3 +312,8 @@ All wave 2 build pieces are now complete. Advancing to `integrate`.
 
 - Critic re-evaluated combat against Backstreet Warriors. Wave 2 changes (increased knockback 50%, extended hitstop, larger flash, enhanced screen effects) are present but still insufficient. Biggest gap: target has no knockback animation—positions jump instantly after hitstop ends instead of sliding/staggering over 200-400ms like the reference. Other issues: third hit barely visually heavier (flash ~1.4× larger by eye), screen kick imperceptible (texel snapping may hide it), whiff demo unverified from wave 1, full-screen hurt vignette too aggressive in multi-enemy fights. Review, matched blind packet (3 pairs), criteria, and sealed key verified on disk. No console errors.
 
+
+## 2026-09-29 — w2 critique: hud
+
+- Critic re-evaluated HUD against Bright Lancer. Wave 2 changes (2-3 visual zones, dimmed track, slide-in boss bar, enlarged boon icons, aggressive vignette) close the gap but not decisively. Biggest gap: Bright Lancer achieves true minimalism (single focal point), while our HUD still shows four information types simultaneously (hearts, shards, boons, progress track)—even dimmed and consolidated, this is information plurality vs. clarity. Wave 2 improvements: pixel-perfect pass, animation pass, element visibility improved but still competing with action (PARTIAL on must_have "never covers action"), low-health feedback pass. Review, matched blind packet (2 pairs), criteria, and sealed key verified on disk. No console errors. Reference re-confirmed as Bright Lancer (pinned wave 1).
+

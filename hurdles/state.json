@@ -2,8 +2,7 @@
   "wave": 2,
   "phase": "critique",
   "queue": [
-    "hud",
     "title"
   ],
-  "notes": "Wave 2 critique in progress. Completed: combat. Next: hud, title."
+  "notes": "Wave 2 critique in progress. Completed: combat, hud. Next: title."
 }
