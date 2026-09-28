@@ -1,6 +1,10 @@
 {
   "wave": 2,
-  "phase": "integrate",
-  "queue": [],
-  "notes": "Wave 2 build complete. All three pieces built: combat, hud, title. Advancing to integrate phase."
+  "phase": "critique",
+  "queue": [
+    "combat",
+    "hud",
+    "title"
+  ],
+  "notes": "Wave 2 integrate complete. Advancing to critique for the three rebuilt pieces."
 }

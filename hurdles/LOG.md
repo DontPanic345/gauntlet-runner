@@ -300,3 +300,10 @@ Advancing to **wave 2, build phase**. Queue: combat, hud, title (in build order)
 
 All wave 2 build pieces are now complete. Advancing to `integrate`.
 
+
+## 2026-09-29 — w2 integrate
+
+- Integrator played the full loop: title → arena 1 → boon choice → arena 2 → corridor → boss showcase (phase 1, 2, 3) → death sequence → restart → victory. All wave 2 changes correctly applied and responsive: title menu focus-glow animations and settings streamlining working as intended, HUD consolidated to 2-3 zones with correct visual hierarchy and dimmed track, combat feedback extends across all hits with consistent knockback and hitstop. Foundation passes all must_have: window.__GR contract complete, showcases show readable error screens, voxel meshes cache properly, pause and time-scale work, idle play has zero errors. No seams found—consistent palette, scale, outline, UI style across all pieces, no duplicated systems, no broken transitions. All pieces wire correctly into normal play. Full report in `hurdles/waves/w2/integration.md`.
+- No fixes required.
+- Advancing to critique phase. Queue: combat, hud, title (the three rebuilt pieces, to be re-judged against their wave 1 references).
+
