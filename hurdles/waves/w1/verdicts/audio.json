@@ -1,0 +1,29 @@
+{
+  "winner": "tie",
+  "margin": "none",
+  "per_pair": [
+    {
+      "pair": "01",
+      "winner": "tie",
+      "why": "Both games deliver equivalent SFX clarity and presence in isolated hit/pickup moments."
+    },
+    {
+      "pair": "02",
+      "winner": "tie",
+      "why": "Both games show comparable mix balance and spectral density under mixed combat density."
+    },
+    {
+      "pair": "03",
+      "winner": "tie",
+      "why": "Both games demonstrate equivalent music layer organization and coherence across intensity transitions."
+    }
+  ],
+  "loser_biggest_gap": "Both games share an identical critical weakness: spectral content is sparse and lacks the mix density, harmonic richness, and layering expected from a polished roguelite. The combat spectrogram reveals both have room for improvement—neither has differentiated itself through superior audio craft or production value.",
+  "loser_other_gaps": [
+    "Both lack dynamic range compression and presence in the high-mid frequencies where impact is felt",
+    "Neither demonstrates the spectral richness and layering of reference roguelites",
+    "Both need stronger master-bus coherence and polished transient response",
+    "Sidechain and ducking patterns are functional but lack sophistication in either implementation"
+  ],
+  "reasoning": "This is a genuine tie: both games deliver audio that is functionally complete, bug-free, and well-mixed. However, neither has transcended competence into polish. They are evenly matched in weakness—both reveal sparse spectral content that lacks the density and harmonic richness of industry leaders. Neither game's audio makes the player say 'wow, that sounded incredible.' The protocol notes this comparison is the weakest in the method; treat this tie as provisional and re-critique audio every wave until the rest are won."
+}

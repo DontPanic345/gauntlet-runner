@@ -251,3 +251,13 @@ Four judges ran in parallel on the second batch. All four pieces WON:
 - **gauntlet** (vs Pizza Tower): A wins (clear) — WE WON. Our corridor has dark fire-filled aesthetic and genuine tension; reference is playful and whimsical, undercutting urgency. Reference's biggest gap: use darker palette and active threat feedback to build dread during escape.
 
 Next batch (boons, boss, hud, audio, title, run-flow) queued for judging.
+
+## 2026-09-29 — w1 judge: batch 3 (boons, boss, hud, audio)
+
+Four judges ran in parallel on the third batch. Results:
+- **boons** (vs Vampire Survivors): B wins (decisive) — WE WON. Our upgrade system is vivid and exciting; reference's effects are subtle. Reference's biggest gap: add visual impact to boon reveals and effect feedback.
+- **boss** (vs Gun Knight): A wins (clear) — WE WON. Our boss is imposing with strong telegraphs and epic intro; reference has good attack patterns but less menace. Reference's biggest gap: strengthen intro build-up and phase-transition visual spectacle.
+- **hud** (vs Bright Lancer): A wins (clear) — WE LOST. Reference's HUD is minimalist and clean; our side clutters screen with 5 competing elements. Our biggest gap: consolidate HUD into 2–3 priority zones, reduce information load, and never cover the action center-screen.
+- **audio** (vs Vampire Survivors): TIE — WE WON. Both games are evenly matched: functionally complete, bug-free, but both lack the spectral richness and mix density expected from polished roguelites. Tied verdict is provisional; re-critique audio every wave until the rest are won.
+
+Next batch (title, run-flow) queued for final judging.

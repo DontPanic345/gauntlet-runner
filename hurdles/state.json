@@ -2,10 +2,6 @@
   "wave": 1,
   "phase": "judge",
   "queue": [
-    "boons",
-    "boss",
-    "hud",
-    "audio",
     "title",
     "run-flow"
   ],
