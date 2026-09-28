@@ -176,7 +176,12 @@
       "showcase": "?showcase=vfx: an effects reel that plays each effect in turn, labelled, looping; keys cycle effects",
       "judge_focus": "Frame strips of hit-spark, death burst, dash, spawn. Which effects look more crafted and punchy?",
       "reference_hint": "top-rated itch.io pixel-art game known for particle effects and juice",
-      "reference": null,
+      "reference": {
+        "url": "https://flanne.itch.io/10-minutes-till-dawn",
+        "rating": "4.8 stars / 744 ratings",
+        "why": "Top-rated, browser-playable pixel-art action roguelite whose hit, kill and enemy-entry effects are few, bold, two-tone and precisely timed. That is the \"crafted and punchy\" bar for hit-spark and death-burst strips, and live 30 fps frames can be captured from it.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

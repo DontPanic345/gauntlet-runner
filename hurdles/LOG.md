@@ -157,3 +157,9 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 ## 2026-09-28 — w1 critique: budget guard stop (no units run)
 
 - The budget guard tripped at session start: the session window was at 50%, at the 50% limit, and resets Mon 28 Sep 16:20. Weekly was at 48%, resetting Sat 03 Oct 22:00. No critic was spawned. The next session resumes the critique queue serially at `vfx`: vfx, enemies, arenas, gauntlet, boons, boss, hud, audio, title, run-flow.
+
+## 2026-09-28 — w1 critique: vfx
+
+- Critic pinned 10 Minutes Till Dawn (https://flanne.itch.io/10-minutes-till-dawn, 4.8 stars / 744 ratings) and wrote the review, 3 matched strip pairs (hit spark, death burst, spawn), the blind packet, criteria and key; all verified on disk. The reference has no dash, so dash was judged in the review only.
+- Biggest gap: the kill has no punchy pop frame. The burst fires ~330 ms late, away from the impact point, as a pale dithered disc plus floor-grey cubes. It should fire on the killing-blow frame at impact as a hard-edged cream/yellow star gone by frame 5, followed by body-coloured chunks that bounce and fade.
+- Other problems: damage number covers the hit spark, the light flash draws as an opaque disc over the contact, low-contrast pale-grey effects, weak dash in play, the showcase spawn portal spawns nothing, and the stress test peaks around 1,600 particles, not 2,000. No console errors.

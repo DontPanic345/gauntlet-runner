@@ -1,0 +1,16 @@
+{
+  "ours": "B",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/vfx/ref/01-hit-spark-strip.png",
+      "hurdles/waves/w1/critic/vfx/ref/02-death-burst-strip.png",
+      "hurdles/waves/w1/critic/vfx/ref/03-spawn-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/vfx/ours/01-hit-spark-strip.png",
+      "hurdles/waves/w1/critic/vfx/ours/02-death-burst-strip.png",
+      "hurdles/waves/w1/critic/vfx/ours/03-spawn-strip.png"
+    ]
+  }
+}
