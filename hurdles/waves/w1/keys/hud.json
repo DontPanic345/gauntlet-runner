@@ -1,0 +1,22 @@
+{
+  "ours": "B",
+  "pairs": 6,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/hud/ref/01-title.png",
+      "hurdles/waves/w1/critic/hud/ref/02-combat.png",
+      "hurdles/waves/w1/critic/hud/ref/03-combat.png",
+      "hurdles/waves/w1/critic/hud/ref/04-combat.png",
+      "hurdles/waves/w1/critic/hud/ref/05-combat.png",
+      "hurdles/waves/w1/critic/hud/ref/06-combat.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/hud/ours/01-idle.png",
+      "hurdles/waves/w1/critic/hud/ours/02-damage.png",
+      "hurdles/waves/w1/critic/hud/ours/03-shard-pickup.png",
+      "hurdles/waves/w1/critic/hud/ours/04-boon-gained.png",
+      "hurdles/waves/w1/critic/hud/ours/05-low-health.png",
+      "hurdles/waves/w1/critic/hud/ours/06-boss-bar.png"
+    ]
+  }
+}

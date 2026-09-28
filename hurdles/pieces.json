@@ -367,7 +367,12 @@
       "showcase": "?showcase=hud: a dummy fight that exercises every HUD element, with keys to take damage, gain shards, add boons",
       "judge_focus": "Mid-fight stills and a damage-taken strip. Which HUD looks more polished and readable?",
       "reference_hint": "top-rated itch.io pixel-art action roguelite with a clean HUD",
-      "reference": null,
+      "reference": {
+        "url": "https://slo-nod.itch.io/bright-lancer",
+        "rating": "4.5 stars, 140 ratings",
+        "why": "Top-down pixel-art action game with a pristine, minimal action UI showing cooldowns and resources; the strongest browser-playable itch.io reference with a clean HUD that can be judged on polish and visual clarity.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

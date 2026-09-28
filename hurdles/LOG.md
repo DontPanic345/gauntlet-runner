@@ -205,3 +205,9 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 ## 2026-09-28 — w1 critique: budget guard stop
 
 - The budget guard tripped after boss: the session window was at 62%, over the 50% limit, and resets Tue 29 Sep 03:10. Weekly was at 60%, resetting Sat 03 Oct 22:00. The next session resumes the critique queue serially at `hud`: hud, audio, title, run-flow.
+
+## 2026-09-29 — w1 critique: hud
+
+- Critic pinned Bright Lancer (https://slo-nod.itch.io/bright-lancer, 4.5 stars, 140 ratings) and wrote the review, 6 matched pairs (six HUD states: idle, damage drain, shards, boons, low-health, boss bar), the blind packet, criteria and key; all verified on disk.
+- Biggest gap: the HUD packs five distinct UI components (hearts, shards, boons, track, boss bar) all demanding attention simultaneously, while the reference uses a single focal point that never distracts from gameplay. Consolidate into 2–3 visual zones with clear priority hierarchy (health/danger in one corner, active upgrades elsewhere).
+- Other problems: information overload (25% of viewport), boon row unreadable (small tight icons, no labels), track progress competing with health, boss bar lacks entrance animation, damage number stacking not showcased, shard counter animation too subtle, low-health vignette too weak. must_have: pixel-perfect pass, animates-changes pass with reservations, never-covers-action fail, low-health-felt pass. No console errors.
