@@ -77,9 +77,8 @@ tools/blind.cjs           build a randomised A/B packet and a sealed key
 
 ## The loop
 
-One session runs **one wave**, from its current phase through `resolve`, then stops
-and reports. The user starts the next wave with the same command. If the budget guard
-trips, the session stops early at a unit boundary, and the next session resumes from
+One begins or continues a wave from its current phase through `resolve`, then stops
+and reports. If the budget guard trips, the session stops at a unit boundary, and the next session resumes from
 `state.json`.
 
 1. **Start.** Read CLAUDE.md, this file, `state.json`, `pieces.json`, and the tail of
@@ -120,8 +119,8 @@ Queue: every judged piece whose status is not `won`, plus any `won` piece whose 
 files changed since the commit recorded in its last `won` history entry
 (`git diff --stat <commit> -- <owns>`).
 
-Spawn critics in **parallel batches of up to 4**, each with `prompts/critic.md`. A
-critic writes its review and matched captures, then runs `tools/blind.cjs` to create
+Work through the queue **serially, one critic agent at a time**, using
+`prompts/critic.md`. A critic writes its review and matched captures, then runs `tools/blind.cjs` to create
 the packet and key. Afterwards the clerk checks that the packet, key and `criteria.md`
 exist. If `review.md` starts with a `PIN:` line, the clerk copies it into the piece's
 `reference` as `{url, rating, why, pinned_wave}`.
@@ -129,7 +128,7 @@ exist. If `review.md` starts with a `PIN:` line, the clerk copies it into the pi
 ### judge
 
 Queue: the same pieces. For each packet, spawn one judge with `prompts/judge.md`,
-also in parallel batches of up to 4. The judge prompt contains only the packet path
+in parallel batches of up to 4. The judge prompt contains only the packet path
 and the piece's `judge_focus`. The prompt must not contain the piece's review, the
 word "ours", which side is ours, or the key path.
 

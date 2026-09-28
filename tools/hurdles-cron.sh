@@ -22,6 +22,13 @@ RUN_TIMEOUT=8h
 
 export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
 export NODE_PATH=/usr/local/lib/node_modules
+# Print-mode's own background-task wait ceiling defaults to 600s. Spawning an agent via
+# the Agent tool without run_in_background:false makes it a backgrounded/async task, and
+# ending the clerk's turn to wait on it starts this ceiling counting down regardless of
+# the agent's own progress -- a critic or judge doing real, uninterrupted work (screenshot
+# capture, reference scraping) can be killed well before it's actually stuck. Disable it;
+# the outer `timeout $RUN_TIMEOUT` below is the real backstop.
+export CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0
 
 mkdir -p "$LOGDIR"
 say() { echo "$(date '+%F %T') $*" >> "$LOGDIR/cron.log"; }
