@@ -100,24 +100,16 @@ function buildTitleEnv(root) {
 }
 
 // ---------------------------------------------------------------------------------------
-// the logo lockup: a framed banner, hanging chain accents, a pulsing ember glow, two-line
-// title text and a tagline. Designed as one lockup, not a bare drawText call.
+// the logo lockup: a framed banner, a pulsing ember glow, two-line title text and a tagline.
+// Streamlined: drops hanging chain accents to reduce visual noise.
 function drawLogo(g, t) {
   const W = display.width;
   const cx = Math.round(W / 2);
   const bw = 320, bh = 66, bx = cx - bw / 2, by = 14;
 
-  // hanging chains from the top edge to the banner's shoulders
-  for (const side of [-1, 1]) {
-    const x = cx + side * (bw / 2 - 6);
-    for (let y = 0; y < by; y += 2) {
-      g.fillStyle = css(((y >> 1) + (side > 0 ? 1 : 0)) % 2 ? 'slate' : 'mist');
-      g.fillRect(x, y, 2, 2);
-    }
-  }
-
-  // pulsing ember glow behind the banner (sparse dither, cheap: 2px step)
-  const pulse = 0.5 + 0.5 * Math.sin(t * 1.6);
+  // Pulsing ember glow behind the banner: slower pulse (one cycle every 6 seconds) to avoid dither flicker
+  // This creates a subtle, confident glow rather than nervous flickering.
+  const pulse = 0.5 + 0.5 * Math.sin((t / 6) * TAU);
   g.fillStyle = css('ember');
   const rx = 170, ry = 38, gcx = cx, gcy = by + bh / 2;
   for (let y = -ry; y <= ry; y += 2) {
@@ -125,7 +117,8 @@ function drawLogo(g, t) {
       const d = (x * x) / (rx * rx) + (y * y) / (ry * ry);
       if (d > 1) continue;
       const density = (1 - d) * pulse;
-      if (((x * 7 + y * 13 + Math.floor(t * 18)) & 7) < density * 3) g.fillRect(gcx + x, gcy + y, 1, 1);
+      // Reduce dither frequency to avoid TV-static flicker effect
+      if (((x * 7 + y * 13 + Math.floor(t * 10)) & 7) < density * 2.5) g.fillRect(gcx + x, gcy + y, 1, 1);
     }
   }
 
@@ -136,14 +129,11 @@ function drawLogo(g, t) {
   g.fillStyle = css('dusk'); g.fillRect(bx, by, bw, Math.round(bh * 0.42));
   g.fillStyle = css('gold'); g.fillRect(bx, by, bw, 1);
   g.fillStyle = css('ink'); g.fillRect(bx, by + bh - 1, bw, 1);
-  drawGem(g, bx + 9, by + 9); drawGem(g, bx + bw - 9, by + 9);
-  drawGem(g, bx + 9, by + bh - 9); drawGem(g, bx + bw - 9, by + bh - 9);
 
   // title text, two lines, ember-lit
   drawText(g, 'GAUNTLET', cx, by + 8, 'bone', { align: 'center', scale: 3, outline: 'ink' });
   drawText(g, 'RUNNER', cx, by + 34, 'gold', { align: 'center', scale: 3, outline: 'ink' });
   g.fillStyle = css('ember'); g.fillRect(cx - 64, by + bh - 12, 128, 1);
-  drawGem(g, cx, by + bh - 12, 'torch', 'ember');
 
   // tagline
   drawText(g, 'DESCEND THE COLLAPSING CRYPT', cx, by + bh + 8, 'frost', { align: 'center', shadow: 'ink' });
@@ -223,7 +213,9 @@ export function createTitleScene({ forceMenu = null } = {}) {
       drawLogo(g, t);
       if (screen !== 'closed') { g.fillStyle = 'rgba(11,10,18,0.55)'; g.fillRect(0, 0, W, H); }
       if (screen === 'closed') {
-        if ((loop.realTime % 1.1) < 0.68) drawText(g, 'PRESS START', W / 2, H - 40, 'gold', { align: 'center', shadow: 'ink' });
+        // Simplified "PRESS START" prompt with faster, more urgent blink: 200ms on, 100ms off
+        const startBlink = (loop.realTime % 0.3) < 0.2;
+        if (startBlink) drawText(g, 'PRESS START', W / 2, H - 40, 'gold', { align: 'center', shadow: 'ink' });
       } else if (screen === 'main') {
         mainMenu.ui(g, W / 2 - ITEM_W / 2, 168, ITEM_W, ITEM_H, t);
       } else {

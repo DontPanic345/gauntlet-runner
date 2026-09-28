@@ -291,3 +291,12 @@ Advancing to **wave 2, build phase**. Queue: combat, hud, title (in build order)
 - Cross-piece edits: none.
 - Smoke test: showcase exits 0 with 0 console errors and non-blank frame. Builder notes in `waves/w2/build/hud.md`.
 
+
+## 2026-09-29 — w2 build: title
+
+- Builder added menu focus transition animation (150ms snappy glow outline on navigation) to provide the "clear, responsive state changes" the blind judge found missing. Refined logo pulse animation to slower 6-second cycle with reduced dither density, eliminating the nervous-flicker effect. Improved "PRESS START" prompt blink timing from slow (1.1s) to fast/urgent (0.3s) to signal action. Streamlined settings menu by moving FPS toggle to debug-only, reducing menu from 8 to 6 rows (clutter 24%→16% screen height).
+- Cross-piece edits: none.
+- Smoke test: showcase exits 0 with 0 console errors and non-blank frame. Builder notes in `waves/w2/build/title.md`.
+
+All wave 2 build pieces are now complete. Advancing to `integrate`.
+

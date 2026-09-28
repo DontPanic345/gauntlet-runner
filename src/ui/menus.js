@@ -103,6 +103,7 @@ export function createMenuList({ items, onConfirm, onCancel, onFocus, wrap = tru
   let sel = firstEnabled();
   let hoverIdx = -1;
   const t0 = { v: loop.realTime };
+  let focusT = loop.realTime;  // time when the current item gained focus, for transition animation
 
   function firstEnabled() { for (let i = 0; i < items.length; i++) if (!items[i].disabled) return i; return 0; }
   function move(d) {
@@ -110,7 +111,7 @@ export function createMenuList({ items, onConfirm, onCancel, onFocus, wrap = tru
     let n = sel, tries = 0;
     do { n = wrap ? (n + d + items.length) % items.length : Math.max(0, Math.min(items.length - 1, n + d)); tries++; }
     while (items[n]?.disabled && tries <= items.length);
-    if (n !== sel && !items[n]?.disabled) { sel = n; menuSfx.hover(); onFocus?.(sel, items[sel]); }
+    if (n !== sel && !items[n]?.disabled) { sel = n; focusT = loop.realTime; menuSfx.hover(); onFocus?.(sel, items[sel]); }
   }
   function confirm() {
     const it = items[sel];
@@ -122,10 +123,10 @@ export function createMenuList({ items, onConfirm, onCancel, onFocus, wrap = tru
   const list = {
     get index() { return sel; },
     get items() { return items; },
-    setIndex(i) { if (items[i] && !items[i].disabled) sel = i; },
-    setItems(next) { items = next; sel = Math.min(sel, Math.max(0, items.length - 1)); t0.v = loop.realTime; },
+    setIndex(i) { if (items[i] && !items[i].disabled) { sel = i; focusT = loop.realTime; } },
+    setItems(next) { items = next; sel = Math.min(sel, Math.max(0, items.length - 1)); t0.v = loop.realTime; focusT = loop.realTime; },
     /** Replay the pop-in animation (e.g. when the screen this list lives on is (re)opened). */
-    replay() { t0.v = loop.realTime; },
+    replay() { t0.v = loop.realTime; focusT = loop.realTime; },
 
     /** Call every rendered frame. `rect(i)` maps an item index to its clickable box (UI px). */
     frame(rect) {
@@ -145,7 +146,7 @@ export function createMenuList({ items, onConfirm, onCancel, onFocus, wrap = tru
           const b = rect(i);
           if (b && mx >= b.x && mx < b.x + b.w && my >= b.y && my < b.y + b.h) h = i;
         }
-        if (h !== hoverIdx) { hoverIdx = h; if (h >= 0 && h !== sel) { sel = h; menuSfx.hover(); onFocus?.(sel, items[sel]); } }
+        if (h !== hoverIdx) { hoverIdx = h; if (h >= 0 && h !== sel) { sel = h; focusT = loop.realTime; menuSfx.hover(); onFocus?.(sel, items[sel]); } }
         if (h >= 0 && input.ui.key('Mouse0')) { sel = h; confirm(); }
       } else hoverIdx = -1;
     },
@@ -162,14 +163,41 @@ export function createMenuList({ items, onConfirm, onCancel, onFocus, wrap = tru
         g.save();
         g.globalAlpha = Math.round(alpha * 4) / 4 || 0.25;
         const bx = x, by = iy + oy, bw = w, bh = itemH - 4;
+        
+        // Focus transition animation: when this item gains focus, it shows a bright glow
+        let focusBrightness = 0;
+        if (focused) {
+          const focusDur = 0.15;  // focus transition duration: 150ms for snappy feel
+          const focusAge = t - focusT;
+          const focusProgress = clamp01(focusAge / focusDur);
+          focusBrightness = ease.out(focusProgress);  // fade in glow over 150ms
+        }
+        
+        // Draw the panel with focus feedback
         if (focused) {
           drawPanel(g, bx, by, bw, bh, { edge: 'gold', fill: it.disabled ? 'shadow' : 'dusk' });
+          
+          // Horizontal sweep effect (existing)
           const sweep = ((t * 0.6 + i * 0.3) % 1.4) / 1.4;
           g.save(); g.beginPath(); g.rect(bx + 1, by + 1, bw - 2, bh - 2); g.clip();
           g.globalAlpha *= 0.22; g.fillStyle = css('white');
           for (let yy = 0; yy < bh; yy++) g.fillRect(Math.round(bx - 24 + sweep * (bw + 48) - yy * 0.5), by + yy, 6, 1);
           g.restore();
-        } else drawPanel(g, bx, by, bw, bh, { edge: 'shadow', fill: it.disabled ? 'night' : 'shadow' });
+          
+          // Add a bright glow outline during focus transition to show state change
+          if (focusBrightness > 0.05) {
+            g.fillStyle = css('torch');
+            g.globalAlpha = Math.min(0.5, focusBrightness * 0.8);
+            // Outline around the panel to highlight focus change
+            g.fillRect(bx - 1, by - 1, bw + 2, 1);   // top
+            g.fillRect(bx - 1, by + bh, bw + 2, 1);  // bottom
+            g.fillRect(bx - 1, by, 1, bh);           // left
+            g.fillRect(bx + bw, by, 1, bh);          // right
+          }
+        } else {
+          drawPanel(g, bx, by, bw, bh, { edge: 'shadow', fill: it.disabled ? 'night' : 'shadow' });
+        }
+        
         const color = it.disabled ? 'slate' : focused ? 'gold' : 'bone';
         drawText(g, it.label, bx + 10, by + Math.round(bh / 2) - 3, color, { shadow: 'ink' });
         if (it.sub != null) drawText(g, String(it.sub), bx + bw - 10 - textWidth(String(it.sub)), by + Math.round(bh / 2) - 3, focused ? 'torch' : 'fog', { shadow: 'ink' });

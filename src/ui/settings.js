@@ -1,8 +1,10 @@
 // The settings screen (piece `title`): master/music/sfx volume, screen-shake and flash-scale
-// accessibility sliders, and a show-FPS toggle. Values live in `core/settings.js` (localStorage,
-// already read live by every consumer: `feedback` reads `shake`/`flashes` per call, the audio
-// mixer reads `masterVolume`/`musicVolume`/`sfxVolume` per note). This screen only ever calls
+// accessibility sliders. Values live in `core/settings.js` (localStorage, already read live by
+// every consumer: `feedback` reads `shake`/`flashes` per call, the audio mixer reads
+// `masterVolume`/`musicVolume`/`sfxVolume` per note). This screen only ever calls
 // `settings.set()`, so "persist + apply live" falls out of how those pieces already read it.
+// The FPS toggle is kept in core/settings.js but hidden from the UI, accessed only via
+// the debug console.
 //
 //   import { createSettingsScreen, drawFpsCorner } from './settings.js';
 //   const s = createSettingsScreen({ onBack });
@@ -25,7 +27,6 @@ const ROWS = [
   { id: 'sfxVolume', label: 'SFX VOLUME', kind: 'slider' },
   { id: 'shake', label: 'SCREEN SHAKE', kind: 'slider' },
   { id: 'flashes', label: 'FLASHES', kind: 'slider' },
-  { id: 'showFps', label: 'SHOW FPS', kind: 'bool' },
   { id: 'reset', label: 'RESET TO DEFAULTS', kind: 'action' },
   { id: 'back', label: 'BACK', kind: 'action' },
 ];
@@ -42,15 +43,11 @@ export function createSettingsScreen({ onBack } = {}) {
       const v = clamp01(Math.round((settings.get(row.id) + dir * 0.05) * 100) / 100);
       settings.set(row.id, v);
       menuSfx.slider();
-    } else if (row.kind === 'bool') {
-      settings.set(row.id, !settings.get(row.id));
-      menuSfx.hover();
     }
   }
   function activate(i) {
     const row = ROWS[i];
-    if (row.kind === 'bool') { settings.set(row.id, !settings.get(row.id)); menuSfx.select(); }
-    else if (row.id === 'reset') { settings.reset(); menuSfx.select(); flash.i = i; flash.t = loop.realTime; }
+    if (row.id === 'reset') { settings.reset(); menuSfx.select(); flash.i = i; flash.t = loop.realTime; }
     else if (row.id === 'back') { menuSfx.back(); onBack?.(); }
     else menuSfx.select();
   }
@@ -108,14 +105,10 @@ export function createSettingsScreen({ onBack } = {}) {
         drawPanel(g, b.x, by, b.w, b.h, { edge: focused ? 'gold' : 'shadow', fill: denied ? 'dusk' : focused ? 'dusk' : 'shadow' });
         drawText(g, b.row.label, b.x + 10, by + Math.round(b.h / 2) - 3, focused ? 'gold' : 'bone', { shadow: 'ink' });
         if (b.row.kind === 'slider') drawSlider(g, b, sliderTrack(b), focused);
-        else if (b.row.kind === 'bool') {
-          const on = settings.get(b.row.id);
-          drawText(g, on ? 'ON' : 'OFF', b.x + b.w - 34, by + Math.round(b.h / 2) - 3, on ? 'leaf' : 'slate', { shadow: 'ink' });
-        } else void 0;
         if (focused) drawFocusChevrons(g, b.x - 8, by + Math.round(b.h / 2), t, 2);
         g.restore();
       }
-      const help = 'UP DOWN ROW   LEFT RIGHT ADJUST   ENTER TOGGLE   ESC BACK';
+      const help = 'UP DOWN ROW   LEFT RIGHT ADJUST   ENTER CONFIRM   ESC BACK';
       const hw = textWidth(help);
       drawText(g, help, x + w / 2 - hw / 2, y + rows.length * ROW_H + 8, 'mist', { shadow: 'ink' });
       return rows.length * ROW_H + 20;
