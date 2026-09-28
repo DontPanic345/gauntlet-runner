@@ -317,3 +317,10 @@ All wave 2 build pieces are now complete. Advancing to `integrate`.
 
 - Critic re-evaluated HUD against Bright Lancer. Wave 2 changes (2-3 visual zones, dimmed track, slide-in boss bar, enlarged boon icons, aggressive vignette) close the gap but not decisively. Biggest gap: Bright Lancer achieves true minimalism (single focal point), while our HUD still shows four information types simultaneously (hearts, shards, boons, progress track)—even dimmed and consolidated, this is information plurality vs. clarity. Wave 2 improvements: pixel-perfect pass, animation pass, element visibility improved but still competing with action (PARTIAL on must_have "never covers action"), low-health feedback pass. Review, matched blind packet (2 pairs), criteria, and sealed key verified on disk. No console errors. Reference re-confirmed as Bright Lancer (pinned wave 1).
 
+
+## 2026-09-29 — w2 critique: title
+
+- Critic re-evaluated title against 10 Minutes Till Dawn. Wave 2 changes (menu focus-glow, logo pulse refinement, PRESS START timing, settings streamlining) help but visual hierarchy remains broken. Biggest gap: screen still tries to be three competing things (3D voxel diorama, animated logo banner, menu text) instead of one focal point—should simplify to scene *or* logo, not both, and hide all buttons except "START" until commitment. Other issues: logo animation reads as TV static (dither-heavy), settings screen too dense (5 sliders), menu selection lacks weight (2px bob vs. scale/glow), menu screens not visually distinct, logo detail invisible (2px chains). Must-have: beautiful first frame PASS, logo designed PASS, menu nav has sound/focus but lacks motion/weight PARTIAL, settings persist/apply PASS. No console errors. Review, matched blind packet (3 pairs), criteria, sealed key verified on disk.
+
+All wave 2 critique pieces complete. Advancing to judge phase. Queue: combat, hud, title.
+

@@ -1,0 +1,16 @@
+{
+  "ours": "B",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w2/critic/title/ref/01-title-screen.png",
+      "hurdles/waves/w2/critic/title/ref/02-menu-presentation.png",
+      "hurdles/waves/w2/critic/title/ref/03-settings-presentation.png"
+    ],
+    "B": [
+      "hurdles/waves/w2/critic/title/ours/01-title-screen.png",
+      "hurdles/waves/w2/critic/title/ours/02-menu-states.png",
+      "hurdles/waves/w2/critic/title/ours/03-settings-screen.png"
+    ]
+  }
+}

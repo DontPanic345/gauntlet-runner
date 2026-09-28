@@ -1,8 +1,10 @@
 {
   "wave": 2,
-  "phase": "critique",
+  "phase": "judge",
   "queue": [
+    "combat",
+    "hud",
     "title"
   ],
-  "notes": "Wave 2 critique in progress. Completed: combat, hud. Next: title."
+  "notes": "Wave 2 critique complete. Advancing to judge phase for three pieces."
 }
