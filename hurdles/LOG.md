@@ -277,3 +277,10 @@ All 14 judged pieces received verdicts. Results:
 Wave 1 complete. Three pieces failed blind judge: combat (reference hit weight inconsistency), hud (reference minimalism), title (reference menu animation). These three will rebuild in wave 2. All 11 winners advance to the next wave's critique to re-verify their position against tougher references or to be certified "best in class."
 
 Advancing to **wave 2, build phase**. Queue: combat, hud, title (in build order).
+
+## 2026-09-29 — w2 build: combat
+
+- Builder addressed the judge's verdict "lacks consistent hit feedback and punch across the full combo sequence" by extending all hit feedback proportionally: knockback increased (1.7→2.5, 2.1→3.2, 8.5→12 u/s), hitstop extended (55→65ms, 62→75ms, 95→120ms), white flash duration lengthened (3→4, 3→4, 5→7 ticks), screen kick and shake increased across all hits, and camera shake duration extended (120→140ms, 120→140ms, 220→280ms). Hit 3 now visibly heavier with 120ms hitstop vs 65ms on hit 1, larger light radius, and stronger intensity boost.
+- Cross-piece edits: none.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w2/build/combat.md`.
+

@@ -63,11 +63,11 @@ const SMEAR_REACH = 10.6 / 8;   // outer rim of the smear, world units from the 
  */
 export const COMBO = [
   { name: 'slash', dmg: 10, spread: 1, reach: SMEAR_REACH + 0.12, arc: 'h', mirror: false, hitFrom: 0,
-    knock: 1.7, lift: 0, stop: 55, kick: 1.5, shake: 0, sparks: 7 },
+    knock: 2.5, lift: 0, stop: 65, kick: 2.0, shake: 1.0, sparks: 7 },
   { name: 'backhand', dmg: 11, spread: 1, reach: SMEAR_REACH + 0.12, arc: 'h', mirror: true, hitFrom: 0,
-    knock: 2.1, lift: 0, stop: 62, kick: 2, shake: 0.8, sparks: 8 },
+    knock: 3.2, lift: 0, stop: 75, kick: 2.5, shake: 1.5, sparks: 8 },
   { name: 'overhead', dmg: 24, spread: 2, reach: SMEAR_REACH + 0.22, arc: [-42, 42], mirror: false, hitFrom: 1,
-    knock: 8.5, lift: 3.4, stop: 95, kick: 4, shake: 3, sparks: 16, finisher: true },
+    knock: 12, lift: 3.4, stop: 120, kick: 5.0, shake: 4.0, sparks: 16, finisher: true },
 ];
 
 /** Extension points for boons (progression piece). damage(amount, spec, target) -> amount. */
@@ -125,7 +125,7 @@ export function strike(target, src, spec, { step = -1, tx = 0, tz = 0, dmg = nul
   const power = Math.max(0.6, amount / 10) * (spec.finisher ? 1.1 : 1);
   const hit = {
     dmg: amount, dx, dz, tx, tz, power, step, finisher: !!spec.finisher,
-    knock: spec.knock ?? 4, lift: spec.lift ?? 0, stopMs: spec.stop ?? 50, flashTicks: spec.finisher ? 5 : 3,
+    knock: spec.knock ?? 4, lift: spec.lift ?? 0, stopMs: spec.stop ?? 50, flashTicks: spec.finisher ? 7 : 4,
   };
   if (target.takeHit(hit) === false) return null;
   const r = target.r ?? 0.35;
@@ -134,7 +134,7 @@ export function strike(target, src, spec, { step = -1, tx = 0, tz = 0, dmg = nul
   const out = { target, x: cx, y: cy, z: cz, ...hit };
   events.emit('combat:hit', out);
   events.emit('combat:damage', { x: target.x, y: (target.h ?? 1.2) + 0.1, z: target.z, amount, crit: hit.finisher, side: 'enemy' });
-  look.flash(cx, cy + 0.2, cz, { color: hit.finisher ? 'gold' : 'torch', ms: hit.finisher ? 150 : 90, intensity: 1.2 + power, radius: 2.5 + power });
+  look.flash(cx, cy + 0.2, cz, { color: hit.finisher ? 'gold' : 'torch', ms: hit.finisher ? 200 : 100, intensity: hit.finisher ? 2.0 + power * 0.8 : 1.2 + power, radius: hit.finisher ? 3.5 + power * 1.2 : 2.5 + power });
   if (target.dead) events.emit('combat:kill', { target, x: target.x, z: target.z });
   return out;
 }
@@ -148,7 +148,7 @@ export function applyImpact(hits, spec) {
   feedback.hitstop(stop);
   // screen y grows toward +z, foreshortened by the camera pitch
   feedback.kick(kx, kz * 0.77, spec.kick ?? 1.5);
-  if (spec.shake) feedback.shake(spec.shake, spec.finisher ? 220 : 120);
+  if (spec.shake) feedback.shake(spec.shake, spec.finisher ? 280 : 140);
 }
 
 // ---- things that can be hit -------------------------------------------------------------
