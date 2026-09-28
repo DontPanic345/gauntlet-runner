@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/boons/ref/01-choice-screen.png",
+      "hurdles/waves/w1/critic/boons/ref/02-single-choice-closeup.png",
+      "hurdles/waves/w1/critic/boons/ref/03-boons-in-action-strip.png",
+      "hurdles/waves/w1/critic/boons/ref/04-dramatic-effect.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/boons/ours/01-choice-screen.png",
+      "hurdles/waves/w1/critic/boons/ours/02-single-choice-closeup.png",
+      "hurdles/waves/w1/critic/boons/ours/03-boons-in-action-strip.png",
+      "hurdles/waves/w1/critic/boons/ours/04-dramatic-effect.png"
+    ]
+  }
+}
