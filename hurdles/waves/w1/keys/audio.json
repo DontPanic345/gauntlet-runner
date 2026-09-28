@@ -1,0 +1,16 @@
+{
+  "ours": "A",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/audio/ours/01-sfx-moments.png",
+      "hurdles/waves/w1/critic/audio/ours/02-mixed-combat.png",
+      "hurdles/waves/w1/critic/audio/ours/03-music-layer.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/audio/ref/01-sfx-moments.png",
+      "hurdles/waves/w1/critic/audio/ref/02-mixed-combat.png",
+      "hurdles/waves/w1/critic/audio/ref/03-music-layer.png"
+    ]
+  }
+}

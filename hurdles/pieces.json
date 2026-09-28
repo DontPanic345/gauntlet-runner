@@ -396,7 +396,12 @@
       "showcase": "?showcase=audio: a sound board listing every SFX and music stem with keys to play them, plus a waveform or meter",
       "judge_focus": "Critic records audio via the page (MediaRecorder on the master bus) and describes it; judge compares spectrogram strips plus written descriptions. Which soundscape is more satisfying and coherent?",
       "reference_hint": "top-rated itch.io game praised for its soundtrack or sound design, ideally chiptune or synth",
-      "reference": null,
+      "reference": {
+        "url": "https://poncle.itch.io/vampire-survivors",
+        "rating": "4.8 stars / 1652 ratings",
+        "why": "Top-rated HTML5 roguelite with excellent synth-based SFX, reactive music layering, and tight audio mixing that cuts through dense action. Direct parallel to Gauntlet-Runner's synthesized design, state-reactive music, and the challenge of audible telegraph cues over combat density.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
