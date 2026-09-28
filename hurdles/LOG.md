@@ -153,3 +153,7 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 ## 2026-09-28 — w1 critique: budget guard stop
 
 - The budget guard tripped after the first critique batch (look, hero, movement, combat): the session window was at 86%, over the 50% limit, and resets Mon 28 Sep 11:20. Weekly was at 44%. The next session resumes the critique queue at the next batch of up to 4: vfx, enemies, arenas, gauntlet, boons, boss, hud, audio, title, run-flow.
+
+## 2026-09-28 — w1 critique: budget guard stop (no units run)
+
+- The budget guard tripped at session start: the session window was at 50%, at the 50% limit, and resets Mon 28 Sep 16:20. Weekly was at 48%, resetting Sat 03 Oct 22:00. No critic was spawned. The next session resumes the critique queue serially at `vfx`: vfx, enemies, arenas, gauntlet, boons, boss, hud, audio, title, run-flow.
