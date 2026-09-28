@@ -163,3 +163,7 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 - Critic pinned 10 Minutes Till Dawn (https://flanne.itch.io/10-minutes-till-dawn, 4.8 stars / 744 ratings) and wrote the review, 3 matched strip pairs (hit spark, death burst, spawn), the blind packet, criteria and key; all verified on disk. The reference has no dash, so dash was judged in the review only.
 - Biggest gap: the kill has no punchy pop frame. The burst fires ~330 ms late, away from the impact point, as a pale dithered disc plus floor-grey cubes. It should fire on the killing-blow frame at impact as a hard-edged cream/yellow star gone by frame 5, followed by body-coloured chunks that bounce and fade.
 - Other problems: damage number covers the hit spark, the light flash draws as an opaque disc over the contact, low-contrast pale-grey effects, weak dash in play, the showcase spawn portal spawns nothing, and the stress test peaks around 1,600 particles, not 2,000. No console errors.
+
+## 2026-09-28 — repo fix: binary files corrupted in git
+
+- The clerk found that `.gitattributes` (`* text eol=lf`) made git treat PNGs as text and strip CR bytes on commit, so every committed image (119 files, all critic captures and blind packets so far) was corrupted in the repo. Working copies were intact. Added `binary` rules for image, video, audio and font types and re-stored every file with `git add --renormalize`; HEAD blobs now match the working copies byte for byte. Commits before this one still hold corrupted images; do not restore captures from them.
