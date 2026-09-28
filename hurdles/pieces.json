@@ -273,7 +273,12 @@
       "showcase": "?showcase=gauntlet&seed=N: one corridor played start to finish, with trap timing overlay toggled by T",
       "judge_focus": "Strips of the chase and trap dodges. Which sequence looks more tense and exciting?",
       "reference_hint": "top-rated itch.io game with a chase or escape sequence, or trap-gauntlet platforming",
-      "reference": null,
+      "reference": {
+        "url": "https://pizzatowerguy.itch.io/pizza-tower-demo",
+        "rating": "4.9 stars, 402 ratings",
+        "why": "The signature mechanic of Pizza Tower is an \"escape\" sequence: a level-ending sprint away from a screen-filling pursuing threat through the same corridors you just explored, with fleeing enemies and speed-blur used to sell danger and momentum. The closest well-known, top-rated itch.io analogue to \"chased by the collapse\" gauntlet corridors. Windows-only (not browser-playable), so critiques use the developer's own GIFs/screenshots from the itch page rather than live capture.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

@@ -1,0 +1,16 @@
+{
+  "ours": "A",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/gauntlet/ours/01-chase-strip.png",
+      "hurdles/waves/w1/critic/gauntlet/ours/02-trap-moment.png",
+      "hurdles/waves/w1/critic/gauntlet/ours/03-corridor-establishing.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/gauntlet/ref/01-chase-strip.png",
+      "hurdles/waves/w1/critic/gauntlet/ref/02-trap-moment.png",
+      "hurdles/waves/w1/critic/gauntlet/ref/03-corridor-establishing.png"
+    ]
+  }
+}
