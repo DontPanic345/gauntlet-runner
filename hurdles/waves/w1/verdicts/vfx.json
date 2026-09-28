@@ -1,0 +1,28 @@
+{
+  "winner": "B",
+  "margin": "clear",
+  "per_pair": [
+    {
+      "pair": "01",
+      "winner": "tie",
+      "why": "Both use simple radial bursts; B has slightly more refined pixel consistency but fundamentally similar approach."
+    },
+    {
+      "pair": "02",
+      "winner": "B",
+      "why": "A's death burst is nearly invisible—just a few fading particles; B has a crafted multi-layer golden explosion with clear animation arc and visual feedback."
+    },
+    {
+      "pair": "03",
+      "winner": "B",
+      "why": "A's spawn is nearly invisible; B has elaborate golden bursts with dotted ring overlays and layered particle emergence across all 12 frames."
+    }
+  ],
+  "loser_biggest_gap": "Death burst lacks any punchy feedback—add a golden explosion burst with particle debris and a clear timing arc (fast pop into slower decay) to match B's impact and visual presence.",
+  "loser_other_gaps": [
+    "Spawn effect is too minimal; needs layered circular bursts with colored outlines and particle trails to feel alive",
+    "Color palette is monochromatic (beige/cream); add gold, orange, or other warm accent colors for visual richness and readability",
+    "Hit-spark needs slightly more refined animation frames to feel as polished as B's progression"
+  ],
+  "reasoning": "B delivers substantially more crafted and punchy effects across the set. The death burst and spawn effects are night-and-day differences in visual craft, layering, color choice, and animation sophistication. A's effects feel like placeholders—minimal particles, no color variation, no clear animation arcs. B shows industry-standard polish: deliberate timing (quick peaks into slow decays), thoughtful color (golden/warm tones), and multi-element layering that guides the eye and communicates feedback. The spawn in particular shows the most decisive gap: B's golden rings and particle layers create presence and anticipation; A's spawn is nearly invisible."
+}

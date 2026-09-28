@@ -241,3 +241,13 @@ Four judges ran in parallel on the first batch of pieces. Results:
 - **combat** (vs Backstreet Warriors): A wins (clear) — WE LOST. Reference wins on consistent hit weight and frame animation; our side peaks at one white-flash moment but lacks sustained punch. Our biggest gap: inconsistent hit feedback across the combo, need sustained hitstop and visual weight on all hits not just the third.
 
 Next batch (vfx, enemies, arenas, gauntlet) queued for judging.
+
+## 2026-09-29 — w1 judge: batch 2 (vfx, enemies, arenas, gauntlet)
+
+Four judges ran in parallel on the second batch. All four pieces WON:
+- **vfx** (vs 10 Minutes Till Dawn): B wins (clear) — WE WON. Our effects are layered and colorful; reference's are minimal. Reference's biggest gap: add punchy particle bursts with warm tones and clear timing.
+- **enemies** (vs 10 Minutes Till Dawn): B wins (decisive) — WE WON. Our cast is readable and distinct; reference is four identical jellyfish with stiff animation. Reference's biggest gap: add multiple enemy archetypes with clear silhouettes and personality.
+- **arenas** (vs Furcifer's Fungeon): A wins (clear) — WE WON. Our arenas are isometric with varied detail and craft; reference feels procedural with flat dungeon walls and obvious repeating patterns. Reference's biggest gap: add handcrafted environmental detail and visual storytelling to each room.
+- **gauntlet** (vs Pizza Tower): A wins (clear) — WE WON. Our corridor has dark fire-filled aesthetic and genuine tension; reference is playful and whimsical, undercutting urgency. Reference's biggest gap: use darker palette and active threat feedback to build dread during escape.
+
+Next batch (boons, boss, hud, audio, title, run-flow) queued for judging.
