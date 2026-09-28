@@ -2,9 +2,8 @@
   "wave": 2,
   "phase": "critique",
   "queue": [
-    "combat",
     "hud",
     "title"
   ],
-  "notes": "Wave 2 integrate complete. Advancing to critique for the three rebuilt pieces."
+  "notes": "Wave 2 critique in progress. Completed: combat. Next: hud, title."
 }

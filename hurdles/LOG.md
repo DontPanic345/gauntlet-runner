@@ -307,3 +307,8 @@ All wave 2 build pieces are now complete. Advancing to `integrate`.
 - No fixes required.
 - Advancing to critique phase. Queue: combat, hud, title (the three rebuilt pieces, to be re-judged against their wave 1 references).
 
+
+## 2026-09-29 — w2 critique: combat
+
+- Critic re-evaluated combat against Backstreet Warriors. Wave 2 changes (increased knockback 50%, extended hitstop, larger flash, enhanced screen effects) are present but still insufficient. Biggest gap: target has no knockback animation—positions jump instantly after hitstop ends instead of sliding/staggering over 200-400ms like the reference. Other issues: third hit barely visually heavier (flash ~1.4× larger by eye), screen kick imperceptible (texel snapping may hide it), whiff demo unverified from wave 1, full-screen hurt vignette too aggressive in multi-enemy fights. Review, matched blind packet (3 pairs), criteria, and sealed key verified on disk. No console errors.
+

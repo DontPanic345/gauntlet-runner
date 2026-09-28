@@ -1,0 +1,16 @@
+{
+  "ours": "A",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w2/critic/combat/ours/01-motion-strip.png",
+      "hurdles/waves/w2/critic/combat/ours/02-impact-moment.png",
+      "hurdles/waves/w2/critic/combat/ours/03-aftermath.png"
+    ],
+    "B": [
+      "hurdles/waves/w2/critic/combat/ref/01-motion-strip.png",
+      "hurdles/waves/w2/critic/combat/ref/02-impact-moment.png",
+      "hurdles/waves/w2/critic/combat/ref/03-aftermath.png"
+    ]
+  }
+}
