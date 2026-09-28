@@ -167,3 +167,9 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 ## 2026-09-28 — repo fix: binary files corrupted in git
 
 - The clerk found that `.gitattributes` (`* text eol=lf`) made git treat PNGs as text and strip CR bytes on commit, so every committed image (119 files, all critic captures and blind packets so far) was corrupted in the repo. Working copies were intact. Added `binary` rules for image, video, audio and font types and re-stored every file with `git add --renormalize`; HEAD blobs now match the working copies byte for byte. Commits before this one still hold corrupted images; do not restore captures from them.
+
+## 2026-09-28 — w1 critique: enemies
+
+- Critic pinned 10 Minutes Till Dawn (https://flanne.itch.io/10-minutes-till-dawn, 4.8 stars / 744 ratings). Furcifer's Fungeon was tried but its Godot build ran too slowly headless. The critic wrote the review and 4 matched pairs (cast in play, cast close-up, attack strip, death strip), plus the blind packet, criteria and key; all verified on disk.
+- Biggest gap: in play, enemies overlap each other and the hero, collapsing into one heap, and husk-arc and brute-lane telegraphs draw under the hero. Separation radii should match rendered size (husk ~0.5, brute ~0.8, mite ~0.3, versus 0.3/0.5/0.17 today), husks should keep arm's length from the hero, and telegraph decals should draw on top.
+- Other problems: the husk windup turns muddy brown, the brute is no taller than the hero and floor-coloured, the husk reads as a crumpled bundle at rest, the showcase brute stuns at the hero's feet, mites pile onto the hero, and the run camera is zoomed far out. must_have: telegraphs pass (weak), no-stacking fails visually, deaths pass, knobs-as-data pass. No console errors.

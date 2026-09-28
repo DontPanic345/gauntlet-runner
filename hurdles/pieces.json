@@ -206,7 +206,12 @@
       "showcase": "?showcase=enemies: a lineup of all four archetypes with names, then ?showcase=enemies&fight=<type> spawns one against the hero",
       "judge_focus": "Stills of the lineup plus strips of each telegraph and death. Which cast is more readable and characterful?",
       "reference_hint": "top-rated itch.io roguelite or top-down action game with a varied enemy roster",
-      "reference": null,
+      "reference": {
+        "url": "https://flanne.itch.io/10-minutes-till-dawn",
+        "rating": "4.8 stars / 744 ratings",
+        "why": "Top-rated, browser-playable pixel-art action roguelite (#7 in itch's top-rated HTML5 roguelites) whose horde enemies are the genre's benchmark for reading instantly at a tiny size: dark bodies, glowing eyes, one bold hit flash and a splat. It is the only top-rated action roguelite on itch that can be played live here, so its enemies can be captured in real motion.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
