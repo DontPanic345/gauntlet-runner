@@ -261,3 +261,19 @@ Four judges ran in parallel on the third batch. Results:
 - **audio** (vs Vampire Survivors): TIE — WE WON. Both games are evenly matched: functionally complete, bug-free, but both lack the spectral richness and mix density expected from polished roguelites. Tied verdict is provisional; re-critique audio every wave until the rest are won.
 
 Next batch (title, run-flow) queued for final judging.
+
+## 2026-09-29 — w1 judge: batch 4 (title, run-flow)
+
+Two judges completed the final batch:
+- **title** (vs 10 Minutes Till Dawn): A wins (clear) — WE LOST. Reference's title screen is minimalist and responsive; our side has visual clutter and no menu animation. Our biggest gap: pick one focal point (vignette OR logo), reduce menu complexity, add snappy menu transitions.
+- **run-flow** (vs Vampire Survivors): B wins (clear) — WE WON. Our run loop is cinematic and complete with slow-mo death and styled transitions; reference sacrifices completeness for spectacle. Our biggest gap: none—we win.
+
+## 2026-09-29 — w1 resolve
+
+All 14 judged pieces received verdicts. Results:
+- **Won** (11 pieces): look, hero, movement, vfx, enemies, arenas, gauntlet, boons, boss, audio, run-flow
+- **Lost** (3 pieces): combat, hud, title
+
+Wave 1 complete. Three pieces failed blind judge: combat (reference hit weight inconsistency), hud (reference minimalism), title (reference menu animation). These three will rebuild in wave 2. All 11 winners advance to the next wave's critique to re-verify their position against tougher references or to be certified "best in class."
+
+Advancing to **wave 2, build phase**. Queue: combat, hud, title (in build order).

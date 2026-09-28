@@ -55,8 +55,18 @@
         "why": "Top-down pixel-art action roguelite/roguelike with the strongest visual identity in the genre: per-biome palettes, a warm dynamic light pool that follows the player through dark rooms, chunky readable silhouettes even in chaotic combat, and hit/particle craft the whole \"juicy pixel action\" movement is built on. Structurally the closest real analogue to Gauntlet-Runner (fixed/near-top-down camera, arena waves, dash-based survival, environmental hazards).",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/look.json and hurdles/waves/w1/critic/look/review.md",
+          "review_file": "hurdles/waves/w1/critic/look/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/look.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "hero",
@@ -88,8 +98,18 @@
         "why": "Top-rated, itch-native, HTML5-playable pixel-art action roguelite with a small, consistently expressive hero (idle, run, shoot, hurt, death all read cleanly at tiny on-screen size), exactly the \"expressive small player character\" bar this piece needs to clear.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "decisive",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/hero.json and hurdles/waves/w1/critic/hero/review.md",
+          "review_file": "hurdles/waves/w1/critic/hero/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/hero.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "movement",
@@ -121,8 +141,18 @@
         "why": "Top-down pixel-art action-adventure built specifically around a dash (quick dash plus a charged teleport-dash), browser-playable, the strongest available match for starts, stops, turns and dashes around corners.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/movement.json and hurdles/waves/w1/critic/movement/review.md",
+          "review_file": "hurdles/waves/w1/critic/movement/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/movement.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "combat",
@@ -152,8 +182,17 @@
         "why": "A browser-playable (PICO-8/HTML5) beat-'em-up whose entire premise is landing satisfying punch combos on a stream of enemies, the closest itch.io match to combat's judge_focus (bursts through a full combo landing on a target).",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "lost",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/combat.json and hurdles/waves/w1/critic/combat/review.md",
+          "review_file": "hurdles/waves/w1/critic/combat/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/combat.json"
+        }
+      ]
     },
     {
       "id": "vfx",
@@ -182,8 +221,18 @@
         "why": "Top-rated, browser-playable pixel-art action roguelite whose hit, kill and enemy-entry effects are few, bold, two-tone and precisely timed. That is the \"crafted and punchy\" bar for hit-spark and death-burst strips, and live 30 fps frames can be captured from it.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/vfx.json and hurdles/waves/w1/critic/vfx/review.md",
+          "review_file": "hurdles/waves/w1/critic/vfx/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/vfx.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "enemies",
@@ -212,8 +261,18 @@
         "why": "Top-rated, browser-playable pixel-art action roguelite (#7 in itch's top-rated HTML5 roguelites) whose horde enemies are the genre's benchmark for reading instantly at a tiny size: dark bodies, glowing eyes, one bold hit flash and a splat. It is the only top-rated action roguelite on itch that can be played live here, so its enemies can be captured in real motion.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "decisive",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/enemies.json and hurdles/waves/w1/critic/enemies/review.md",
+          "review_file": "hurdles/waves/w1/critic/enemies/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/enemies.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "arenas",
@@ -246,8 +305,18 @@
         "why": "Top-rated, browser-playable pixel-art dungeon-crawler roguelite whose stone-and-torch crypt rooms and overgrown biome rooms are the closest handcrafted-room match to this piece's judge_focus; it is the same pin the enemies critic already vetted and rejected only for motion-capture reasons that do not block a still-room comparison.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/arenas.json and hurdles/waves/w1/critic/arenas/review.md",
+          "review_file": "hurdles/waves/w1/critic/arenas/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/arenas.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "gauntlet",
@@ -279,8 +348,18 @@
         "why": "The signature mechanic of Pizza Tower is an \"escape\" sequence: a level-ending sprint away from a screen-filling pursuing threat through the same corridors you just explored, with fleeing enemies and speed-blur used to sell danger and momentum. The closest well-known, top-rated itch.io analogue to \"chased by the collapse\" gauntlet corridors. Windows-only (not browser-playable), so critiques use the developer's own GIFs/screenshots from the itch page rather than live capture.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/gauntlet.json and hurdles/waves/w1/critic/gauntlet/review.md",
+          "review_file": "hurdles/waves/w1/critic/gauntlet/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/gauntlet.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "boons",
@@ -309,8 +388,18 @@
         "why": "The strongest fitting HTML5, browser-playable, top-rated roguelite whose core loop is exactly this piece's job: kill things, hit a pick-1-of-N upgrade screen, watch the upgrades visibly change how you fight. It originated as a free itch.io HTML5 game (still playable there), so it can be captured live rather than from a trailer.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "decisive",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/boons.json and hurdles/waves/w1/critic/boons/review.md",
+          "review_file": "hurdles/waves/w1/critic/boons/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/boons.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "boss",
@@ -340,8 +429,18 @@
         "why": "Top-down pixel-art dungeon-crawler roguelite with multiple telegraphed boss fights and an on-screen boss health bar, browser-playable, the strongest itch.io match found for a fixed-camera pixel/voxel boss encounter at 4.5+/50+ ratings (the boss-rush/boss-battle tag intersections with pixel art all topped out well under 50 ratings). Its HTML5 web build is a broken test port per the dev, so critiques use the developer's own official screenshots and promo GIF instead of live capture.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/boss.json and hurdles/waves/w1/critic/boss/review.md",
+          "review_file": "hurdles/waves/w1/critic/boss/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/boss.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "hud",
@@ -373,8 +472,17 @@
         "why": "Top-down pixel-art action game with a pristine, minimal action UI showing cooldowns and resources; the strongest browser-playable itch.io reference with a clean HUD that can be judged on polish and visual clarity.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "lost",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/hud.json and hurdles/waves/w1/critic/hud/review.md",
+          "review_file": "hurdles/waves/w1/critic/hud/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/hud.json"
+        }
+      ]
     },
     {
       "id": "audio",
@@ -402,8 +510,18 @@
         "why": "Top-rated HTML5 roguelite with excellent synth-based SFX, reactive music layering, and tight audio mixing that cuts through dense action. Direct parallel to Gauntlet-Runner's synthesized design, state-reactive music, and the challenge of audible telegraph cues over combat density.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "tie",
+          "margin": "none",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/audio.json and hurdles/waves/w1/critic/audio/review.md",
+          "review_file": "hurdles/waves/w1/critic/audio/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/audio.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     },
     {
       "id": "title",
@@ -436,8 +554,17 @@
         "why": "HTML5-playable, top-rated pixel-art roguelite with a polished, minimalist title screen and menus. Clean visual hierarchy, snappy button feedback, and most importantly a UI that makes you want to press Start instead of just providing options.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "lost",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/title.json and hurdles/waves/w1/critic/title/review.md",
+          "review_file": "hurdles/waves/w1/critic/title/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/title.json"
+        }
+      ]
     },
     {
       "id": "run-flow",
@@ -470,8 +597,18 @@
         "why": "Browser-playable HTML5 roguelite with the cleanest game-over summary screen in the genre: stats displayed beautifully, instant restart, and every death makes you want to try again immediately.",
         "pinned_wave": 1
       },
-      "status": "built",
-      "history": []
+      "status": "won",
+      "history": [
+        {
+          "wave": 1,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w1/verdicts/run-flow.json and hurdles/waves/w1/critic/run-flow/review.md",
+          "review_file": "hurdles/waves/w1/critic/run-flow/review.md",
+          "verdict_file": "hurdles/waves/w1/verdicts/run-flow.json",
+          "commit_hash": "562cf7d1866faaf3f60c00a89e3fe2fa78927bc2"
+        }
+      ]
     }
   ]
 }
