@@ -240,7 +240,12 @@
       "showcase": "?showcase=arenas&seed=N: fly-through of 5 generated arenas, then one played with waves",
       "judge_focus": "Stills of several rooms and a door-slam strip. Which levels look more handcrafted and inviting?",
       "reference_hint": "top-rated itch.io dungeon crawler or roguelite with handsome room art",
-      "reference": null,
+      "reference": {
+        "url": "https://playwithfurcifer.itch.io/furcifers-fungeon",
+        "rating": "4.7 stars / 126 ratings",
+        "why": "Top-rated, browser-playable pixel-art dungeon-crawler roguelite whose stone-and-torch crypt rooms and overgrown biome rooms are the closest handcrafted-room match to this piece's judge_focus; it is the same pin the enemies critic already vetted and rejected only for motion-capture reasons that do not block a still-room comparison.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

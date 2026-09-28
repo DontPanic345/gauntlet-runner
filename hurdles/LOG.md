@@ -177,3 +177,9 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 ## 2026-09-28 — w1 critique: budget guard stop
 
 - The budget guard tripped after enemies: the session window was at 81%, over the 50% limit, and resets Mon 28 Sep 21:20. Weekly was at 55%, resetting Sat 03 Oct 22:00. The next session resumes the critique queue serially at `arenas`: arenas, gauntlet, boons, boss, hud, audio, title, run-flow.
+
+## 2026-09-28 — w1 critique: arenas
+
+- Critic pinned Furcifer's Fungeon (https://playwithfurcifer.itch.io/furcifers-fungeon, 4.7 stars / 126 ratings). The live headless build could not get past its tutorial hub (matching a prior critic's finding), so the two room stills use the developer's own itch.io screenshots and the one motion strip uses a live-captured burst from the tutorial hub, flagged as a fairness caveat in the review and described neutrally in criteria.md. Wrote the review and 3 matched pairs (two room stills, one combat strip), plus the blind packet, criteria and key; all verified on disk.
+- Biggest gap: the five arena templates (vestibule/ossuary/hall/gallery/antechamber) are nearly pixel-identical across seeds 1, 2 and 999 (same statue, banners, crates, rubble; only a mirror flip and a prop reskin differ), so replays instantly recognize "room 1" instead of feeling regenerated. Give every arena a composition visibly different from every other arena, and make seeds actually reshuffle it.
+- Other problems: wave escalation is non-monotonic on seed=1 (kill targets 5, 13, 9, 19, 28 — room 3 asks for fewer kills than room 2, seed-dependent); door-seal-on-entry is nearly invisible (only a title banner and a small red glow, no gate/grille/shake/dust) versus a genuinely good room-cleared celebration. must_have: composition/focal-props pass, floor/seed variation fail, door-seal-on-entry fail, clear celebration pass, escalation fail, seed-reproducibility pass, props break/react pass. No console errors.

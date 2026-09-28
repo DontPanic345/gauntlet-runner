@@ -1,0 +1,16 @@
+{
+  "ours": "A",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/arenas/ours/01-room-still.png",
+      "hurdles/waves/w1/critic/arenas/ours/02-room-still.png",
+      "hurdles/waves/w1/critic/arenas/ours/03-combat-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/arenas/ref/01-room-still.png",
+      "hurdles/waves/w1/critic/arenas/ref/02-room-still.png",
+      "hurdles/waves/w1/critic/arenas/ref/03-combat-strip.png"
+    ]
+  }
+}
