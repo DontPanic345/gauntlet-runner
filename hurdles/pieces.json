@@ -430,7 +430,12 @@
       "showcase": "?showcase=title (same as the default entry) plus ?showcase=title&menu=settings",
       "judge_focus": "The first frame, a menu-navigation strip and the settings screen. Which title screen makes you want to press Start?",
       "reference_hint": "top-rated itch.io pixel-art game with a memorable title screen",
-      "reference": null,
+      "reference": {
+        "url": "https://flanne.itch.io/10-minutes-till-dawn",
+        "rating": "4.8 stars, 742 ratings",
+        "why": "HTML5-playable, top-rated pixel-art roguelite with a polished, minimalist title screen and menus. Clean visual hierarchy, snappy button feedback, and most importantly a UI that makes you want to press Start instead of just providing options.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

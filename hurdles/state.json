@@ -2,7 +2,6 @@
   "wave": 1,
   "phase": "critique",
   "queue": [
-    "title",
     "run-flow"
   ],
   "notes": "Wave 1 critique in progress, run serially one critic at a time. Done and committed: look, hero, movement, combat, vfx, enemies, arenas, gauntlet, boons, boss (references pinned in pieces.json). Remaining queue in order: hud, audio, title, run-flow. Note: gauntlet critic found the hero is completely invisible during corridor play (no sprite ever renders) -- a likely builder-fixable bug worth flagging to whoever builds gauntlet's fixes next wave. Next session resumes critique at hud."
