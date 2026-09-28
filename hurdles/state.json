@@ -11,5 +11,5 @@
     "title",
     "run-flow"
   ],
-  "notes": "Wave 1 critique in progress, run serially one critic at a time. Done and committed: look, hero, movement, combat, vfx, enemies (references pinned in pieces.json). Remaining queue in order: arenas, gauntlet, boons, boss, hud, audio, title, run-flow."
+  "notes": "Wave 1 critique in progress, run serially one critic at a time. Done and committed: look, hero, movement, combat, vfx, enemies (references pinned in pieces.json). Remaining queue in order: arenas, gauntlet, boons, boss, hud, audio, title, run-flow. Budget guard tripped after enemies (session 81%, resets Mon 28 Sep 21:20; weekly 55%, resets Sat 03 Oct 22:00). Next session resumes critique at arenas."
 }
