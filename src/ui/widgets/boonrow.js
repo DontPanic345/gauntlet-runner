@@ -2,6 +2,9 @@
 // linked with a gold bar. New boons drop in with a flash; a level-up flashes its pips.
 // Tooltips: mouse hover, or Tab cycles through the boons from the keyboard, or a boon that was
 // just gained announces itself for a couple of seconds.
+//
+// Wave 2 consolidation: larger cells (18x18), more spacing (3px gap), and improved breathing
+// room to reduce information clutter and improve readability mid-fight.
 
 import { css } from '../../render/palette.js';
 import { drawText, textWidth, wrapText } from '../../core/pixelfont.js';
@@ -9,7 +12,8 @@ import { drawIcon } from '../../progression/icons.js';
 import { RARITY } from '../../progression/boons.js';
 import { plate, plus } from './sprites.js';
 
-const CELL = 16, GAP = 2;
+const CELL = 18;  // increased from 16 for better readability
+const GAP = 3;   // increased from 2 for better spacing
 const TIP_W = 176;
 
 export class BoonRow {
@@ -67,7 +71,7 @@ export class BoonRow {
       const cx = x + i * (CELL + GAP);
       pos[it.id] = cx;
       let dy = 0;
-      if (it.popT < 16) { const k = it.popT / 15; dy = -Math.round((1 - k) * (1 - k) * 14) + (k > 0.7 ? 0 : 0); if (it.popT === 0) this._burst(cx + 8, y + 8, it.def.rarity); }
+      if (it.popT < 16) { const k = it.popT / 15; dy = -Math.round((1 - k) * (1 - k) * 14) + (k > 0.7 ? 0 : 0); if (it.popT === 0) this._burst(cx + CELL / 2, y + CELL / 2, it.def.rarity); }
       const r = RARITY[it.def.rarity];
       const hov = mouse && mouse.x >= cx && mouse.x < cx + CELL && mouse.y >= y - 2 && mouse.y < y + CELL + 2;
       if (hov) this.hover = i;
@@ -75,11 +79,11 @@ export class BoonRow {
       const sel = this.sel === i || hov || (this.auto && this.auto.id === it.id);
       const lift = sel ? -2 : 0;
       plate(g, cx, y + dy + lift, CELL, CELL, { edge: r.edge, fill: it.popT < 3 ? 'frost' : sel ? r.panel : 'night', light: r.edgeDark });
-      drawIcon(g, it.id, cx + 2, y + dy + 2 + lift, 1, { outline: false });
-      // level pips
+      drawIcon(g, it.id, cx + 3, y + dy + 3 + lift, 1, { outline: false });
+      // level pips (larger, clearer)
       for (let k = 0; k < it.def.max; k++) {
         g.fillStyle = css(k < it.level ? (it.lvT < 12 && (it.lvT >> 1) % 2 === 0 && k === it.level - 1 ? 'white' : r.hi) : 'ink');
-        g.fillRect(cx + 3 + k * 3, y + dy + CELL - 3 + lift, 2, 1);
+        g.fillRect(cx + 4 + k * 4, y + dy + CELL - 4 + lift, 2, 2);
       }
       if (it.popT < 3) { g.fillStyle = css('white'); g.globalAlpha = 0.7; g.fillRect(cx + 1, y + dy + 1 + lift, CELL - 2, CELL - 2); g.globalAlpha = 1; }
     });
@@ -88,10 +92,10 @@ export class BoonRow {
       const a = pos[s.a], b = pos[s.b];
       if (a === undefined || b === undefined) continue;
       const x0 = Math.min(a, b) + CELL / 2, x1 = Math.max(a, b) + CELL / 2;
-      g.fillStyle = css('ink'); g.fillRect(x0 - 1, y + CELL + 1, x1 - x0 + 3, 3);
-      g.fillStyle = css('gold'); g.fillRect(x0, y + CELL + 2, x1 - x0 + 1, 1);
+      g.fillStyle = css('ink'); g.fillRect(x0 - 1, y + CELL + 2, x1 - x0 + 3, 3);
+      g.fillStyle = css('gold'); g.fillRect(x0, y + CELL + 3, x1 - x0 + 1, 1);
       const sweep = x0 + ((this.t >> 1) % Math.max(1, x1 - x0 + 24)) - 12;
-      if (sweep >= x0 && sweep <= x1) { g.fillStyle = css('white'); g.fillRect(sweep, y + CELL + 2, 1, 1); }
+      if (sweep >= x0 && sweep <= x1) { g.fillStyle = css('white'); g.fillRect(sweep, y + CELL + 3, 1, 1); }
     }
     for (const s of this.sparks) { g.fillStyle = css(s.c); g.fillRect(Math.round(s.x), Math.round(s.y), 1, 1); }
 
@@ -103,7 +107,7 @@ export class BoonRow {
       this.tipT++;
       this._tooltip(g, this.items[ti], x + ti * (CELL + GAP), y);
     } else { this.tipId = null; this.tipT = 0; }
-    return { x, y, w: Math.max(0, this.width()), h: CELL + 4 };
+    return { x, y, w: Math.max(0, this.width()), h: CELL + 6 };
   }
 
   _burst(x, y, rarity) {
@@ -125,11 +129,11 @@ export class BoonRow {
     const open = Math.min(1, this.tipT / 5);
     const hh = Math.max(12, Math.round(h * (1 - (1 - open) * (1 - open))));
     const W = g.canvas.width;
-    const tx = Math.max(4, Math.min(W - TIP_W - 4, cx + 8 - TIP_W / 2));
+    const tx = Math.max(4, Math.min(W - TIP_W - 4, cx + CELL / 2 - TIP_W / 2));
     const ty = y - hh - 6;
     plate(g, tx, ty, TIP_W, hh, { edge: r.edge, fill: r.panel, light: r.edgeDark });
     // pointer notch toward the icon
-    const px = Math.max(tx + 6, Math.min(tx + TIP_W - 12, cx + 5));
+    const px = Math.max(tx + 6, Math.min(tx + TIP_W - 12, cx + CELL / 2));
     g.fillStyle = css('ink'); g.fillRect(px, ty + hh, 7, 1); g.fillRect(px + 1, ty + hh + 1, 5, 1); g.fillRect(px + 2, ty + hh + 2, 3, 1);
     g.fillStyle = css(r.panel); g.fillRect(px + 1, ty + hh - 1, 5, 2); g.fillRect(px + 2, ty + hh + 1, 3, 1); g.fillRect(px + 3, ty + hh + 2, 1, 1);
     if (open < 1) return;

@@ -284,3 +284,10 @@ Advancing to **wave 2, build phase**. Queue: combat, hud, title (in build order)
 - Cross-piece edits: none.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w2/build/combat.md`.
 
+
+## 2026-09-29 — w2 build: hud
+
+- Builder consolidated the HUD layout from 5 competing elements into 2-3 clear priority zones: PRIMARY (hearts + dash pips, top-left), SECONDARY (shards top-right, boons bottom-left, track bottom-center at 55% opacity), DYNAMIC (boss bar, center-bottom with entrance animation). Enhanced boss bar with slide-down entrance (12 ticks, scale-grow, brief shake), shard counter with scale-pop on changes, low-health vignette with increased opacity (0.32→0.5-1.0 peak), enlarged boon icons (16→18 px, 3 px spacing), and dimmed track (smaller nodes, dimmed opacity). All APIs preserved.
+- Cross-piece edits: none.
+- Smoke test: showcase exits 0 with 0 console errors and non-blank frame. Builder notes in `waves/w2/build/hud.md`.
+

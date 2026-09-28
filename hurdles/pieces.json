@@ -429,7 +429,7 @@
         "why": "Top-down pixel-art dungeon-crawler roguelite with multiple telegraphed boss fights and an on-screen boss health bar, browser-playable, the strongest itch.io match found for a fixed-camera pixel/voxel boss encounter at 4.5+/50+ ratings (the boss-rush/boss-battle tag intersections with pixel art all topped out well under 50 ratings). Its HTML5 web build is a broken test port per the dev, so critiques use the developer's own official screenshots and promo GIF instead of live capture.",
         "pinned_wave": 1
       },
-      "status": "won",
+      "status": "built",
       "history": [
         {
           "wave": 1,

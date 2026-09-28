@@ -2,13 +2,16 @@
 // are lit and stamped, the current one pulses with a marker under it, the rest wait dim. The
 // corridor nodes are ember coloured (they are the collapse); the link out of the current node
 // fills as `progress` (arena: waves cleared, corridor: distance run).
+//
+// Wave 2 consolidation: reduced visual weight by shrinking nodes (65%) and label size, making
+// it a passive info zone that doesn't compete with hearts for attention.
 
 import { css } from '../../render/palette.js';
 import { drawText, textWidth } from '../../core/pixelfont.js';
 import { NODE_ARENA, NODE_CORRIDOR, NODE_BOSS, drawSprite, plate } from './sprites.js';
 
 export const DEFAULT_ROUTE = ['arena', 'corridor', 'arena', 'corridor', 'arena', 'corridor', 'arena', 'corridor', 'arena', 'boss'];
-const STEP = 13;
+const STEP = 9;  // reduced from 13 for smaller footprint
 
 const RECOLOUR = {
   arena: { done: { l: 'fog' }, now: { l: 'bone' }, next: { l: 'slate' } },
@@ -53,14 +56,14 @@ export class Track {
   draw(g, cx, y) {
     const n = this.route.length, w = this.width();
     const x = Math.round(cx - w / 2);
-    plate(g, x, y, w, 21);
+    plate(g, x, y, w, 17);  // reduced height from 21 to 17
     const cur = this.route[this.index];
     for (let i = 0; i < n; i++) {
       const kind = this.route[i];
       const state = i <= this.doneUpTo ? 'done' : i === this.index ? 'now' : 'next';
       const spr = SPR[kind];
-      const nx = x + 5 + i * STEP + 3;                 // node centre column
-      const ny = y + 4;
+      const nx = x + 5 + i * STEP + 2;                 // node centre column
+      const ny = y + 3;  // reduced from 4
       let dy = 0, flash = null;
       if (state === 'now') {
         const b = this.t % 60;
@@ -73,25 +76,26 @@ export class Track {
       drawSprite(g, spr, px, py, { map: RECOLOUR[kind][state], flash, outline: 'ink' });
       // link to the next node
       if (i < n - 1) {
-        const lx = nx + (spr.w >> 1) + 2, lw = STEP - (spr.w >> 1) - (SPR[this.route[i + 1]].w >> 1) - 2;
+        const lx = nx + (spr.w >> 1) + 1, lw = STEP - (spr.w >> 1) - (SPR[this.route[i + 1]].w >> 1) - 1;
         const filled = state === 'done' ? 1 : state === 'now' ? this.shown : 0;
-        g.fillStyle = css('dusk'); g.fillRect(lx, y + 8, Math.max(1, lw), 1);
+        g.fillStyle = css('dusk'); g.fillRect(lx, y + 7, Math.max(1, lw), 1);
         g.fillStyle = css(kind === 'corridor' || this.route[i + 1] === 'corridor' ? 'red' : 'fog');
-        g.fillRect(lx, y + 8, Math.round(Math.max(1, lw) * filled), 1);
+        g.fillRect(lx, y + 7, Math.round(Math.max(1, lw) * filled), 1);
       }
       if (state === 'now') {
-        // marker: a little caret that bobs under the node
-        const my = y + 14 + ((this.t >> 4) & 1);
-        g.fillStyle = css('ink'); g.fillRect(nx - 2, my, 5, 1); g.fillRect(nx - 1, my - 1, 3, 1); g.fillRect(nx, my - 2, 1, 1);
-        g.fillStyle = css(kind === 'corridor' ? 'ember' : 'gold'); g.fillRect(nx - 1, my, 3, 1); g.fillRect(nx, my - 1, 1, 1);
+        // marker: a little caret that bobs under the node (smaller)
+        const my = y + 11 + ((this.t >> 4) & 1);
+        g.fillStyle = css('ink'); g.fillRect(nx - 1, my, 3, 1); g.fillRect(nx, my - 1, 1, 1);
+        g.fillStyle = css(kind === 'corridor' ? 'ember' : 'gold'); g.fillRect(nx, my, 1, 1);
       }
     }
     if (this.label) {
       const flash = this.alarm && (this.t >> 3) % 2 === 0;
       const col = this.alarm ? (flash ? 'flame' : 'ember') : 'fog';
-      drawText(g, this.label, cx, y + 23, col, { align: 'center', outline: 'ink' });
+      // smaller font (scale 1 instead of default 2)
+      drawText(g, this.label, cx, y + 19, col, { align: 'center', outline: 'ink', scale: 1 });
     }
     void cur; void textWidth;
-    return { x, y, w, h: 21 + (this.label ? 10 : 0) };
+    return { x, y, w, h: 17 + (this.label ? 8 : 0) };
   }
 }

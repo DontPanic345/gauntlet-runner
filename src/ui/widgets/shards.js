@@ -1,6 +1,7 @@
 // Soul-shard counter. The shown number chases the real total one step at a time (bigger jumps
-// take bigger steps), every step pops the digits, and the gain floats up as +N (merging while
-// more arrive). Spending rolls down in rose. A glint crosses the gem now and then.
+// take bigger steps), every step pops the digits with a brief scale-grow and fade, and the gain
+// floats up as +N (merging while more arrive). Spending rolls down in rose. A glint crosses
+// the gem now and then.
 
 import { css } from '../../render/palette.js';
 import { drawText, textWidth } from '../../core/pixelfont.js';
@@ -13,6 +14,7 @@ export class Shards {
     this.shown = total;
     this.popT = 99;
     this.dir = 1;
+    this.scaleT = 99;          // ticks since last change, for scale-pop animation
     this.float = null;       // { n, t }
     this.t = 0;
     this.gemT = 99;          // bounce of the gem on a step
@@ -25,18 +27,19 @@ export class Shards {
       const d = total - this.total;
       this.total = total;
       this.dir = d > 0 ? 1 : -1;
+      this.scaleT = 0;  // trigger scale-pop animation
       if (this.float && this.float.t < 30 && Math.sign(this.float.n) === Math.sign(d)) { this.float.n += d; this.float.t = 6; }
       else this.float = { n: d, t: 0 };
     }
     if (this.float) { this.float.t++; if (this.float.t > 46) this.float = null; }
-    this.popT++; this.gemT++;
+    this.popT++; this.gemT++; this.scaleT++;
     if (this.shown !== this.total) {
       const diff = this.total - this.shown;
       const every = Math.abs(diff) > 12 ? 1 : 2;
       if (this.t % every === 0) {
         const step = Math.max(1, Math.ceil(Math.abs(diff) / 10));
         this.shown += Math.sign(diff) * Math.min(step, Math.abs(diff));
-        this.popT = 0; this.gemT = 0;
+        this.popT = 0; this.gemT = 0; this.scaleT = 0;
       }
     }
   }
@@ -52,11 +55,26 @@ export class Shards {
     const rolling = this.shown !== this.total;
     const bounce = this.gemT < 4 ? -1 : 0;
     drawGlyph(g, 'shard', x + 5, y + 4 + bounce, 2);
-    // digits: white flash on a step, then sky; right-aligned in a fixed slot so they do not jitter
+    // digits: scale-pop on a change (0.2 s), then white flash on a step, then sky; right-aligned
     const pop = this.popT < 3;
     const col = pop ? 'white' : this.dir < 0 && rolling ? 'rose' : 'sky';
     const dy = pop ? -1 : 0;
-    drawText(g, s, x + w - 5 - tw, y + 2 + dy, col, { scale: 2, shadow: 'ink' });
+    // scale-pop animation: brief scale-grow (1.0 -> 1.2 -> 1.0) over 0.2s (12 ticks at 60 fps)
+    const scaleKf = Math.min(1, this.scaleT / 12);
+    const scale = scaleKf < 0.5 ? 1 + scaleKf * 0.4 : 1 + (1 - scaleKf) * 0.4;
+    // only draw the scale effect if it's happening; otherwise render normally
+    if (this.scaleT < 12) {
+      g.save();
+      const cx = x + w - 5 - tw / 2;
+      const cy = y + 2 + dy;
+      g.translate(cx, cy);
+      g.scale(scale, scale);
+      g.translate(-cx, -cy);
+      drawText(g, s, x + w - 5 - tw, y + 2 + dy, col, { scale: 2, shadow: 'ink' });
+      g.restore();
+    } else {
+      drawText(g, s, x + w - 5 - tw, y + 2 + dy, col, { scale: 2, shadow: 'ink' });
+    }
     // glint
     const gl = this.t % 220;
     if (gl < 8) {

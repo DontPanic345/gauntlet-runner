@@ -1,6 +1,12 @@
 // The in-run HUD (piece `hud`): hearts with damage drain, dash pip, shard counter, boon row with
 // tooltips, room-progress track, boss bar, damage numbers, and the low-health vignette.
 //
+// Layout consolidation (wave 2):
+// - PRIMARY zone: hearts + dash pips (top-left, most prominent)
+// - SECONDARY zones: shards (top-right), boons (bottom-left), track (bottom-center, dimmed)
+// - DYNAMIC overlay: boss bar (center-bottom, animates in)
+// This reduces visual clutter from 5 competing elements to 2-3 clear visual zones.
+//
 //   import { createHud } from '../ui/hud.js';
 //   const hud = createHud({ hero: () => world.hero, ctl, prog });   // ctl and prog are optional
 //   tick()  { ...; hud.tick(); }          // every sim tick (after combat.tick / prog.tick)
@@ -44,7 +50,7 @@ export function createHud({ hero = () => world.hero, ctl = null, prog = null, bo
   const boss = new BossBar();
   const nums = numbers ? createDamageNumbers() : null;
   const offs = [];
-  const alpha = { hearts: 1, shards: 1, boons: 1, track: 1 };
+  const alpha = { hearts: 1, shards: 1, boons: 1, track: 0.55 };  // track dimmed by default to reduce clutter
   const rects = {};
   let vig = 0;
   let hidden = false;
@@ -54,11 +60,12 @@ export function createHud({ hero = () => world.hero, ctl = null, prog = null, bo
     get visible() { return !hidden; },
     set visible(v) { hidden = !v; },
     vignette: true,
+    vignetteIntensity: 1,  // multiplier for vignette opacity; increased during low health
     _dim: alpha,
   };
 
   const on = (n, f) => offs.push(events.on(n, f));
-  const arena = (i) => Math.max(0, (i ?? 0)) * 2;
+  const arena = (i) => Math.max(0, (i ?? 0) * 2);
   const arenaTotal = () => Math.ceil(trackW.route.filter((k) => k === 'arena').length);
   on('arena:enter', (e) => { trackW.goto(arena(e.index)); trackW.alarm = false; trackW.label = `ARENA ${(e.index ?? 0) + 1}/${arenaTotal()}`; });
   on('arena:wave', (e) => { trackW.goto(arena(e.index)); trackW.setProgress((e.n - 1) / Math.max(1, e.total)); trackW.label = `ARENA ${(e.index ?? 0) + 1}/${arenaTotal()}  WAVE ${e.n}/${e.total}`; });
@@ -98,8 +105,8 @@ export function createHud({ hero = () => world.hero, ctl = null, prog = null, bo
     trackW.tick();
     boss.tick();
     nums?.tick();
-    // vignette: eased in while low, pulsing on the beat
-    const want = hearts.low ? 0.32 + hearts.beat * 0.68 : 0;
+    // vignette: eased in while low, pulsing on the beat. Increased opacity (50% peak) for better visibility.
+    const want = hearts.low ? (0.5 + hearts.beat * 0.5) * hud.vignetteIntensity : 0;
     vig += (want - vig) * (want > vig ? 0.5 : 0.1);
     // dim any element the hero is standing behind
     if (h) {
@@ -126,10 +133,14 @@ export function createHud({ hero = () => world.hero, ctl = null, prog = null, bo
     if (hidden) return;
     if (hud.vignette) drawVignette(g, W, H, vig);
     const a = (k, fn) => { g.globalAlpha = alpha[k]; const r = fn(); g.globalAlpha = 1; rects[k] = r; };
+    // PRIMARY zone: hearts + dash pips (top-left, most prominent)
     a('hearts', () => { const r = hearts.draw(g, MARGIN, MARGIN); return { x: MARGIN, y: MARGIN, w: r.w, h: r.h }; });
+    // SECONDARY zones: shards (top-right, smaller), boons (bottom-left, focused)
     a('shards', () => shardW.draw(g, W - MARGIN, MARGIN));
-    if (hud.showTrack) a('track', () => trackW.draw(g, Math.round(W / 2), MARGIN));
     a('boons', () => boonRow.draw(g, MARGIN, H - MARGIN - 16 - 4, mousePos()));
+    // PASSIVE info: track (bottom-center, dimmed to 55% opacity by default)
+    if (hud.showTrack) a('track', () => trackW.draw(g, Math.round(W / 2), H - MARGIN - 32));
+    // DYNAMIC overlay: boss bar (center-bottom, animates in when needed)
     boss.draw(g, W, H);
   };
 

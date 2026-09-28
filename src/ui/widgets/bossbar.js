@@ -1,6 +1,7 @@
 // Boss health bar: a framed iron bar with a gold drain trail behind the red, phase notches,
 // a white flash when hit, and a fill-in animation on entry. `drawBossBar` is the stateless
-// renderer (the boss scene can call it with its own eased values); `BossBar` owns the easing.
+// renderer (the boss scene can call it with its own eased values); `BossBar` owns the easing
+// and entrance animation.
 //
 //   drawBossBar(g, x, y, w, { name, hp, ghost, flash, fill, phase, phases, t, shake })
 //   const bar = new BossBar(); bar.show('THE WARDEN', { phases: 3 }); bar.set(0.7); bar.hide();
@@ -50,8 +51,34 @@ export function drawBossBar(g, x, y, w, o) {
 }
 
 export class BossBar {
-  constructor() { this.on = false; this.hp = 1; this.ghost = 1; this.shown = 1; this.flash = 0; this.fill = 0; this.t = 0; this.name = 'BOSS'; this.phases = 3; this.phase = 1; this.shake = 99; this.target = 1; }
-  show(name, { phases = 3, hp = 1 } = {}) { this.on = true; this.name = name; this.phases = phases; this.target = hp; this.shown = this.ghost = hp; this.fill = 0; this.flash = 0; this.phase = this._phaseOf(hp); }
+  constructor() { 
+    this.on = false;
+    this.hp = 1;
+    this.ghost = 1;
+    this.shown = 1;
+    this.flash = 0;
+    this.fill = 0;
+    this.t = 0;
+    this.name = 'BOSS';
+    this.phases = 3;
+    this.phase = 1;
+    this.shake = 99;
+    this.target = 1;
+    this.entranceT = 99;  // ticks since show() was called; controls slide-in animation
+    this.entranceShake = 0;
+  }
+  show(name, { phases = 3, hp = 1 } = {}) {
+    this.on = true;
+    this.name = name;
+    this.phases = phases;
+    this.target = hp;
+    this.shown = this.ghost = hp;
+    this.fill = 0;
+    this.flash = 0;
+    this.phase = this._phaseOf(hp);
+    this.entranceT = 0;  // trigger entrance animation
+    this.entranceShake = 0;
+  }
   hide() { this.on = false; }
   _phaseOf(f) { return Math.min(this.phases, this.phases - Math.ceil(f * this.phases - 1e-6) + 1); }
   set(frac) {
@@ -65,6 +92,7 @@ export class BossBar {
     this.fill = Math.min(1, this.fill + 0.04);
     if (this.flash > 0) this.flash--;
     if (this.shake < 99) this.shake++;
+    if (this.entranceT < 99) this.entranceT++;
     this.shown += (this.target - this.shown) * 0.4;
     if (Math.abs(this.shown - this.target) < 0.002) this.shown = this.target;
     if (this.ghost > this.target) { if (this.flash === 0 || this.t % 1 === 0) this.ghost = Math.max(this.target, this.ghost - 0.0035); } else this.ghost = this.target;
@@ -74,6 +102,23 @@ export class BossBar {
   draw(g, W, H) {
     if (!this.on && this.fill <= 0) return;
     const w = Math.min(260, W - 60);
-    drawBossBar(g, (W - w) / 2, H - 26, w, { name: this.name, hp: this.shown, ghost: this.ghost, flash: this.flash, fill: this.fill, phase: this.phase, phases: this.phases, t: this.t, shake: this.shake < 6 ? this.shake : 0 });
+    
+    // entrance animation: slide in from top (0..12 ticks, 0.2s), with scale-grow and shake
+    let entranceY = 0;
+    let entranceAlpha = 1;
+    if (this.entranceT < 12) {
+      const k = this.entranceT / 12;  // 0..1 over 12 ticks
+      const easeOut = 1 - (1 - k) * (1 - k);  // quadratic ease-out
+      entranceY = -Math.round((1 - easeOut) * 30);  // slides down 30px
+      entranceAlpha = easeOut;
+      this.entranceShake = this.entranceT < 6 ? this.entranceT % 2 : 0;
+    }
+    
+    g.globalAlpha = entranceAlpha;
+    drawBossBar(g, (W - w) / 2 + this.entranceShake, H - 26 + entranceY, w, { 
+      name: this.name, hp: this.shown, ghost: this.ghost, flash: this.flash, fill: this.fill, 
+      phase: this.phase, phases: this.phases, t: this.t, shake: this.shake < 6 ? this.shake : 0 
+    });
+    g.globalAlpha = 1;
   }
 }
