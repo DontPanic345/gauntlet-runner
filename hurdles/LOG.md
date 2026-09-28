@@ -231,3 +231,13 @@ All wave 1 pieces are now built. Advancing to `integrate`.
 - 6 problems identified: no slow-motion on death (biggest gap), summary screen text-only with no visual design (zero reason to screenshot), summary-to-restart transition abrupt and joyless, late-game arena/boss scenes lack cinematic presence (solo vignettes in empty void), victory sequence also lacks setup, no "new best time" visual indicator for replayability. must_have: death-to-summary under-3s fail (no cinematic weight), transitions styled fail (black fades only), summary-worth-screenshotting fail, full-run-completable pass, seed-shown pass. No console errors.
 
 All wave 1 critique pieces now complete. Advancing to judge phase.
+
+## 2026-09-29 — w1 judge: batch 1 (look, hero, movement, combat)
+
+Four judges ran in parallel on the first batch of pieces. Results:
+- **look** (vs Nuclear Throne): B wins (clear) — WE WON. Our look is polished and cohesive; reference is washed-out sandy environment. Reference's biggest gap: lacking unified visual identity.
+- **hero** (vs 10 Minutes Till Dawn): B wins (decisive) — WE WON. Our hero is readable and animate with weight; reference is sprite-scale too small to see detail. Reference's biggest gap: must increase sprite scale 3–4x minimum.
+- **movement** (vs Bright Lancer): B wins (clear) — WE WON. Our movement is tighter and snappy; reference lacks visual feedback indicators. Reference's biggest gap: add movement direction lines and dash trails.
+- **combat** (vs Backstreet Warriors): A wins (clear) — WE LOST. Reference wins on consistent hit weight and frame animation; our side peaks at one white-flash moment but lacks sustained punch. Our biggest gap: inconsistent hit feedback across the combo, need sustained hitstop and visual weight on all hits not just the third.
+
+Next batch (vfx, enemies, arenas, gauntlet) queued for judging.

@@ -1,0 +1,38 @@
+{
+  "winner": "B",
+  "margin": "decisive",
+  "per_pair": [
+    {
+      "pair": "01",
+      "winner": "B",
+      "why": "B's character is large, detailed, and readable; A is a tiny sprite where features are indistinguishable"
+    },
+    {
+      "pair": "02",
+      "winner": "B",
+      "why": "B shows clear leg animation and pose shifts across all four frames; A's motion is nearly invisible at that scale"
+    },
+    {
+      "pair": "03",
+      "winner": "B",
+      "why": "B's dramatic red slash effect provides clear attack feedback; A's attack pose disappears into the sprite's minimal size"
+    },
+    {
+      "pair": "04",
+      "winner": "A",
+      "why": "A shows visible red damage and impact effects; B's character stands neutral with no evident hurt reaction"
+    },
+    {
+      "pair": "05",
+      "winner": "B",
+      "why": "B animates the character in defeated pose with visible damage; A replaces character animation with only a text overlay"
+    }
+  ],
+  "loser_biggest_gap": "Character sprite scale is too small to render details, motion, or appeal visible—every frame of A loses legibility. Increase sprite size 3-4x minimum so the character's proportions, pixel art, and animations are actually readable and convey weight and personality.",
+  "loser_other_gaps": [
+    "Attack feedback is unclear or missing—add visible strike effects or weapon trail to communicate impact timing",
+    "Hurt animation shows no clear body reaction or knockback—add pose change or directional knockback to confirm damage registration",
+    "Death sequence is replaced by UI text instead of showing character defeat animation—add a visible fall/defeat pose to close the narrative loop"
+  ],
+  "reasoning": "B wins decisively across 4 of 5 pairs through superior readability, animation clarity, and visual feedback. A's core failure is sprite scale: the character is too small to appreciate pixel craft, read animation poses, or feel appealing. Even if A's art is well-crafted at the pixel level, it disappears in the game context. B's isometric voxel design is instantly legible, animates with clear weight shifts, and delivers satisfying visual feedback at every state—making the character feel alive and responsive."
+}

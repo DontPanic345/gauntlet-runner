@@ -1,0 +1,33 @@
+{
+  "winner": "A",
+  "margin": "clear",
+  "per_pair": [
+    {
+      "pair": "01",
+      "winner": "A",
+      "why": "A shows consistent hitstop, clear frame progression, and responsive hit feedback across the three-hit combo."
+    },
+    {
+      "pair": "02",
+      "winner": "B",
+      "why": "B demonstrates a dramatic screen-filling white flash and massive visual peak that communicates heavy impact."
+    },
+    {
+      "pair": "03",
+      "winner": "A",
+      "why": "A's hit animation shows superior frame-by-frame responsiveness and character feedback on each swing."
+    },
+    {
+      "pair": "04",
+      "winner": "A",
+      "why": "A's full-combo sequence demonstrates consistent visual polish and satisfying hit weight throughout."
+    }
+  ],
+  "loser_biggest_gap": "Game B relies on one dramatic peak moment (pair-02 white flash) but lacks consistent hit feedback and punch across the full combo sequence—A feels heavier and more satisfying because every frame communicates impact and responsiveness, not just one standout moment.",
+  "loser_other_gaps": [
+    "Hitstop timing is less pronounced in B's non-peak moments, reducing the sense of weight and impact",
+    "Character animation feedback is less clear on the third hit swing compared to A's finisher weight",
+    "Visual polish in the full combo feels inconsistent—strong peak contrasts with softer supporting frames"
+  ],
+  "reasoning": "Game A wins 3 of 4 pairs through superior consistency, frame-by-frame animation quality, and responsive hit feedback. While Game B delivers one visually dramatic moment (the white flash), it does not sustain that impact throughout the full combo. A's hits feel heavier and more satisfying because every swing, not just the third, communicates weight and punch. The frame-by-frame animation and responsive character movement in A make the combo feel earned and impactful from start to finish."
+}

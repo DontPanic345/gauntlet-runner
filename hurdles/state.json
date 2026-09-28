@@ -2,10 +2,6 @@
   "wave": 1,
   "phase": "judge",
   "queue": [
-    "look",
-    "hero",
-    "movement",
-    "combat",
     "vfx",
     "enemies",
     "arenas",
