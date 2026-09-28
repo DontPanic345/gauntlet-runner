@@ -1,0 +1,18 @@
+{
+  "ours": "A",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/boss/ours/01-reveal.png",
+      "hurdles/waves/w1/critic/boss/ours/02-attack-a.png",
+      "hurdles/waves/w1/critic/boss/ours/03-attack-b.png",
+      "hurdles/waves/w1/critic/boss/ours/04-motion-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/boss/ref/01-reveal.png",
+      "hurdles/waves/w1/critic/boss/ref/02-attack-a.png",
+      "hurdles/waves/w1/critic/boss/ref/03-attack-b.png",
+      "hurdles/waves/w1/critic/boss/ref/04-motion-strip.png"
+    ]
+  }
+}

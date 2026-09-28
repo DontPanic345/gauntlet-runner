@@ -334,7 +334,12 @@
       "showcase": "?showcase=boss&phase=1|2|3: boss fight starting at that phase; ?showcase=boss&intro=1 plays the intro",
       "judge_focus": "Intro stills and strips of each phase's signature attack. Which boss looks more epic and fair?",
       "reference_hint": "top-rated itch.io pixel-art boss fight or boss-rush game",
-      "reference": null,
+      "reference": {
+        "url": "https://stepford.itch.io/gun-knight",
+        "rating": "4.5 stars, 496 ratings",
+        "why": "Top-down pixel-art dungeon-crawler roguelite with multiple telegraphed boss fights and an on-screen boss health bar, browser-playable, the strongest itch.io match found for a fixed-camera pixel/voxel boss encounter at 4.5+/50+ ratings (the boss-rush/boss-battle tag intersections with pixel art all topped out well under 50 ratings). Its HTML5 web build is a broken test port per the dev, so critiques use the developer's own official screenshots and promo GIF instead of live capture.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
