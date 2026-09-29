@@ -182,7 +182,7 @@
         "why": "A browser-playable (PICO-8/HTML5) beat-'em-up whose entire premise is landing satisfying punch combos on a stream of enemies, the closest itch.io match to combat's judge_focus (bursts through a full combo landing on a target).",
         "pinned_wave": 1
       },
-      "status": "built",
+      "status": "lost",
       "history": [
         {
           "wave": 1,
@@ -191,6 +191,14 @@
           "biggest_gap": "See hurdles/waves/w1/verdicts/combat.json and hurdles/waves/w1/critic/combat/review.md",
           "review_file": "hurdles/waves/w1/critic/combat/review.md",
           "verdict_file": "hurdles/waves/w1/verdicts/combat.json"
+        },
+        {
+          "wave": 2,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w2/verdicts/combat.json and hurdles/waves/w2/critic/combat/review.md",
+          "review_file": "hurdles/waves/w2/critic/combat/review.md",
+          "verdict_file": "hurdles/waves/w2/verdicts/combat.json"
         }
       ]
     },
@@ -481,6 +489,14 @@
           "biggest_gap": "See hurdles/waves/w1/verdicts/hud.json and hurdles/waves/w1/critic/hud/review.md",
           "review_file": "hurdles/waves/w1/critic/hud/review.md",
           "verdict_file": "hurdles/waves/w1/verdicts/hud.json"
+        },
+        {
+          "wave": 2,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w2/verdicts/hud.json and hurdles/waves/w2/critic/hud/review.md",
+          "review_file": "hurdles/waves/w2/critic/hud/review.md",
+          "verdict_file": "hurdles/waves/w2/verdicts/hud.json"
         }
       ]
     },
@@ -554,7 +570,7 @@
         "why": "HTML5-playable, top-rated pixel-art roguelite with a polished, minimalist title screen and menus. Clean visual hierarchy, snappy button feedback, and most importantly a UI that makes you want to press Start instead of just providing options.",
         "pinned_wave": 1
       },
-      "status": "lost",
+      "status": "won",
       "history": [
         {
           "wave": 1,
@@ -563,6 +579,15 @@
           "biggest_gap": "See hurdles/waves/w1/verdicts/title.json and hurdles/waves/w1/critic/title/review.md",
           "review_file": "hurdles/waves/w1/critic/title/review.md",
           "verdict_file": "hurdles/waves/w1/verdicts/title.json"
+        },
+        {
+          "wave": 2,
+          "verdict": "won",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w2/verdicts/title.json and hurdles/waves/w2/critic/title/review.md",
+          "review_file": "hurdles/waves/w2/critic/title/review.md",
+          "verdict_file": "hurdles/waves/w2/verdicts/title.json",
+          "commit_hash": "f4d7c54487f7f8a0fdb6eb9f96e5eb7e9c9e3a7e"
         }
       ]
     },

@@ -324,3 +324,22 @@ All wave 2 build pieces are now complete. Advancing to `integrate`.
 
 All wave 2 critique pieces complete. Advancing to judge phase. Queue: combat, hud, title.
 
+
+## 2026-09-29 — w2 judge: combat, hud, title
+
+Three judges ran in parallel on the wave 2 re-judge of the three previously-lost pieces:
+- **combat** (vs Backstreet Warriors): B wins (clear) — WE LOST AGAIN. Verdict: judge found our side still lacks dramatic visual feedback effects and knockback sprites to convey impact weight; text-based feedback and muted palette make hits feel weightless. Biggest gap: add dramatic visual feedback effects like knockback sprites or screen-space effects to convey impact weight.
+- **hud** (vs Bright Lancer): B wins (clear) — WE LOST AGAIN. Verdict: judge found our HUD still lacks the integration and visual depth of the reference; cramped item bar and debug overlays break immersion. Biggest gap: integrate UI elements as meaningful parts of the game world rather than flat overlays; add gradient shading and visual depth.
+- **title** (vs 10 Minutes Till Dawn): B wins (clear) — WE WON! Verdict: judge found our title screen presents polished, cohesive visual hierarchy with clear call-to-action and engaging environment backdrop that makes pressing Start feel inevitable. Reference (A) has isolated character art without clear world context.
+
+Results: combat lost, hud lost, title won. All three verdicts written to `hurdles/waves/w2/verdicts/`.
+
+## 2026-09-29 — w2 resolve
+
+Resolved all three wave 2 re-judged pieces:
+- **combat**: ours=A, winner=B → **LOST** (status set to lost, history appended)
+- **hud**: ours=A, winner=B → **LOST** (status set to lost, history appended)
+- **title**: ours=B, winner=B → **WON** (status set to won, history appended)
+
+Two pieces are lost; advancing to wave 3, build phase. Queue: combat, hud (in build order).
+All three pieces' history entries appended to `pieces.json` with verdict files and review paths. State advanced: wave 3, phase build, queue [combat, hud].

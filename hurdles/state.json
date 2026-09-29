@@ -1,10 +1,9 @@
 {
-  "wave": 2,
-  "phase": "judge",
+  "wave": 3,
+  "phase": "build",
   "queue": [
     "combat",
-    "hud",
-    "title"
+    "hud"
   ],
-  "notes": "Wave 2 critique complete. Advancing to judge phase for three pieces."
+  "notes": "Wave 2 judge complete. Results: combat lost (clear margin, biggest gap: add dramatic visual feedback), hud lost (clear margin, biggest gap: integrate UI into game world), title won (clear margin). Two pieces rebuild in wave 3."
 }
