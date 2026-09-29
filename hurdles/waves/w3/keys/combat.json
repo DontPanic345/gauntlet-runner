@@ -1,0 +1,16 @@
+{
+  "ours": "A",
+  "pairs": 3,
+  "sources": {
+    "A": [
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ours/01-motion-strip.png",
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ours/02-impact-moment.png",
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ours/03-aftermath.png"
+    ],
+    "B": [
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ref/01-motion-strip.png",
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ref/02-impact-moment.png",
+      "/home/fallo/gauntlet-runner/hurdles/waves/w3/critic/combat/ref/03-aftermath.png"
+    ]
+  }
+}
