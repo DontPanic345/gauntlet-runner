@@ -10,7 +10,7 @@
 //         &route=<0..9>  starting node            &boss=1         boss bar up from the start
 //         &low=1         start at 1 heart         &enemies=0      no enemies, only the dummies
 //         &zoom=1..3 (default 1 = game scale)     &slow=<s>       &help=0   hide the key legend
-// Keys:   WASD move  J attack  K dash  Tab cycle boon tooltips (or hover with the mouse)
+// Keys:   WASD move  J attack  K dash  ESC pause/unpause  Tab cycle boon tooltips (or hover with the mouse)
 //         1 hurt  2 heal  3 +7 shards  4 spend 5  5 add a boon  6 next room  7 boss bar / hit boss
 //         8 drop to 1 heart  9 +1 max heart  0 reset  B bot  R restart  H hide HUD  Z zoom  T slow-mo
 
