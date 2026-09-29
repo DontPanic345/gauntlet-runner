@@ -2,8 +2,7 @@
   "wave": 3,
   "phase": "build",
   "queue": [
-    "combat",
     "hud"
   ],
-  "notes": "Wave 2 judge complete. Results: combat lost (clear margin, biggest gap: add dramatic visual feedback), hud lost (clear margin, biggest gap: integrate UI into game world), title won (clear margin). Two pieces rebuild in wave 3."
+  "notes": "Wave 3 build in progress. Combat complete. Now building hud."
 }
