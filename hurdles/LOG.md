@@ -71,3 +71,13 @@ where the outputs are.
 - Cross-piece edits: `src/main.js` (import plus a per-frame `vfx.render`), `src/core/showcase.js` (the vfx router entry), and `src/core/placeholders.js` (`vfx.bind(['move','kill'])`). Combat's own `fx.js` and the hero's dash ghosts are not switched over yet. Turning on `vfx.bind(['combat'])` would double the hit effects. Notes are in `waves/w1/build/vfx.md`.
 - The builder could not verify 60 fps at 2000 particles: headless software GL runs at 12 to 16 fps with or without particles.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
+
+## 2026-09-29 — w1 build: enemies
+
+- Builder added `src/enemies/`: four archetypes (husk, ember wisp, brute, mite swarm), each a voxel model animated in code. Telegraphs share one floor language in which the drawn zone is the hitbox. Enemies take hit-stun (the brute has a stagger threshold) and take turns attacking so they don't bunch up. Difficulty is set in `data.js`. `?showcase=enemies` shows a lineup, and `&fight=husk|wisp|brute|mite|mites|wave` puts the hero against one type, with a demo autopilot.
+- Cross-piece edits: `src/core/showcase.js` (the router entry), `src/core/placeholders.js` (runs the enemy manager, and `debug.spawn` now merges with combat's dummy/sparring), and `src/vfx/vfx.js` (the kill handler skips `ownDeath` enemies). Notes are in `waves/w1/build/enemies.md`. The builder did not listen to the sound effects.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
+
+## 2026-09-29 — w1 build: budget stop
+
+- The budget guard tripped after enemies: the session window was at 72%, over the 50% limit, and resets Tue 29 Sep 23:19. Weekly was at 78%. The next session resumes the build queue at `arenas`.

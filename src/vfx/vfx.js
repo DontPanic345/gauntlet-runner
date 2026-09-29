@@ -44,9 +44,10 @@ const BINDINGS = {
     'combat:heroHurt': (e) => fx.hitSpark(e.x - e.dx * 0.2, 0.7, e.z - e.dz * 0.2, { dx: e.dx, dz: e.dz, power: 1.3, palette: 'hurt', light: false }),
     'combat:dodge': (e) => fx.sparkle(e.x, 0.8, e.z, { palette: 'sparkCool', color: 'sky' }),
   },
-  // deaths only (safe to add next to combat/fx.js, which has no death effect)
+  // deaths only (safe to add next to combat/fx.js, which has no death effect). Targets with
+  // `ownDeath` (the enemies piece's archetypes) play their own death and are skipped here.
   kill: {
-    'combat:kill': (e) => fx.death(e.x, (e.target?.h ?? 1) * 0.5, e.z, { colors: e.target?.debris ?? ['bone', 'frost', 'stone'] }),
+    'combat:kill': (e) => e.target?.ownDeath || fx.death(e.x, (e.target?.h ?? 1) * 0.5, e.z, { colors: e.target?.debris ?? ['bone', 'frost', 'stone'] }),
     'combat:heroDeath': (e) => fx.death(e.x, 0.5, e.z, { colors: ['navy', 'blue', 'bone'], power: 0.8, ring: 'sky' }),
   },
 };
