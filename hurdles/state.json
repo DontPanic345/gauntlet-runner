@@ -1,9 +1,9 @@
 {
   "wave": 3,
-  "phase": "critique",
+  "phase": "judge",
   "queue": [
     "combat",
     "hud"
   ],
-  "notes": "Wave 3 integrate complete, no seams. Advancing to critique phase to re-judge the two rebuilt pieces (combat, hud) against their wave 2 references."
+  "notes": "Wave 3 critique complete. Advancing to judge phase for both rebuilt pieces."
 }
