@@ -19,6 +19,7 @@ import { startShowcase } from './core/showcase.js';
 import { drawText } from './core/pixelfont.js';
 import './core/placeholders.js';
 import { look } from './render/look.js';
+import { vfx } from './vfx/vfx.js';   // shared particle/effect pools: ticks on 'tick', drawn below
 
 // ---- piece modules that define or override scenes: one import line each --------------
 // (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
@@ -49,6 +50,7 @@ loop.start({
   },
   render(alpha, realDt) {
     scenes.render(alpha, realDt);
+    vfx.render(alpha);
     display.render(realDt);
     if (scenes.current) scenes.ui(display.ui, alpha);
     else drawText(display.ui, 'LOADING', display.width / 2, display.height / 2 - 4, 'mist', { align: 'center' });

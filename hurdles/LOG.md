@@ -64,3 +64,10 @@ where the outputs are.
 - The loop is rolled back to `a7661a3`, the last commit before the first non-Opus run. That undoes the Sonnet/Haiku w1 builds (vfx through run-flow), w1 integrate, critique and judge, and all of w2 and w3. The old history is kept on branch `backup/pre-opus-rollback`.
 - Kept from after that point: the binary `.gitattributes` rules, serial critics in PROTOCOL.md, and the cron timeout fix.
 - `tools/hurdles-cron.sh` now pins `--model opus --effort medium` and runs the clerk as an interactive session in a detached tmux session (`tmux attach -t hurdles` to watch), replacing `-p` and `tools/watch-agent.sh`. The next session resumes the w1 build queue at `vfx`.
+
+## 2026-09-29 — w1 build: vfx
+
+- Builder added `src/vfx/` (`core.js`, `effects.js`, `ambient.js`, `vfx.js`, `showcase.js`): one fixed-size particle pool (3 draw calls), an effects library (hit spark, slash, dust, dash, death, spawn portal, embers, flash, shockwave, pickup), an ambient layer with crypt/collapse/boss presets, and a 12-effect labelled reel at `?showcase=vfx`.
+- Cross-piece edits: `src/main.js` (import plus a per-frame `vfx.render`), `src/core/showcase.js` (the vfx router entry), and `src/core/placeholders.js` (`vfx.bind(['move','kill'])`). Combat's own `fx.js` and the hero's dash ghosts are not switched over yet. Turning on `vfx.bind(['combat'])` would double the hit effects. Notes are in `waves/w1/build/vfx.md`.
+- The builder could not verify 60 fps at 2000 particles: headless software GL runs at 12 to 16 fps with or without particles.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.

@@ -26,6 +26,7 @@ import { createCombatFx } from '../combat/fx.js';
 import '../combat/sfx.js';
 import { TrainingDummy, SparringDummy } from '../combat/dummy.js';
 import { debug } from './debug.js';
+import { vfx } from '../vfx/vfx.js';   // vfx piece: footstep/dash/landing dust and death bursts from events
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -80,6 +81,7 @@ function runScene(label) {
       hero = new HeroHealth({ ctl, anim, rig, hp: 5 });
       combat = new HeroCombat({ ctl, anim, health: hero, targets: () => world.enemies });
       cfx = createCombatFx(root);
+      vfx.bind(['move', 'kill']);   // unbinds itself when the scene exits
       world.hero = hero;
       world.enemies = [];
       // debug.spawn('dummy' | 'sparring', x, z): combat's training targets (enemies replaces this)
