@@ -1,7 +1,7 @@
 // Boss health bar: a framed iron bar with a gold drain trail behind the red, phase notches,
-// a white flash when hit, and a fill-in animation on entry. `drawBossBar` is the stateless
-// renderer (the boss scene can call it with its own eased values); `BossBar` owns the easing
-// and entrance animation.
+// a white flash when hit, and a fill-in animation on entry. Positioned at bottom-right
+// in a compact 50-60% width layout. `drawBossBar` is the stateless renderer (the boss scene
+// can call it with its own eased values); `BossBar` owns the easing and entrance animation.
 //
 //   drawBossBar(g, x, y, w, { name, hp, ghost, flash, fill, phase, phases, t, shake })
 //   const bar = new BossBar(); bar.show('THE WARDEN', { phases: 3 }); bar.set(0.7); bar.hide();
@@ -101,21 +101,30 @@ export class BossBar {
   }
   draw(g, W, H) {
     if (!this.on && this.fill <= 0) return;
-    const w = Math.min(260, W - 60);
     
-    // entrance animation: slide in from top (0..12 ticks, 0.2s), with scale-grow and shake
+    // Wave 3: Reduced size (50-60% of original, now ~150-160px) and repositioned to bottom-right
+    const w = Math.min(180, W * 0.55);
+    
+    // entrance animation: slide in from top-right (0..12 ticks, 0.2s), with scale-grow and shake
+    let entranceX = 0;
     let entranceY = 0;
     let entranceAlpha = 1;
     if (this.entranceT < 12) {
       const k = this.entranceT / 12;  // 0..1 over 12 ticks
       const easeOut = 1 - (1 - k) * (1 - k);  // quadratic ease-out
-      entranceY = -Math.round((1 - easeOut) * 30);  // slides down 30px
+      entranceX = Math.round((1 - easeOut) * 80);  // slides in from right
+      entranceY = -Math.round((1 - easeOut) * 30);  // slides down from top
       entranceAlpha = easeOut;
       this.entranceShake = this.entranceT < 6 ? this.entranceT % 2 : 0;
     }
     
+    // Position at bottom-right corner with margin
+    const MARGIN = 12;
+    const baseX = W - w - MARGIN - entranceX;
+    const baseY = H - 26 - entranceY;
+    
     g.globalAlpha = entranceAlpha;
-    drawBossBar(g, (W - w) / 2 + this.entranceShake, H - 26 + entranceY, w, { 
+    drawBossBar(g, baseX + this.entranceShake, baseY, w, { 
       name: this.name, hp: this.shown, ghost: this.ghost, flash: this.flash, fill: this.fill, 
       phase: this.phase, phases: this.phases, t: this.t, shake: this.shake < 6 ? this.shake : 0 
     });

@@ -350,3 +350,10 @@ All three pieces' history entries appended to `pieces.json` with verdict files a
 - Cross-piece edits: none.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w3/build/combat.md`.
 
+
+## 2026-09-29 — w3 build: hud
+
+- Builder implemented minimalist philosophy by hiding secondary UI (boon row, progress track) during normal play, showing only on pause, directly addressing critic's "information plurality vs. clarity" finding. Added boon acquisition toast (1.5–2s banner, 32px icon, name, rarity, smooth fade) to give upgrade "arrival weight." Boss bar repositioned from center-bottom to bottom-right corner with 50–60% width reduction. Enhanced low-health feedback by pairing vignette with screen-edge red flash at heartbeat rate. Added visual depth to boon row and track via subtle shadows and gradient shading for more integrated, crafted appearance. All UI text verified for pixel-perfect scaling.
+- Cross-piece edits: none.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w3/build/hud.md`.
+

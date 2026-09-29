@@ -3,8 +3,7 @@
 // Tooltips: mouse hover, or Tab cycles through the boons from the keyboard, or a boon that was
 // just gained announces itself for a couple of seconds.
 //
-// Wave 2 consolidation: larger cells (18x18), more spacing (3px gap), and improved breathing
-// room to reduce information clutter and improve readability mid-fight.
+// Wave 3: Enhanced visual depth with subtle shadows and better color separation for crafted appearance.
 
 import { css } from '../../render/palette.js';
 import { drawText, textWidth, wrapText } from '../../core/pixelfont.js';
@@ -12,8 +11,8 @@ import { drawIcon } from '../../progression/icons.js';
 import { RARITY } from '../../progression/boons.js';
 import { plate, plus } from './sprites.js';
 
-const CELL = 18;  // increased from 16 for better readability
-const GAP = 3;   // increased from 2 for better spacing
+const CELL = 18;  // wave 2: increased from 16 for better readability
+const GAP = 3;   // wave 2: increased from 2 for better spacing
 const TIP_W = 176;
 
 export class BoonRow {
@@ -78,6 +77,11 @@ export class BoonRow {
       this.bounds.push([cx, y, CELL, CELL]);
       const sel = this.sel === i || hov || (this.auto && this.auto.id === it.id);
       const lift = sel ? -2 : 0;
+      
+      // Wave 3: subtle shadow for depth
+      g.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      g.fillRect(cx + 1, y + dy + CELL + lift, CELL - 2, 1);
+      
       plate(g, cx, y + dy + lift, CELL, CELL, { edge: r.edge, fill: it.popT < 3 ? 'frost' : sel ? r.panel : 'night', light: r.edgeDark });
       drawIcon(g, it.id, cx + 3, y + dy + 3 + lift, 1, { outline: false });
       // level pips (larger, clearer)

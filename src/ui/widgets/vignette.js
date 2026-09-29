@@ -46,3 +46,20 @@ export function drawVignette(g, W, H, intensity, colour = 'blood') {
   if (level <= 0 && intensity * f < 0.05) return;
   g.drawImage(bake(W, H, level, colour), 0, 0);
 }
+
+/** Screen-edge flash for low-health heartbeat: a red flash at the edges that pulses in sync. */
+export function drawScreenEdgeFlash(g, W, H, intensity, edgeWidth = 12) {
+  const f = settings.get('flashes');
+  if (intensity <= 0.02 || f <= 0) return;
+  const alpha = Math.min(1, intensity * f * 0.15);  // subtle, 10-15% max opacity
+  if (alpha < 0.02) return;
+  g.fillStyle = `rgba(255, 120, 100, ${alpha})`;
+  // top edge
+  g.fillRect(0, 0, W, edgeWidth);
+  // bottom edge
+  g.fillRect(0, H - edgeWidth, W, edgeWidth);
+  // left edge
+  g.fillRect(0, 0, edgeWidth, H);
+  // right edge
+  g.fillRect(W - edgeWidth, 0, edgeWidth, H);
+}

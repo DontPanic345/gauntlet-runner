@@ -3,8 +3,7 @@
 // corridor nodes are ember coloured (they are the collapse); the link out of the current node
 // fills as `progress` (arena: waves cleared, corridor: distance run).
 //
-// Wave 2 consolidation: reduced visual weight by shrinking nodes (65%) and label size, making
-// it a passive info zone that doesn't compete with hearts for attention.
+// Wave 3: Enhanced visual depth with subtle shadows, making it feel more integrated when visible.
 
 import { css } from '../../render/palette.js';
 import { drawText, textWidth } from '../../core/pixelfont.js';
@@ -56,6 +55,11 @@ export class Track {
   draw(g, cx, y) {
     const n = this.route.length, w = this.width();
     const x = Math.round(cx - w / 2);
+    
+    // Wave 3: Add subtle shadow for depth
+    g.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    g.fillRect(x + 1, y + 17, w - 2, 1);
+    
     plate(g, x, y, w, 17);  // reduced height from 21 to 17
     const cur = this.route[this.index];
     for (let i = 0; i < n; i++) {
