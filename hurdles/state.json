@@ -1,9 +1,8 @@
 {
-  "wave": 3,
-  "phase": "judge",
+  "wave": 4,
+  "phase": "build",
   "queue": [
-    "combat",
-    "hud"
+    "combat"
   ],
-  "notes": "Wave 3 critique complete. Advancing to judge phase for both rebuilt pieces."
+  "notes": "Wave 3 complete. Results: combat lost (judge wanted more color saturation/visual energy), hud won (decisive, reference failed to load). Advancing to wave 4 build: combat to rebuild."
 }

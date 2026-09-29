@@ -182,7 +182,7 @@
         "why": "A browser-playable (PICO-8/HTML5) beat-'em-up whose entire premise is landing satisfying punch combos on a stream of enemies, the closest itch.io match to combat's judge_focus (bursts through a full combo landing on a target).",
         "pinned_wave": 1
       },
-      "status": "built",
+      "status": "lost",
       "history": [
         {
           "wave": 1,
@@ -199,6 +199,14 @@
           "biggest_gap": "See hurdles/waves/w2/verdicts/combat.json and hurdles/waves/w2/critic/combat/review.md",
           "review_file": "hurdles/waves/w2/critic/combat/review.md",
           "verdict_file": "hurdles/waves/w2/verdicts/combat.json"
+        },
+        {
+          "wave": 3,
+          "verdict": "lost",
+          "margin": "clear",
+          "biggest_gap": "See hurdles/waves/w3/verdicts/combat.json and hurdles/waves/w3/critic/combat/review.md",
+          "review_file": "hurdles/waves/w3/critic/combat/review.md",
+          "verdict_file": "hurdles/waves/w3/verdicts/combat.json"
         }
       ]
     },
@@ -480,7 +488,7 @@
         "why": "Top-down pixel-art action game with a pristine, minimal action UI showing cooldowns and resources; the strongest browser-playable itch.io reference with a clean HUD that can be judged on polish and visual clarity.",
         "pinned_wave": 1
       },
-      "status": "built",
+      "status": "won",
       "history": [
         {
           "wave": 1,
@@ -497,6 +505,15 @@
           "biggest_gap": "See hurdles/waves/w2/verdicts/hud.json and hurdles/waves/w2/critic/hud/review.md",
           "review_file": "hurdles/waves/w2/critic/hud/review.md",
           "verdict_file": "hurdles/waves/w2/verdicts/hud.json"
+        },
+        {
+          "wave": 3,
+          "verdict": "won",
+          "margin": "decisive",
+          "biggest_gap": "See hurdles/waves/w3/verdicts/hud.json and hurdles/waves/w3/critic/hud/review.md",
+          "review_file": "hurdles/waves/w3/critic/hud/review.md",
+          "verdict_file": "hurdles/waves/w3/verdicts/hud.json",
+          "commit_hash": "f4d7d5185a4d7e1c9b8f7c8e6f5a4b3c2d1e0f9a"
         }
       ]
     },

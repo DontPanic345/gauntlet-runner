@@ -357,3 +357,20 @@ All three pieces' history entries appended to `pieces.json` with verdict files a
 - Cross-piece edits: none.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w3/build/hud.md`.
 
+
+## 2026-09-29 — w3 judge: combat, hud
+
+Two judges ran in parallel on wave 3 re-judged pieces:
+- **combat** (vs Backstreet Warriors): B wins (clear) — WE LOST. Verdict: judge found our side shows equivalent functional feedback at impact, but B's vibrant, saturated aesthetic creates superior visual energy and hit weight. Our biggest gap: increase effect color saturation and chromatic pop on hits; swap muted colors for vivid, saturated impact flashes.
+- **hud** (vs Bright Lancer): A wins (decisive) — WE WON! Verdict: judge found our HUD fully functional and readable with clear health feedback and organized elements, while reference game (B) never loaded past splash screens across all pairs. Decisive win by default, but HUD design is sound.
+
+Results: combat lost (clear), hud won (decisive).
+
+## 2026-09-29 — w3 resolve
+
+Resolved both wave 3 re-judged pieces:
+- **combat**: ours=A, winner=B → **LOST** (status set to lost, history appended)
+- **hud**: ours=A, winner=A → **WON** (status set to won, history appended with commit hash)
+
+One piece is lost; advancing to wave 4, build phase. Queue: combat (in build order).
+All pieces' history entries appended to `pieces.json` with verdict files and review paths. State advanced: wave 4, phase build, queue [combat].
