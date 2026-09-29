@@ -62,5 +62,5 @@ where the outputs are.
 
 - The cron clerk ran without `--model`, so it used whatever default an interactive `/model` had saved. From 27 Sep 07:21 the clerk runs were on Sonnet 5, and from 29 Sep 03:21 they were on Haiku 4.5, along with every agent they spawned. The Haiku waves produced broken packets: the w3 combat reference side was the itch.io cover art repeated, and the hud "win" was against a reference that never loaded.
 - The loop is rolled back to `a7661a3`, the last commit before the first non-Opus run. That undoes the Sonnet/Haiku w1 builds (vfx through run-flow), w1 integrate, critique and judge, and all of w2 and w3. The old history is kept on branch `backup/pre-opus-rollback`.
-- Kept from after that point: the binary `.gitattributes` rules, serial critics in PROTOCOL.md, the cron timeout fix, and `tools/watch-agent.sh`.
-- `tools/hurdles-cron.sh` now pins `--model opus --effort medium`. The next session resumes the w1 build queue at `vfx`.
+- Kept from after that point: the binary `.gitattributes` rules, serial critics in PROTOCOL.md, and the cron timeout fix.
+- `tools/hurdles-cron.sh` now pins `--model opus --effort medium` and runs the clerk as an interactive session in a detached tmux session (`tmux attach -t hurdles` to watch), replacing `-p` and `tools/watch-agent.sh`. The next session resumes the w1 build queue at `vfx`.
