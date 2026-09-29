@@ -343,3 +343,10 @@ Resolved all three wave 2 re-judged pieces:
 
 Two pieces are lost; advancing to wave 3, build phase. Queue: combat, hud (in build order).
 All three pieces' history entries appended to `pieces.json` with verdict files and review paths. State advanced: wave 3, phase build, queue [combat, hud].
+
+## 2026-09-29 — w3 build: combat
+
+- Builder implemented multi-frame knockback animation (200-400ms smooth eased slide) to replace instant teleport-style enemy movement after hits, addressing the critic's "hits lack continuous motion through impact" and judge's "lacks dramatic visual feedback effects" verdicts. Screen kick increased from [2.0, 2.5, 5.0]px to [2.5, 3.5, 10.0]px for visibility, hit 3 flash enhanced (radius 4.5+power*1.5, intensity 2.8, duration 220ms), and camera shake extended to 300ms so screen reaction persists through knockback animation. Combat event enriched with `step` field (0-2) to enable HUD damage number scaling per hit weight.
+- Cross-piece edits: none.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames. Builder notes in `waves/w3/build/combat.md`.
+

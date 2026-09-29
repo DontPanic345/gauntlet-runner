@@ -21,7 +21,7 @@
 //   'combat:hit'       { target, x, y, z, dx, dz, tx, tz, dmg, power, finisher, step, stopMs }
 //                      one per target struck. (x,y,z) is the contact point, (dx,dz) the push
 //                      direction, (tx,tz) the blade's travel direction there. power ~0.8..2.2
-//   'combat:damage'    { x, y, z, amount, crit, side: 'enemy'|'hero' }   damage-number hook (hud)
+//   'combat:damage'    { x, y, z, amount, crit, side: 'enemy'|'hero', step }   damage-number hook (hud)
 //   'combat:kill'      { target, x, z }                          a target's hp reached 0
 //   'combat:heroHurt'  { x, z, amount, hp, maxHp, dx, dz, source }
 //   'combat:dodge'     { x, z, source }                          an attack met dash i-frames
@@ -60,14 +60,15 @@ const SMEAR_REACH = 10.6 / 8;   // outer rim of the smear, world units from the 
  *   lift       upward pop, units/s (launch)
  *   stop       hitstop, ms, for the first target
  *   kick/shake screen kick along the hit, px / shake px
+ *   knockAnimMs  duration of knockback animation slide in ms (wave 3)
  */
 export const COMBO = [
   { name: 'slash', dmg: 10, spread: 1, reach: SMEAR_REACH + 0.12, arc: 'h', mirror: false, hitFrom: 0,
-    knock: 2.5, lift: 0, stop: 65, kick: 2.0, shake: 1.0, sparks: 7 },
+    knock: 2.5, lift: 0, stop: 65, kick: 2.5, shake: 1.0, sparks: 7, knockAnimMs: 250 },
   { name: 'backhand', dmg: 11, spread: 1, reach: SMEAR_REACH + 0.12, arc: 'h', mirror: true, hitFrom: 0,
-    knock: 3.2, lift: 0, stop: 75, kick: 2.5, shake: 1.5, sparks: 8 },
+    knock: 3.2, lift: 0, stop: 75, kick: 3.5, shake: 1.5, sparks: 8, knockAnimMs: 280 },
   { name: 'overhead', dmg: 24, spread: 2, reach: SMEAR_REACH + 0.22, arc: [-42, 42], mirror: false, hitFrom: 1,
-    knock: 12, lift: 3.4, stop: 120, kick: 5.0, shake: 4.0, sparks: 16, finisher: true },
+    knock: 12, lift: 3.4, stop: 120, kick: 10.0, shake: 4.0, sparks: 16, finisher: true, knockAnimMs: 350 },
 ];
 
 /** Extension points for boons (progression piece). damage(amount, spec, target) -> amount. */
@@ -126,6 +127,7 @@ export function strike(target, src, spec, { step = -1, tx = 0, tz = 0, dmg = nul
   const hit = {
     dmg: amount, dx, dz, tx, tz, power, step, finisher: !!spec.finisher,
     knock: spec.knock ?? 4, lift: spec.lift ?? 0, stopMs: spec.stop ?? 50, flashTicks: spec.finisher ? 7 : 4,
+    knockAnimMs: spec.knockAnimMs ?? 250,
   };
   if (target.takeHit(hit) === false) return null;
   const r = target.r ?? 0.35;
@@ -133,8 +135,10 @@ export function strike(target, src, spec, { step = -1, tx = 0, tz = 0, dmg = nul
   const cy = (target.hitY ?? 0.6);
   const out = { target, x: cx, y: cy, z: cz, ...hit };
   events.emit('combat:hit', out);
-  events.emit('combat:damage', { x: target.x, y: (target.h ?? 1.2) + 0.1, z: target.z, amount, crit: hit.finisher, side: 'enemy' });
-  look.flash(cx, cy + 0.2, cz, { color: hit.finisher ? 'gold' : 'torch', ms: hit.finisher ? 200 : 100, intensity: hit.finisher ? 2.0 + power * 0.8 : 1.2 + power, radius: hit.finisher ? 3.5 + power * 1.2 : 2.5 + power });
+  // Wave 3: include step in damage event so HUD can scale hit 3 appropriately
+  events.emit('combat:damage', { x: target.x, y: (target.h ?? 1.2) + 0.1, z: target.z, amount, crit: hit.finisher, side: 'enemy', step });
+  // Wave 3: increased flash on hit 3 (radius 4.5+power*1.5, intensity 2.8+power*1.0)
+  look.flash(cx, cy + 0.2, cz, { color: hit.finisher ? 'gold' : 'torch', ms: hit.finisher ? 220 : 100, intensity: hit.finisher ? 2.8 + power * 1.0 : 1.2 + power, radius: hit.finisher ? 4.5 + power * 1.5 : 2.5 + power });
   if (target.dead) events.emit('combat:kill', { target, x: target.x, z: target.z });
   return out;
 }
@@ -148,7 +152,8 @@ export function applyImpact(hits, spec) {
   feedback.hitstop(stop);
   // screen y grows toward +z, foreshortened by the camera pitch
   feedback.kick(kx, kz * 0.77, spec.kick ?? 1.5);
-  if (spec.shake) feedback.shake(spec.shake, spec.finisher ? 280 : 140);
+  // Wave 3: extended shake duration (300ms on hit 3 instead of 280ms)
+  if (spec.shake) feedback.shake(spec.shake, spec.finisher ? 300 : 160);
 }
 
 // ---- things that can be hit -------------------------------------------------------------
@@ -157,6 +162,9 @@ export function applyImpact(hits, spec) {
  * Base for dummies and enemies: position with knockback velocity and friction, a launch
  * (y) with gravity, a springy tilt that wobbles away from hits, and a stepped hit flash.
  * Subclasses call tickBody() each sim tick and read flashLevel()/tilt when rendering.
+ * 
+ * Wave 3: knockback animation (sliding over 200-400ms with out-quart easing)
+ * instead of instant position jump, making hits feel heavier and more impactful.
  */
 export class Hurtable {
   constructor({ id = null, type = 'target', x = 0, z = 0, r = 0.35, h = 1.2, hp = Infinity, weight = 1, friction = 0.82, bounds = null } = {}) {
@@ -174,6 +182,7 @@ export class Hurtable {
     this.hits = 0; this.lastHit = null; this.invulnT = 0;
     this.bounds = bounds;                            // {minX, maxX, minZ, maxZ} keep-inside box
     this.collision = null;                           // optional CollisionWorld to slide against
+    this.knockAnim = null;                           // {t, ms, sx, sz, tx, tz} knockback slide animation (wave 3)
   }
 
   get invuln() { return this.invulnT > 0; }
@@ -183,7 +192,26 @@ export class Hurtable {
     if (this.dead || this.invulnT > 0) return false;
     this.hp -= hit.dmg;
     const k = hit.knock / this.weight;
-    this.vx += hit.dx * k; this.vz += hit.dz * k;
+    // Wave 3: start knockback animation instead of instant velocity
+    // This makes the target slide/stagger over 200-400ms, making hits feel heavier
+    if (k > 0 && hit.knockAnimMs) {
+      // Estimate final position based on knockback direction and magnitude
+      const slideDist = k * (hit.knockAnimMs / 1000) * 4; // tuned multiplier for visual distance
+      this.knockAnim = {
+        t: 0,
+        ms: hit.knockAnimMs,
+        sx: this.x,
+        sz: this.z,
+        tx: this.x + hit.dx * slideDist,
+        tz: this.z + hit.dz * slideDist,
+      };
+      // Don't apply velocity during animation
+      this.vx = 0;
+      this.vz = 0;
+    } else {
+      // Fallback for hits without knockAnim setup
+      this.vx += hit.dx * k; this.vz += hit.dz * k;
+    }
     if (hit.lift) this.vy = Math.max(this.vy, hit.lift / Math.sqrt(this.weight));
     // tip away from the blow; a finisher rocks it hard
     const tk = (0.09 + 0.05 * hit.power) / this.weight;
@@ -201,26 +229,45 @@ export class Hurtable {
     this.ptiltX = this.tiltX; this.ptiltZ = this.tiltZ; this.psquash = this.squash;
     if (this.invulnT > 0) this.invulnT--;
     if (this.flashT > 0) this.flashT--;
-    // slide
-    const air = this.y > 0.001;
-    const f = air ? 0.93 : this.friction;
-    let mx = this.vx * DT, mz = this.vz * DT;
-    if (this.collision) {
-      const b = { x: this.x, z: this.z, r: this.r };
-      this.collision.move(b, mx, mz);
-      this.x = b.x; this.z = b.z;
-    } else { this.x += mx; this.z += mz; }
-    const B = this.bounds;
-    if (B) {
-      if (this.x < B.minX + this.r) { this.x = B.minX + this.r; this.vx = Math.abs(this.vx) * 0.3; }
-      if (this.x > B.maxX - this.r) { this.x = B.maxX - this.r; this.vx = -Math.abs(this.vx) * 0.3; }
-      if (this.z < B.minZ + this.r) { this.z = B.minZ + this.r; this.vz = Math.abs(this.vz) * 0.3; }
-      if (this.z > B.maxZ - this.r) { this.z = B.maxZ - this.r; this.vz = -Math.abs(this.vz) * 0.3; }
+    
+    // Wave 3: knockback animation with out-quart easing
+    if (this.knockAnim) {
+      this.knockAnim.t += DT * 1000; // convert to ms
+      const u = Math.min(1, this.knockAnim.t / this.knockAnim.ms);
+      // out-quart easing: 1 - (1-t)^4, gives smooth deceleration
+      const ease = 1 - Math.pow(1 - u, 4);
+      this.x = this.knockAnim.sx + (this.knockAnim.tx - this.knockAnim.sx) * ease;
+      this.z = this.knockAnim.sz + (this.knockAnim.tz - this.knockAnim.sz) * ease;
+      
+      if (u >= 1) {
+        // Animation complete, resume normal physics
+        this.knockAnim = null;
+        this.vx = 0;
+        this.vz = 0;
+      }
+    } else {
+      // Normal velocity-based movement (when not in knockback animation)
+      const air = this.y > 0.001;
+      const f = air ? 0.93 : this.friction;
+      let mx = this.vx * DT, mz = this.vz * DT;
+      if (this.collision) {
+        const b = { x: this.x, z: this.z, r: this.r };
+        this.collision.move(b, mx, mz);
+        this.x = b.x; this.z = b.z;
+      } else { this.x += mx; this.z += mz; }
+      const B = this.bounds;
+      if (B) {
+        if (this.x < B.minX + this.r) { this.x = B.minX + this.r; this.vx = Math.abs(this.vx) * 0.3; }
+        if (this.x > B.maxX - this.r) { this.x = B.maxX - this.r; this.vx = -Math.abs(this.vx) * 0.3; }
+        if (this.z < B.minZ + this.r) { this.z = B.minZ + this.r; this.vz = Math.abs(this.vz) * 0.3; }
+        if (this.z > B.maxZ - this.r) { this.z = B.maxZ - this.r; this.vz = -Math.abs(this.vz) * 0.3; }
+      }
+      this.vx *= f; this.vz *= f;
+      if (Math.hypot(this.vx, this.vz) < 0.05) { this.vx = 0; this.vz = 0; }
     }
-    this.vx *= f; this.vz *= f;
-    if (Math.hypot(this.vx, this.vz) < 0.05) { this.vx = 0; this.vz = 0; }
+    
     // launch
-    if (air || this.vy > 0) {
+    if (this.y > 0.001 || this.vy > 0) {
       this.vy -= 22 * DT;
       this.y += this.vy * DT;
       if (this.y <= 0) {
