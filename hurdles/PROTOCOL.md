@@ -86,7 +86,8 @@ and reports. If the budget guard trips, the session stops at a unit boundary, an
    `node_modules/` is missing, run `npm install`. Run the budget guard.
 2. **Handle the phase**, as described below. After each unit: write its outputs, update
    `state.json` and `pieces.json`, append to LOG.md, and commit with a message like
-   `hurdles wN build: combat`. Then run the budget guard again.
+   `hurdles wN build: combat`. Then run the budget guard again. In a cloud run, every
+   commit goes through `tools/hurdles-cloud.sh commit` (see "Cloud runs").
 3. **Advance** the phase when its queue is empty:
    `build -> integrate -> critique -> judge -> resolve -> (next wave build | done)`.
 
@@ -221,11 +222,31 @@ the pinned reference.
 
 ## Budget guard
 
-Run the `usage-check` skill at the start and after every unit. If the session window
+Run the `usage-check` skill at the start and after every unit (in a cloud run, where
+that skill does not exist, run `tools/hurdles-cloud.sh budget`; exit 3 means stop). If the session window
 (5-hourly) is at 50% or more, or the weekly window is at 95% or more, start nothing new. Make
 sure state is consistent and committed, then stop and tell the user the reset time.
 Never leave a phase half-recorded. Either a unit's outputs and state update are both
 committed, or the unit is left in `queue` to redo.
+
+## Cloud runs
+
+A claude.ai routine runs the clerk on a schedule, each run in a fresh VM with a fresh
+clone. Runs can overlap, and a VM can vanish mid-unit, so the clerk works through
+`tools/hurdles-cloud.sh` (its header has the details):
+
+- `start` runs first. It checks out `master`, runs the gates (lock, `done`, budget,
+  clean tree), takes the lock in `hurdles/lock.json` by pushing to `master`, and
+  provisions the VM. `SKIP` means end the session at once and change nothing.
+- `commit "<msg>"` replaces `git commit` for every unit. It checks the lock is still
+  ours, renews its heartbeat, commits everything, and pushes to `master`. Exit 4 means
+  another run has the lock: stop at once and push nothing. Exit 5 means a push conflict:
+  record it in the report and stop.
+- `release "<why>"` is the last thing a run does, however it stops.
+
+Never push to `master` by any other route, and never edit `hurdles/lock.json` by hand.
+A lock whose heartbeat is 4 hours old is treated as dead and taken over. Spawn agents in
+the foreground and wait for them: ending the turn ends the session.
 
 ## Stopping
 

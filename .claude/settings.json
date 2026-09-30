@@ -21,7 +21,45 @@
       "WebFetch(domain:shared.fastly.steamstatic.com)",
       "WebFetch(domain:community.fastly.steamstatic.com)",
       "WebFetch(domain:images.steamusercontent.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(tools/hurdles-cloud.sh *)",
+      "Bash(tools/cloud-setup.sh*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/tools/hurdles-cloud.sh hook-start",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/tools/hurdles-cloud.sh hook-stop",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/tools/hurdles-cloud.sh hook-end",
+            "timeout": 60
+          }
+        ]
+      }
     ]
   }
 }

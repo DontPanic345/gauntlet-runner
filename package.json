@@ -12,5 +12,8 @@
   "dependencies": {
     "three": "^0.186.1"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }
