@@ -72,7 +72,9 @@ write_lock() {  # holder since
      else {holder: $h, session: $s, since: $since, heartbeat: $hb} end' > "$LOCK"
 }
 
-fetch() { git fetch -q origin master; }
+# Explicit refspec: cloud clones are single-branch (the default branch), so a plain
+# `git fetch origin master` would not update origin/master.
+fetch() { git fetch -q origin +refs/heads/master:refs/remotes/origin/master; }
 
 # Push HEAD to master. On a non-fast-forward, re-check the lock and rebase onto
 # whatever a person pushed meanwhile.
@@ -160,7 +162,7 @@ cmd_start() {
 
   if [ "${CLAUDE_CODE_REMOTE:-}" = true ]; then
     local log="$(git rev-parse --git-dir)/cloud-setup.log"
-    if ! tools/cloud-setup.sh >"$log" 2>&1; then
+    if ! bash tools/cloud-setup.sh >"$log" 2>&1; then
       tail -5 "$log" >&2
       cmd_release "setup failed; see the session log" >/dev/null
       skip "VM setup failed (tools/cloud-setup.sh), lock released"

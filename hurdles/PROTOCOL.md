@@ -87,7 +87,7 @@ and reports. If the budget guard trips, the session stops at a unit boundary, an
 2. **Handle the phase**, as described below. After each unit: write its outputs, update
    `state.json` and `pieces.json`, append to LOG.md, and commit with a message like
    `hurdles wN build: combat`. Then run the budget guard again. In a cloud run, every
-   commit goes through `tools/hurdles-cloud.sh commit` (see "Cloud runs").
+   commit goes through `bash tools/hurdles-cloud.sh commit` (see "Cloud runs").
 3. **Advance** the phase when its queue is empty:
    `build -> integrate -> critique -> judge -> resolve -> (next wave build | done)`.
 
@@ -223,7 +223,7 @@ the pinned reference.
 ## Budget guard
 
 Run the `usage-check` skill at the start and after every unit (in a cloud run, where
-that skill does not exist, run `tools/hurdles-cloud.sh budget`; exit 3 means stop). If the session window
+that skill does not exist, run `bash tools/hurdles-cloud.sh budget`; exit 3 means stop). If the session window
 (5-hourly) is at 50% or more, or the weekly window is at 95% or more, start nothing new. Make
 sure state is consistent and committed, then stop and tell the user the reset time.
 Never leave a phase half-recorded. Either a unit's outputs and state update are both
