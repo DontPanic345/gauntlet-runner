@@ -23,7 +23,7 @@ export const SHOWCASES = {
   vfx: { title: 'VFX and juice', load: () => import('../vfx/showcase.js') },
   enemies: { title: 'Enemies', load: () => import('../enemies/showcase.js') },
   arenas: { title: 'Arenas and environment', load: () => import('../world/showcase-arenas.js') },
-  gauntlet: { title: 'Gauntlet corridors', load: null },
+  gauntlet: { title: 'Gauntlet corridors', load: () => import('../world/showcase-gauntlet.js') },
   boons: { title: 'Boons and pickups', load: null },
   boss: { title: 'Boss: The Warden', load: null },
   hud: { title: 'HUD and in-game UI', load: null },

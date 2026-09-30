@@ -30,6 +30,7 @@ import { vfx } from '../vfx/vfx.js';   // vfx piece: footstep/dash/landing dust 
 import { createEnemies, spawnHandler } from '../enemies/index.js';   // enemies piece: debug.spawn('husk'|'wisp'|'brute'|'mite'|'mites')
 import { Arena, generateArena, cameraBounds, setActiveArena, ARENA_COUNT } from '../world/arena.js';   // arenas piece: the run's rooms
 import { events } from './events.js';
+import '../world/corridor.js';   // gauntlet piece: defines the 'gauntlet' scene (corridors between arenas)
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -76,7 +77,8 @@ function runScene(label) {
         arena = setActiveArena(new Arena(root, generateArena(index, rng.seed), { hero: () => ctl }));
         cw = arena.collision;
         start = arena.start;
-        offs.push(events.on('arena:exit', () => scenes.go(index + 1 < ARENA_COUNT ? 'run' : 'boss', { room: index + 1 })));
+        // gauntlet piece: between two arenas the hero runs a collapsing corridor ('gauntlet' scene)
+        offs.push(events.on('arena:exit', () => scenes.go(index + 1 < ARENA_COUNT ? 'gauntlet' : 'boss', { room: index + 1, index })));
         debug.handle('goto', (i) => { scenes.go('run', { room: i | 0 }); return { ok: true, room: i | 0 }; });
       } else {
         arena = null;

@@ -88,3 +88,9 @@ where the outputs are.
 - Cross-piece edits: `src/core/showcase.js` (the router entry), `src/core/placeholders.js` (the run placeholder now plays real arenas, walks through the exit to the next one, and `debug.goto` works), and `src/combat/combat.js` (aim assist skips props). Notes are in `waves/w1/build/arenas.md`, and the known gaps listed there include rooms that are dark away from the 8-light pool.
 - The container restarted partway through the build, and the builder was resumed from its work on disk.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
+
+## 2026-09-30 — w1 build: gauntlet
+
+- Builder added `src/world/corridor.js`, `traps.js`, `collapse.js` and `showcase-gauntlet.js`: a side-scrolling corridor run over a cliff with 3 to 5 trap beats (spike plates, swinging blades, fire jets, crumbling floor over pits), all telegraphed in the enemies' floor language. A collapse chases the hero, with falling boulders and slabs, dust, embers, a rumble and a red kill line. It speeds up when the hero stalls and ends when the collapse smashes into a slab gate. In `?showcase=gauntlet` a demo pilot runs the corridor, T shows the timing overlay and L toggles slow-mo.
+- Cross-piece edits: `src/core/showcase.js` (the router entry) and `src/core/placeholders.js` (`arena:exit` now goes to the new `gauntlet` scene). Notes are in `waves/w1/build/gauntlet.md`. The demo pilot is scripted to pause at each beat. Collapse speeds are tuned only against that pilot, and the sounds have not been listened to.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
