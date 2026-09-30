@@ -81,3 +81,10 @@ where the outputs are.
 ## 2026-09-29 — w1 build: budget stop
 
 - The budget guard tripped after enemies: the session window was at 72%, over the 50% limit, and resets Tue 29 Sep 23:19. Weekly was at 78%. The next session resumes the build queue at `arenas`.
+
+## 2026-09-30 — w1 build: arenas
+
+- Builder added `src/world/` (`arena.js`, `tiles.js`, `props.js`, `waves.js`, `showcase-arenas.js`): six hand-authored room templates, picked per seed then mirrored and varied. Entering a room seals it with iron spikes that slam up out of the floor, with shake, dust and a boom. The waves are seeded and escalate across the 5 arenas. The clear moment has slow motion, a flash, the exit seal breaking and the portcullis rising. Some props break when hit and others react without breaking. `?showcase=arenas` does a fly-through of the arenas and then plays one.
+- Cross-piece edits: `src/core/showcase.js` (the router entry), `src/core/placeholders.js` (the run placeholder now plays real arenas, walks through the exit to the next one, and `debug.goto` works), and `src/combat/combat.js` (aim assist skips props). Notes are in `waves/w1/build/arenas.md`, and the known gaps listed there include rooms that are dark away from the 8-light pool.
+- The container restarted partway through the build, and the builder was resumed from its work on disk.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.

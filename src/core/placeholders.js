@@ -28,6 +28,8 @@ import { TrainingDummy, SparringDummy } from '../combat/dummy.js';
 import { debug } from './debug.js';
 import { vfx } from '../vfx/vfx.js';   // vfx piece: footstep/dash/landing dust and death bursts from events
 import { createEnemies, spawnHandler } from '../enemies/index.js';   // enemies piece: debug.spawn('husk'|'wisp'|'brute'|'mite'|'mites')
+import { Arena, generateArena, cameraBounds, setActiveArena, ARENA_COUNT } from '../world/arena.js';   // arenas piece: the run's rooms
+import { events } from './events.js';
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -60,33 +62,46 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes;
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes, arena, offs = [];
   return {
     pausable: true,
-    enter(_d, root) {
+    enter(data, root) {
       world.reset();
       display.setZoom(1);
-      stage = buildStage(root, { torches: TORCHES, rng: rng.fork(label + '-stage') });
+      // run: a real arena (arenas piece); debug.goto(i) and walking out of the exit change room.
+      // boss: foundation's stand-in stage until the boss piece exists.
+      let cw, start = { x: 0, z: 0, yaw: 0 };
+      if (label === 'run') {
+        const index = Math.max(0, Math.min(ARENA_COUNT - 1, data?.room ?? 0));
+        arena = setActiveArena(new Arena(root, generateArena(index, rng.seed), { hero: () => ctl }));
+        cw = arena.collision;
+        start = arena.start;
+        offs.push(events.on('arena:exit', () => scenes.go(index + 1 < ARENA_COUNT ? 'run' : 'boss', { room: index + 1 })));
+        debug.handle('goto', (i) => { scenes.go('run', { room: i | 0 }); return { ok: true, room: i | 0 }; });
+      } else {
+        arena = null;
+        stage = buildStage(root, { torches: TORCHES, rng: rng.fork(label + '-stage') });
+        cw = new CollisionWorld();
+        cw.addRing(0, 0, 4.9);
+        for (const [x, z] of TORCHES) cw.addCircle(x, z, 0.22, 'torch');
+      }
       rig = createHeroRig();
       root.add(rig.group);
-      anim = new HeroAnim(rig, { x: 0, z: 0, yaw: 0 });
+      anim = new HeroAnim(rig, { x: start.x, z: start.z, yaw: start.yaw });
       anim.spawn();
-      const cw = new CollisionWorld();
-      cw.addRing(0, 0, 4.9);
-      for (const [x, z] of TORCHES) cw.addCircle(x, z, 0.22, 'torch');
       setCollision(cw);
-      ctl = new HeroController({ x: 0, z: 0, yaw: 0, anim, collision: cw });
-      cam = new CameraRig({ bounds: { minX: -1.6, maxX: 1.6, minZ: -1.2, maxZ: 1.2 } });
-      cam.reset(0, 0);
+      ctl = new HeroController({ x: start.x, z: start.z, yaw: start.yaw, anim, collision: cw });
+      cam = new CameraRig({ bounds: arena ? cameraBounds(arena.L, 1) : { minX: -1.6, maxX: 1.6, minZ: -1.2, maxZ: 1.2 } });
+      cam.reset(start.x, start.z);
       deadT = -1;
       hero = new HeroHealth({ ctl, anim, rig, hp: 5 });
-      combat = new HeroCombat({ ctl, anim, health: hero, targets: () => world.enemies });
+      combat = new HeroCombat({ ctl, anim, health: hero, targets: () => (arena ? [...world.enemies, ...arena.targets()] : world.enemies) });
       cfx = createCombatFx(root);
       vfx.bind(['move', 'kill']);   // unbinds itself when the scene exits
       world.hero = hero;
       world.enemies = [];
       // debug.spawn('dummy' | 'sparring', x, z): combat's training targets (enemies replaces this)
-      foes = createEnemies(root, { collision: cw, bounds: { minX: -4.9, maxX: 4.9, minZ: -4.9, maxZ: 4.9 } });
+      foes = arena ? arena.foes : createEnemies(root, { collision: cw, bounds: { minX: -4.9, maxX: 4.9, minZ: -4.9, maxZ: 4.9 } });
       debug.handle('spawn', spawnHandler(foes, (type, x, z) => {
         if (type !== 'dummy' && type !== 'sparring') return { ok: false, error: `no enemy type "${type}" (try husk, wisp, brute, mite, mites, dummy or sparring)` };
         const b = { minX: -4.6, maxX: 4.6, minZ: -4.6, maxZ: 4.6 };
@@ -96,15 +111,20 @@ function runScene(label) {
         world.enemies.push(d);
         return { ok: true, id: d.id };
       }));
-      world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
+      if (!arena) world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
     },
-    exit() { setCollision(null); cfx.dispose(); foes.dispose(); },
+    exit() {
+      offs.forEach((f) => f()); offs = [];
+      setCollision(null); cfx.dispose();
+      if (arena) { arena.dispose(); arena = null; } else foes.dispose();
+      debug.handle('goto', () => ({ ok: false, error: 'no rooms in this scene' }));
+    },
     tick() {
-      stage.tick();
+      stage?.tick();
       combat.tick();   // combo input, ctl.tick(), hits, hero hurt/death rules (combat piece)
-      cam.tick(ctl);
+      if (arena) arena.tickCamera(cam, ctl); else cam.tick(ctl);
       for (const e of world.enemies) if (!foes.list.includes(e)) e.tick?.();
-      foes.tick();
+      if (arena) arena.tick(); else foes.tick();   // the arena ticks its own enemies and waves
       cfx.tick();
       if (hero.dead && deadT < 0) deadT = 0;
       if (deadT >= 0 && ++deadT > 80) scenes.go('gameover', { cause: 'debug' });
@@ -115,12 +135,13 @@ function runScene(label) {
       const off = cam.render(alpha, ctl.at(alpha));
       rig.group.position.set(off.x, off.y, off.z);
       for (const e of world.enemies) if (!foes.list.includes(e)) e.render?.(alpha);
-      foes.render(alpha);
-      stage.render(alpha);
+      if (arena) arena.render(alpha); else foes.render(alpha);
+      stage?.render(alpha);
       cfx.render(alpha);
     },
     ui(g) {
       cfx.ui(g);
+      arena?.ui(g);
       drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
       drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
       note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`);
