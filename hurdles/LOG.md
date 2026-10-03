@@ -127,3 +127,7 @@ where the outputs are.
 - Cross-piece edits: `src/main.js` (one import), `src/core/showcase.js` (the router entry), and a 3-line reroute to the shared context and bus in `src/combat/sfx.js`, `src/enemies/sfx.js`, `src/progression/sfx.js`, `src/boss/sfx.js`, `src/ui/widgets/sfx.js`, `src/world/props.js` and `src/world/traps.js`. `director.js` replaces the most frequent of those stand-in sounds by overriding their exported voice objects. Notes are in `waves/w1/build/audio.md`, including how critics record the master bus (`debug.audio('record', ms)`, `debug.audioStream()`).
 - Balanced by measurement only; the music has not been listened to. Each song is an 8-bar loop, song switches can lag up to 0.6 s, and boss phase III music was only reached on the board.
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
+
+## 2026-10-03 — w1 build: budget stop
+
+- The budget guard tripped after audio: the session window was at 53%, over the 50% limit. Weekly was at 16%. The next run resumes the build queue at `title`.
