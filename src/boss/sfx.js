@@ -10,6 +10,7 @@
 // leap, a key-rattle for the summon and a bell for the cage.
 
 import { settings } from '../core/settings.js';
+import { audioContext, legacyBus, legacyVol } from '../audio/engine.js';
 
 let ctx = null, out = null, noiseBuf = null, n = 0;
 
@@ -19,12 +20,10 @@ function ac() {
   if (typeof AudioContext === 'undefined') return null;
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
   try {
-    ctx = new AudioContext();
+    ctx = audioContext(); if (!ctx) return null;   // shared context + mixer (src/audio)
     out = ctx.createGain();
     out.gain.value = 0.8;
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 6;
-    out.connect(comp).connect(ctx.destination);
+    out.connect(legacyBus('boss'));
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     let s = 11;
@@ -32,7 +31,7 @@ function ac() {
   } catch { ctx = null; return null; }
   return ctx;
 }
-const vol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);
+const vol = () => legacyVol();   // the mixer applies the settings volumes
 const jit = () => 1 + (((n++ * 37) % 11) - 5) * 0.015;
 
 function env(g, t, a, peak, d) {

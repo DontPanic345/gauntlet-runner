@@ -31,6 +31,7 @@ import { Rng } from '../core/rng.js';
 import { events } from '../core/events.js';
 import { feedback } from '../core/feedback.js';
 import { settings } from '../core/settings.js';
+import { audioContext, legacyBus, legacyVol } from '../audio/engine.js';
 import { look } from '../render/look.js';
 import { vfx } from '../vfx/vfx.js';
 
@@ -383,12 +384,10 @@ function ac() {
   if (typeof AudioContext === 'undefined') return null;
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
   try {
-    actx = new AudioContext();
+    actx = audioContext(); if (!actx) return null;   // shared context + mixer (src/audio)
     aout = actx.createGain();
     aout.gain.value = 0.8;
-    const comp = actx.createDynamicsCompressor();
-    comp.threshold.value = -16; comp.ratio.value = 5;
-    aout.connect(comp).connect(actx.destination);
+    aout.connect(legacyBus('arena'));
     anoise = actx.createBuffer(1, actx.sampleRate, actx.sampleRate);
     const d = anoise.getChannelData(0);
     let s = 11;
@@ -396,7 +395,7 @@ function ac() {
   } catch { actx = null; return null; }
   return actx;
 }
-const avol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);
+const avol = () => legacyVol();   // the mixer applies the settings volumes
 function aenv(g, t, a, peak, d) {
   g.gain.setValueAtTime(0.0001, t);
   g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + a);

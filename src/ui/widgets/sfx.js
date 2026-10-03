@@ -5,6 +5,7 @@
 // Volume: settings masterVolume * sfxVolume. `hudSfx.enabled = false` when `audio` takes over.
 
 import { settings } from '../../core/settings.js';
+import { audioContext, legacyBus, legacyVol } from '../../audio/engine.js';
 
 let ctx = null, out = null;
 
@@ -14,14 +15,14 @@ function ac() {
   if (typeof AudioContext === 'undefined') return null;
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
   try {
-    ctx = new AudioContext();
+    ctx = audioContext(); if (!ctx) return null;   // shared context + mixer (src/audio)
     out = ctx.createGain();
-    out.connect(ctx.destination);
+    out.connect(legacyBus('hud'));
   } catch { ctx = null; return null; }
   return ctx;
 }
 
-const vol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);
+const vol = () => legacyVol();   // the mixer applies the settings volumes
 
 function thump(c, t, f0, f1, peak, dur) {
   const o = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();

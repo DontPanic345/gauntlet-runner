@@ -11,6 +11,7 @@
 
 import { events } from '../core/events.js';
 import { settings } from '../core/settings.js';
+import { audioContext, legacyBus, legacyVol } from '../audio/engine.js';
 
 let ctx = null, out = null, noiseBuf = null;
 let n = 0; // variation counter (deterministic pitch jitter)
@@ -21,11 +22,9 @@ function ac() {
   if (typeof AudioContext === 'undefined') return null;
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
   try {
-    ctx = new AudioContext();
+    ctx = audioContext(); if (!ctx) return null;   // shared context + mixer (src/audio)
     out = ctx.createGain();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14; comp.ratio.value = 6;
-    out.connect(comp).connect(ctx.destination);
+    out.connect(legacyBus('combat'));
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     let s = 1;
@@ -34,7 +33,7 @@ function ac() {
   return ctx;
 }
 
-function vol() { return (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9); }
+function vol() { return legacyVol(); }   // the mixer applies the settings volumes
 
 function env(g, t, a, peak, d, end = 0.0001) {
   g.gain.setValueAtTime(0.0001, t);

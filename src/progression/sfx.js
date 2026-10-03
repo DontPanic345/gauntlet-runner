@@ -11,6 +11,7 @@
 // The AudioContext is created lazily and only after the page has had a user gesture.
 
 import { settings } from '../core/settings.js';
+import { audioContext, legacyBus, legacyVol } from '../audio/engine.js';
 
 let ctx = null, out = null, noiseBuf = null;
 const last = {};
@@ -21,11 +22,9 @@ function ac() {
   if (typeof AudioContext === 'undefined') return null;
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
   try {
-    ctx = new AudioContext();
+    ctx = audioContext(); if (!ctx) return null;   // shared context + mixer (src/audio)
     out = ctx.createGain();
-    const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -16; comp.ratio.value = 5;
-    out.connect(comp).connect(ctx.destination);
+    out.connect(legacyBus('boons'));
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     let s = 7;
@@ -33,7 +32,7 @@ function ac() {
   } catch { ctx = null; return null; }
   return ctx;
 }
-const vol = () => (settings.get('masterVolume') ?? 0.8) * (settings.get('sfxVolume') ?? 0.9);
+const vol = () => legacyVol();   // the mixer applies the settings volumes
 /** Rate limit: a sound that can fire many times per tick plays at most once per `ms`. */
 function gate(name, ms) {
   const now = performance.now();

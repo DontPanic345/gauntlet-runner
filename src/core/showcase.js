@@ -27,7 +27,7 @@ export const SHOWCASES = {
   boons: { title: 'Boons and pickups', load: () => import('../progression/showcase.js') },
   boss: { title: 'Boss: The Warden', load: () => import('../boss/showcase.js') },
   hud: { title: 'HUD and in-game UI', load: () => import('../ui/showcase-hud.js') },
-  audio: { title: 'Audio', load: null },
+  audio: { title: 'Audio', load: () => import('../audio/showcase.js') },
   title: { title: 'Title screen and menus', load: null },
   'run-flow': { title: 'Run flow and endings', load: null },
 };
