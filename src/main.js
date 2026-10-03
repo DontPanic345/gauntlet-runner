@@ -23,6 +23,7 @@ import { vfx } from './vfx/vfx.js';   // shared particle/effect pools: ticks on 
 
 // ---- piece modules that define or override scenes: one import line each --------------
 // (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
+import './boss/scene.js';   // boss piece: the 'boss' scene (the Warden's Pit)
 
 const params = new URLSearchParams(location.search);
 const seedParam = parseInt(params.get('seed') ?? '', 10);
