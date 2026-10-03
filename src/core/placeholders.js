@@ -32,6 +32,7 @@ import { Arena, generateArena, cameraBounds, setActiveArena, ARENA_COUNT } from 
 import { events } from './events.js';
 import '../world/corridor.js';   // gauntlet piece: defines the 'gauntlet' scene (corridors between arenas)
 import { createProgression } from '../progression/index.js';   // boons piece: boons, shard/heart pickups, the shrine after a clear
+import { createHud } from '../ui/hud.js';   // hud piece: hearts, dash, shards, room track, boons, damage numbers
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -64,7 +65,7 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes, arena, prog, offs = [];
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes, arena, prog, hud, offs = [];
   return {
     pausable: true,
     enter(data, root) {
@@ -99,7 +100,7 @@ function runScene(label) {
       deadT = -1;
       hero = new HeroHealth({ ctl, anim, rig, hp: 5 });
       combat = new HeroCombat({ ctl, anim, health: hero, targets: () => (arena ? [...world.enemies, ...arena.targets()] : world.enemies) });
-      cfx = createCombatFx(root);
+      cfx = createCombatFx(root, { numbers: false });   // hud piece draws the damage numbers
       vfx.bind(['move', 'kill']);   // unbinds itself when the scene exits
       world.hero = hero;
       world.enemies = [];
@@ -115,11 +116,12 @@ function runScene(label) {
         return { ok: true, id: d.id };
       }));
       if (!arena) world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
-      prog = createProgression(root, { ctl, anim, rig, health: hero, combat, arena, shrineOnClear: label === 'run' });
+      prog = createProgression(root, { ctl, anim, rig, health: hero, combat, arena, shrineOnClear: label === 'run', hud: false });
+      hud = createHud({ health: hero, runtime: prog.runtime });
     },
     exit() {
       offs.forEach((f) => f()); offs = [];
-      prog.dispose();
+      prog.dispose(); hud.dispose();
       setCollision(null); cfx.dispose();
       if (arena) { arena.dispose(); arena = null; } else foes.dispose();
       debug.handle('goto', () => ({ ok: false, error: 'no rooms in this scene' }));
@@ -150,10 +152,10 @@ function runScene(label) {
     ui(g) {
       cfx.ui(g);
       arena?.ui(g);
+      hud.ui(g);
       prog.ui(g);
-      drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
-      drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
-      note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`);
+      // bottom right, clear of the hud's boon row (bottom left)
+      drawText(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`, display.width - 6, display.height - 12, 'mist', { shadow: 'ink', align: 'right' });
     },
   };
 }

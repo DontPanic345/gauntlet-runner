@@ -114,3 +114,9 @@ where the outputs are.
 ## 2026-10-03 — w1 build: budget stop
 
 - The budget guard tripped after boss: the session window was at 66%, over the 50% limit. Weekly was at 9%. The next run resumes the build queue at `hud`.
+
+## 2026-10-03 — w1 build: hud
+
+- Builder added `src/ui/hud.js`, `src/ui/damage-numbers.js`, `src/ui/showcase-hud.js` and `src/ui/widgets/` (`draw.js`, `hearts.js`, `dash.js`, `shards.js`, `track.js`, `boons.js`, `bossbar.js`, `vignette.js`, `sfx.js`): hearts that drain and shatter, a dash pip that refills, a shard odometer with a "+n" tally, a room track (5 arenas, 4 corridors, boss) with a hopping runner marker and wave pips, a boon row with tooltips (new boon, Tab, hover) and the synergy banner, a boss bar for any boss (drain chunk, notches, poise and stagger), stacking damage numbers (gold crits, red hero damage), and a dithered low-health vignette with a heartbeat. Panels dither aside when something is under them. It is the HUD in the run, gauntlet and boss scenes. `?showcase=hud` is a dummy fight with keys for every element and a partly scripted demo.
+- Cross-piece edits: `src/core/placeholders.js` and `src/world/corridor.js` (HUD wiring, old HP text removed), `src/boss/scene.js` and `src/boss/fight.js` (an `externalHud` flag skips the fight's own hp and boss bar), and `src/core/showcase.js` (the router entry). Notes are in `waves/w1/build/hud.md`. The combat, boons and boss showcases still use the stand-in numbers and boon HUD. The heartbeat has not been listened to, and gamepad is untested.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.

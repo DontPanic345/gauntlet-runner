@@ -304,8 +304,8 @@ export function createBossFight(root, opts = {}) {
   function ui(g) {
     cfx.ui(g);
     const W = display.width, H = display.height;
-    drawHeroHp(g, health, W, H);
-    if (bar.show > 0) drawBossBar(g, warden, bar, W, H);
+    if (!api.externalHud) drawHeroHp(g, health, W, H);   // hud piece draws these when externalHud is set
+    if (bar.show > 0 && !api.externalHud) drawBossBar(g, warden, bar, W, H);
     if (card.t >= 0 && card.t < 190) drawNameCard(g, card.t, W, H);
     if (phaseCard.t >= 0) drawPhaseCard(g, phaseCard.t, phaseCard.p, W, H);
     if (winCard.t >= 0) drawWinCard(g, winCard.t, W, H);
@@ -340,6 +340,9 @@ export function createBossFight(root, opts = {}) {
     reviveHero() { health.revive(); deadT = -1; if (state === 'lost') state = 'fight'; },
     /** Lift the boss bar (px) so a showcase help line fits under it. */
     set barLift(v) { bar.lift = v; },
+    /** hud piece: true when src/ui/hud.js draws the hero hp and the boss bar (bar.show drives its slide). */
+    externalHud: false,
+    get bar() { return bar; },
   };
   active = api;
   return api;

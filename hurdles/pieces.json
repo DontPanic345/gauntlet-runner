@@ -1,407 +1,407 @@
 {
-  "_doc": "The pieces the Hurdles loop iterates over, in build order. Status and history are updated by the loop; definitions change only with a LOG.md entry. Field meanings are in hurdles/PROTOCOL.md under 'pieces.json'.",
-  "pieces": [
-    {
-      "id": "foundation",
-      "title": "Engine foundation",
-      "judged": false,
-      "owns": [
-        "src/main.js",
-        "src/core/",
-        "src/render/voxel/",
-        "!src/core/showcase-movement.js"
-      ],
-      "depends_on": [],
-      "goal": "The skeleton every other piece plugs into: fixed-timestep loop (60 Hz sim, interpolated render), input layer (keyboard/mouse/gamepad, buffering, rebinding table), scene state machine (title/run/pause/gameover/victory), seeded RNG, voxel model format plus greedy mesher with baked per-vertex AO, the showcase router and the window.__GR debug contract.",
-      "must_have": [
-        "window.__GR contract exactly as specified in PROTOCOL.md 'Game contract'",
-        "?showcase=<piece-id> router: unknown ids show a readable error screen, not a blank canvas",
-        "voxel models defined as text or arrays in src/, meshed once and cached; one draw call per model",
-        "pause freezes the sim completely; time scale hook for slow-motion captures",
-        "zero console errors on load and during 60 s of idle"
-      ],
-      "showcase": "?showcase=foundation: a turntable of a test voxel model, input echo overlay, fps and sim-tick readout",
-      "judge_focus": "Not blind-judged. The integrator checks it against must_have: correctness, frame pacing, input latency.",
-      "reference_hint": null,
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "look",
-      "title": "Render look",
-      "judged": true,
-      "owns": [
-        "src/render/",
-        "!src/render/voxel/"
-      ],
-      "depends_on": [
-        "foundation"
-      ],
-      "goal": "The frame itself: low-res render target with nearest upscale, orthographic three-quarter camera with texel-snapped motion, palette in src/render/palette.js, lighting (warm point lights against cool ambient), outline and AO treatment, fog/vignette, and any post (palette quantise, dithering). The screenshot someone sees on the itch page.",
-      "must_have": [
-        "pixels never swim or shimmer when the camera moves (texel snapping)",
-        "one palette used everywhere, UI included",
-        "1-px outlines that read on both dark and lit surfaces",
-        "flickering torch light that actually lights nearby voxels",
-        "a still frame of an arena reads as a finished pixel-art game, not a tech demo"
-      ],
-      "showcase": "?showcase=look: a static lit arena vignette with hero, two enemies, torches, props; slow camera pan to test snapping",
-      "judge_focus": "Still frames and a slow pan strip. Which one looks like a finished, beautiful game?",
-      "reference_hint": "top-rated pixel-art or voxel action/roguelite on itch.io with a strong visual identity",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "hero",
-      "title": "Hero model and animation",
-      "judged": true,
-      "owns": [
-        "src/hero/model.js",
-        "src/hero/anim.js",
-        "src/hero/showcase.js"
-      ],
-      "depends_on": [
-        "foundation",
-        "look"
-      ],
-      "goal": "The hooded runner: voxel model with a readable silhouette, and procedural animation for idle breathing, run cycle, dash, a 3-hit attack combo, hurt, death, and spawn-in. Squash and stretch, secondary motion (cloak, scarf), anticipation and follow-through.",
-      "must_have": [
-        "silhouette readable at 1x internal resolution",
-        "scarf or cloak with lagging secondary motion",
-        "run cycle with contact and passing poses, footstep dust hook",
-        "each attack swing has anticipation, smear and recovery frames",
-        "facing changes turn quickly but never pop"
-      ],
-      "showcase": "?showcase=hero: hero on a plinth cycling every animation with its name labelled; keys 1-9 pick an animation",
-      "judge_focus": "Frame strips of idle, run, dash, attack combo, hurt, death. Which character feels more alive and appealing?",
-      "reference_hint": "top-rated itch.io pixel-art action game with an expressive small player character",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "movement",
-      "title": "Movement and camera",
-      "judged": true,
-      "owns": [
-        "src/hero/controller.js",
-        "src/core/collision.js",
-        "src/render/camera.js",
-        "src/core/showcase-movement.js"
-      ],
-      "depends_on": [
-        "foundation",
-        "hero"
-      ],
-      "goal": "How moving feels: acceleration and friction curves, 8-way movement with smooth facing, dash with i-frames, cooldown and after-images, wall collision that slides and never snags, and a camera that leads the movement with a dead-zone, eases, and takes shake from the shared channel.",
-      "must_have": [
-        "start and stop within 2-4 frames: snappy, never floaty, never instant",
-        "dash is buffered, has i-frames, and cancels attack recovery",
-        "sliding along walls and corners never sticks",
-        "camera look-ahead toward movement and aim, texel snapped"
-      ],
-      "showcase": "?showcase=movement: an obstacle-course room with pillars, corners and narrow gaps, plus a ghost trail showing the last 2 s of positions",
-      "judge_focus": "Bursts of starts, stops, turns and dashes around corners. Which movement looks tighter and more responsive?",
-      "reference_hint": "top-rated itch.io top-down action game praised for tight movement or dash",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "combat",
-      "title": "Combat feel",
-      "judged": true,
-      "owns": [
-        "src/combat/"
-      ],
-      "depends_on": [
-        "foundation",
-        "hero",
-        "movement"
-      ],
-      "goal": "Hitting and being hit: 3-hit melee combo with hitboxes that match the swing, hitstop scaled to impact, enemy flash and knockback, damage numbers hook, player hurt with i-frames and red flash, health and death rules, and a crit or finisher on hit 3.",
-      "must_have": [
-        "hitstop, white flash, knockback, spark and sound on every hit, all scaled by damage",
-        "combo timing window forgiving but not mashy; the third hit feels heavier",
-        "getting hurt is unmistakable but not disorienting",
-        "no whiffs where the visual clearly connected"
-      ],
-      "showcase": "?showcase=combat: hero vs 3 training dummies that show hit counts and knockback, plus one dummy that attacks back slowly",
-      "judge_focus": "Bursts through a full combo landing on a target. Which hits feel heavier and more satisfying?",
-      "reference_hint": "top-rated itch.io action game praised for juicy combat or hit feel",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "vfx",
-      "title": "VFX and juice",
-      "judged": true,
-      "owns": [
-        "src/vfx/"
-      ],
-      "depends_on": [
-        "foundation",
-        "look"
-      ],
-      "goal": "A shared pooled particle and effect system in the voxel pixel style (cube particles, pixel sprites), and the effects library: hit-sparks, slash smears, dust puffs, dash after-images, death bursts, spawn portals, embers, light flashes, shockwave rings, pickup sparkles. Other pieces call it; they never make their own particles.",
-      "must_have": [
-        "pooled, no allocation per frame, 2000 particles at 60 fps in the showcase",
-        "every effect uses the palette and snaps to the pixel grid",
-        "effects have shape and timing (a fast pop then a slow fade), not a uniform spray",
-        "ambient embers and dust motes available as a scene layer"
-      ],
-      "showcase": "?showcase=vfx: an effects reel that plays each effect in turn, labelled, looping; keys cycle effects",
-      "judge_focus": "Frame strips of hit-spark, death burst, dash, spawn. Which effects look more crafted and punchy?",
-      "reference_hint": "top-rated itch.io pixel-art game known for particle effects and juice",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "enemies",
-      "title": "Enemies",
-      "judged": true,
-      "owns": [
-        "src/enemies/"
-      ],
-      "depends_on": [
-        "combat",
-        "vfx"
-      ],
-      "goal": "Four archetypes with distinct silhouettes and colour: Husk (shambling chaser), Ember Wisp (ranged, kites, fires slow orbs), Brute (telegraphed charge, stuns itself on walls), Mite swarm (tiny, fast, groups of 5). Each has spawn-in, idle, move, clear telegraph, attack, hurt, death, and simple readable AI with separation.",
-      "must_have": [
-        "every attack has a telegraph readable before it hits (pose, flash or ground marker)",
-        "enemies never stack into one blob; separation and flanking",
-        "deaths are satisfying: burst, flop or shatter, never just vanish",
-        "difficulty knobs (hp, speed, aggression) are data, not code"
-      ],
-      "showcase": "?showcase=enemies: a lineup of all four archetypes with names, then ?showcase=enemies&fight=<type> spawns one against the hero",
-      "judge_focus": "Stills of the lineup plus strips of each telegraph and death. Which cast is more readable and characterful?",
-      "reference_hint": "top-rated itch.io roguelite or top-down action game with a varied enemy roster",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "arenas",
-      "title": "Arenas and environment",
-      "judged": true,
-      "owns": [
-        "src/world/arena.js",
-        "src/world/tiles.js",
-        "src/world/props.js",
-        "src/world/waves.js",
-        "src/world/showcase-arenas.js"
-      ],
-      "depends_on": [
-        "look",
-        "enemies"
-      ],
-      "goal": "Seeded arena generation from hand-authored templates with variation: floor and wall voxel tiles, props (pillars, braziers, bones, rubble, banners), torches, doors that seal and open with ceremony, wave spawning with escalation, and a clear room-clear moment.",
-      "must_have": [
-        "rooms look hand-made, not random: composition, focal props, floor variation",
-        "doors slam shut on entry with shake and dust; the clear moment is celebrated",
-        "wave composition escalates across the 5 arenas and is seed-reproducible",
-        "props break or react when hit where it makes sense"
-      ],
-      "showcase": "?showcase=arenas&seed=N: fly-through of 5 generated arenas, then one played with waves",
-      "judge_focus": "Stills of several rooms and a door-slam strip. Which levels look more handcrafted and inviting?",
-      "reference_hint": "top-rated itch.io dungeon crawler or roguelite with handsome room art",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "gauntlet",
-      "title": "Gauntlet corridors",
-      "judged": true,
-      "owns": [
-        "src/world/corridor.js",
-        "src/world/traps.js",
-        "src/world/collapse.js",
-        "src/world/showcase-gauntlet.js"
-      ],
-      "depends_on": [
-        "arenas",
-        "movement"
-      ],
-      "goal": "The signature segments: short corridors chased by the collapse (a wall of falling rock and embers that advances and kills on contact), with traps (spike floors, swinging blades, fire jets, crumbling tiles) laid out in readable rhythms that reward dashing.",
-      "must_have": [
-        "the collapse is spectacular: falling voxels, dust, rumbling shake, ember glow",
-        "every trap telegraphs its timing and is fair on first sight",
-        "tension ramps: the collapse speeds up if you dawdle and eases if you are far ahead",
-        "reaching the end has a release beat: door slams behind you, the rumble stops"
-      ],
-      "showcase": "?showcase=gauntlet&seed=N: one corridor played start to finish, with trap timing overlay toggled by T",
-      "judge_focus": "Strips of the chase and trap dodges. Which sequence looks more tense and exciting?",
-      "reference_hint": "top-rated itch.io game with a chase or escape sequence, or trap-gauntlet platforming",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "boons",
-      "title": "Boons and pickups",
-      "judged": true,
-      "owns": [
-        "src/progression/"
-      ],
-      "depends_on": [
-        "combat",
-        "vfx"
-      ],
-      "goal": "About 16 boons with visible effects (for example chain sparks on hit, dash leaves an ember trail, third hit fires a wave, lifesteal motes), rarity tiers, a pick-1-of-3 shrine with beautiful cards, stacking rules, plus currency (soul shards) and heart pickups that are satisfying to collect.",
-      "must_have": [
-        "every boon changes something you can SEE in combat, not just a number",
-        "the choice screen is a moment: cards animate in, hover and select feel tactile",
-        "pickups vacuum toward the player with a sound ladder",
-        "synergies exist between at least 4 pairs of boons"
-      ],
-      "showcase": "?showcase=boons: the choice screen with 3 random boons; ?showcase=boons&give=<id> puts the hero in a dummy room with that boon",
-      "judge_focus": "Stills of the choice screen and strips of boons in action. Which upgrade system looks more exciting?",
-      "reference_hint": "top-rated itch.io roguelite with an upgrade or card choice screen",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "boss",
-      "title": "Boss: The Warden",
-      "judged": true,
-      "owns": [
-        "src/boss/"
-      ],
-      "depends_on": [
-        "enemies",
-        "arenas",
-        "vfx"
-      ],
-      "goal": "A big voxel jailer-knight fought in a round arena: intro sequence with name card, 3 phases (sweeping chain, ground slams with shockwaves, summoning husks and caging the arena), each with learnable telegraphs, phase transitions with spectacle, a stagger or punish window, and a triumphant death sequence.",
-      "must_have": [
-        "the intro makes you nervous: camera, name card, roar, arena lights up",
-        "every attack is learnable and dodgeable on reaction with a dash",
-        "phase transitions are events, not just a stat change",
-        "the death sequence is the best-looking moment in the game"
-      ],
-      "showcase": "?showcase=boss&phase=1|2|3: boss fight starting at that phase; ?showcase=boss&intro=1 plays the intro",
-      "judge_focus": "Intro stills and strips of each phase's signature attack. Which boss looks more epic and fair?",
-      "reference_hint": "top-rated itch.io pixel-art boss fight or boss-rush game",
-      "reference": null,
-      "status": "built",
-      "history": []
-    },
-    {
-      "id": "hud",
-      "title": "HUD and in-game UI",
-      "judged": true,
-      "owns": [
-        "src/ui/hud.js",
-        "src/ui/damage-numbers.js",
-        "src/ui/widgets/",
-        "src/ui/showcase-hud.js"
-      ],
-      "depends_on": [
-        "combat",
-        "boons"
-      ],
-      "goal": "In-run UI in the pixel style: hearts or health with a damage drain, dash pips, shard counter that ticks up, boon icon row with tooltips, room progress track (arena/corridor/boss), boss health bar, damage numbers, low-health vignette. Minimal, framed, animated.",
-      "must_have": [
-        "pixel-perfect: integer-scaled, palette-bound, pixel font",
-        "every number and bar animates its changes (drain, tick, pulse)",
-        "never covers the action; readable at a glance mid-fight",
-        "low health is felt (heartbeat pulse and vignette) without being noisy"
-      ],
-      "showcase": "?showcase=hud: a dummy fight that exercises every HUD element, with keys to take damage, gain shards, add boons",
-      "judge_focus": "Mid-fight stills and a damage-taken strip. Which HUD looks more polished and readable?",
-      "reference_hint": "top-rated itch.io pixel-art action roguelite with a clean HUD",
-      "reference": null,
-      "status": "unbuilt",
-      "history": []
-    },
-    {
-      "id": "audio",
-      "title": "Audio",
-      "judged": true,
-      "owns": [
-        "src/audio/"
-      ],
-      "depends_on": [
-        "foundation"
-      ],
-      "goal": "Everything synthesised in WebAudio: a jsfxr-style SFX bank (swings, hits by weight, dash, footsteps per surface, enemy barks, pickups ladder, doors, collapse rumble, boss) with per-play pitch variation, plus music: a title theme, an arena combat loop that layers up with intensity, a corridor chase layer, and a boss theme. A mixer with ducking and settings volumes.",
-      "must_have": [
-        "no sound repeats identically twice in a row (pitch or volume variation)",
-        "music reacts to game state (combat intensity, chase, low health)",
-        "mix is balanced: hits cut through, music never masks telegraph cues",
-        "audio starts cleanly after the first user gesture; no clicks or pops"
-      ],
-      "showcase": "?showcase=audio: a sound board listing every SFX and music stem with keys to play them, plus a waveform or meter",
-      "judge_focus": "Critic records audio via the page (MediaRecorder on the master bus) and describes it; judge compares spectrogram strips plus written descriptions. Which soundscape is more satisfying and coherent?",
-      "reference_hint": "top-rated itch.io game praised for its soundtrack or sound design, ideally chiptune or synth",
-      "reference": null,
-      "status": "unbuilt",
-      "history": []
-    },
-    {
-      "id": "title",
-      "title": "Title screen and menus",
-      "judged": true,
-      "owns": [
-        "src/ui/title.js",
-        "src/ui/menus.js",
-        "src/ui/settings.js",
-        "src/ui/showcase-title.js"
-      ],
-      "depends_on": [
-        "look",
-        "audio",
-        "vfx"
-      ],
-      "goal": "The first frame: an animated voxel title scene (the runner at the Gauntlet's mouth, embers, torchlight), a crafted logo, and menus (Start, Settings, Controls, Credits) plus pause. Settings cover volumes, screen shake, flashes and key display. Everything navigable by keyboard, mouse and gamepad, with hover and select juice and sound.",
-      "must_have": [
-        "the first frame after load is already beautiful; no flash of unstyled content",
-        "the logo is designed, not just a font",
-        "menu navigation has sound, motion and a clear focus state",
-        "settings persist in localStorage and apply live"
-      ],
-      "showcase": "?showcase=title (same as the default entry) plus ?showcase=title&menu=settings",
-      "judge_focus": "The first frame, a menu-navigation strip and the settings screen. Which title screen makes you want to press Start?",
-      "reference_hint": "top-rated itch.io pixel-art game with a memorable title screen",
-      "reference": null,
-      "status": "unbuilt",
-      "history": []
-    },
-    {
-      "id": "run-flow",
-      "title": "Run flow and endings",
-      "judged": true,
-      "owns": [
-        "src/run/"
-      ],
-      "depends_on": [
-        "arenas",
-        "gauntlet",
-        "boons",
-        "boss",
-        "hud",
-        "title"
-      ],
-      "goal": "Stitches a run together: intro drop-in, arena/corridor/boss sequencing with transitions, death sequence (slow-mo, collapse of the screen), a game-over run summary (time, kills, boons taken, cause of death), a victory sequence, instant restart (one key, under 1 s to control), and light meta (best time, unlocked lore line).",
-      "must_have": [
-        "death to back in control takes under 3 s if the player wants",
-        "transitions between segments are seamless and styled (wipes, camera moves)",
-        "the run summary is a satisfying screen worth screenshotting",
-        "a full run is completable, and the seed is shown so runs can be shared"
-      ],
-      "showcase": "?showcase=run-flow&at=death|victory|summary jumps to each ending; normal play covers the rest",
-      "judge_focus": "Strips of the death sequence, summary and victory. Which run loop feels more complete and replayable?",
-      "reference_hint": "top-rated itch.io roguelite with a strong death/restart loop",
-      "reference": null,
-      "status": "unbuilt",
-      "history": []
-    }
-  ]
+ "_doc": "The pieces the Hurdles loop iterates over, in build order. Status and history are updated by the loop; definitions change only with a LOG.md entry. Field meanings are in hurdles/PROTOCOL.md under 'pieces.json'.",
+ "pieces": [
+  {
+   "id": "foundation",
+   "title": "Engine foundation",
+   "judged": false,
+   "owns": [
+    "src/main.js",
+    "src/core/",
+    "src/render/voxel/",
+    "!src/core/showcase-movement.js"
+   ],
+   "depends_on": [],
+   "goal": "The skeleton every other piece plugs into: fixed-timestep loop (60 Hz sim, interpolated render), input layer (keyboard/mouse/gamepad, buffering, rebinding table), scene state machine (title/run/pause/gameover/victory), seeded RNG, voxel model format plus greedy mesher with baked per-vertex AO, the showcase router and the window.__GR debug contract.",
+   "must_have": [
+    "window.__GR contract exactly as specified in PROTOCOL.md 'Game contract'",
+    "?showcase=<piece-id> router: unknown ids show a readable error screen, not a blank canvas",
+    "voxel models defined as text or arrays in src/, meshed once and cached; one draw call per model",
+    "pause freezes the sim completely; time scale hook for slow-motion captures",
+    "zero console errors on load and during 60 s of idle"
+   ],
+   "showcase": "?showcase=foundation: a turntable of a test voxel model, input echo overlay, fps and sim-tick readout",
+   "judge_focus": "Not blind-judged. The integrator checks it against must_have: correctness, frame pacing, input latency.",
+   "reference_hint": null,
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "look",
+   "title": "Render look",
+   "judged": true,
+   "owns": [
+    "src/render/",
+    "!src/render/voxel/"
+   ],
+   "depends_on": [
+    "foundation"
+   ],
+   "goal": "The frame itself: low-res render target with nearest upscale, orthographic three-quarter camera with texel-snapped motion, palette in src/render/palette.js, lighting (warm point lights against cool ambient), outline and AO treatment, fog/vignette, and any post (palette quantise, dithering). The screenshot someone sees on the itch page.",
+   "must_have": [
+    "pixels never swim or shimmer when the camera moves (texel snapping)",
+    "one palette used everywhere, UI included",
+    "1-px outlines that read on both dark and lit surfaces",
+    "flickering torch light that actually lights nearby voxels",
+    "a still frame of an arena reads as a finished pixel-art game, not a tech demo"
+   ],
+   "showcase": "?showcase=look: a static lit arena vignette with hero, two enemies, torches, props; slow camera pan to test snapping",
+   "judge_focus": "Still frames and a slow pan strip. Which one looks like a finished, beautiful game?",
+   "reference_hint": "top-rated pixel-art or voxel action/roguelite on itch.io with a strong visual identity",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "hero",
+   "title": "Hero model and animation",
+   "judged": true,
+   "owns": [
+    "src/hero/model.js",
+    "src/hero/anim.js",
+    "src/hero/showcase.js"
+   ],
+   "depends_on": [
+    "foundation",
+    "look"
+   ],
+   "goal": "The hooded runner: voxel model with a readable silhouette, and procedural animation for idle breathing, run cycle, dash, a 3-hit attack combo, hurt, death, and spawn-in. Squash and stretch, secondary motion (cloak, scarf), anticipation and follow-through.",
+   "must_have": [
+    "silhouette readable at 1x internal resolution",
+    "scarf or cloak with lagging secondary motion",
+    "run cycle with contact and passing poses, footstep dust hook",
+    "each attack swing has anticipation, smear and recovery frames",
+    "facing changes turn quickly but never pop"
+   ],
+   "showcase": "?showcase=hero: hero on a plinth cycling every animation with its name labelled; keys 1-9 pick an animation",
+   "judge_focus": "Frame strips of idle, run, dash, attack combo, hurt, death. Which character feels more alive and appealing?",
+   "reference_hint": "top-rated itch.io pixel-art action game with an expressive small player character",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "movement",
+   "title": "Movement and camera",
+   "judged": true,
+   "owns": [
+    "src/hero/controller.js",
+    "src/core/collision.js",
+    "src/render/camera.js",
+    "src/core/showcase-movement.js"
+   ],
+   "depends_on": [
+    "foundation",
+    "hero"
+   ],
+   "goal": "How moving feels: acceleration and friction curves, 8-way movement with smooth facing, dash with i-frames, cooldown and after-images, wall collision that slides and never snags, and a camera that leads the movement with a dead-zone, eases, and takes shake from the shared channel.",
+   "must_have": [
+    "start and stop within 2-4 frames: snappy, never floaty, never instant",
+    "dash is buffered, has i-frames, and cancels attack recovery",
+    "sliding along walls and corners never sticks",
+    "camera look-ahead toward movement and aim, texel snapped"
+   ],
+   "showcase": "?showcase=movement: an obstacle-course room with pillars, corners and narrow gaps, plus a ghost trail showing the last 2 s of positions",
+   "judge_focus": "Bursts of starts, stops, turns and dashes around corners. Which movement looks tighter and more responsive?",
+   "reference_hint": "top-rated itch.io top-down action game praised for tight movement or dash",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "combat",
+   "title": "Combat feel",
+   "judged": true,
+   "owns": [
+    "src/combat/"
+   ],
+   "depends_on": [
+    "foundation",
+    "hero",
+    "movement"
+   ],
+   "goal": "Hitting and being hit: 3-hit melee combo with hitboxes that match the swing, hitstop scaled to impact, enemy flash and knockback, damage numbers hook, player hurt with i-frames and red flash, health and death rules, and a crit or finisher on hit 3.",
+   "must_have": [
+    "hitstop, white flash, knockback, spark and sound on every hit, all scaled by damage",
+    "combo timing window forgiving but not mashy; the third hit feels heavier",
+    "getting hurt is unmistakable but not disorienting",
+    "no whiffs where the visual clearly connected"
+   ],
+   "showcase": "?showcase=combat: hero vs 3 training dummies that show hit counts and knockback, plus one dummy that attacks back slowly",
+   "judge_focus": "Bursts through a full combo landing on a target. Which hits feel heavier and more satisfying?",
+   "reference_hint": "top-rated itch.io action game praised for juicy combat or hit feel",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "vfx",
+   "title": "VFX and juice",
+   "judged": true,
+   "owns": [
+    "src/vfx/"
+   ],
+   "depends_on": [
+    "foundation",
+    "look"
+   ],
+   "goal": "A shared pooled particle and effect system in the voxel pixel style (cube particles, pixel sprites), and the effects library: hit-sparks, slash smears, dust puffs, dash after-images, death bursts, spawn portals, embers, light flashes, shockwave rings, pickup sparkles. Other pieces call it; they never make their own particles.",
+   "must_have": [
+    "pooled, no allocation per frame, 2000 particles at 60 fps in the showcase",
+    "every effect uses the palette and snaps to the pixel grid",
+    "effects have shape and timing (a fast pop then a slow fade), not a uniform spray",
+    "ambient embers and dust motes available as a scene layer"
+   ],
+   "showcase": "?showcase=vfx: an effects reel that plays each effect in turn, labelled, looping; keys cycle effects",
+   "judge_focus": "Frame strips of hit-spark, death burst, dash, spawn. Which effects look more crafted and punchy?",
+   "reference_hint": "top-rated itch.io pixel-art game known for particle effects and juice",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "enemies",
+   "title": "Enemies",
+   "judged": true,
+   "owns": [
+    "src/enemies/"
+   ],
+   "depends_on": [
+    "combat",
+    "vfx"
+   ],
+   "goal": "Four archetypes with distinct silhouettes and colour: Husk (shambling chaser), Ember Wisp (ranged, kites, fires slow orbs), Brute (telegraphed charge, stuns itself on walls), Mite swarm (tiny, fast, groups of 5). Each has spawn-in, idle, move, clear telegraph, attack, hurt, death, and simple readable AI with separation.",
+   "must_have": [
+    "every attack has a telegraph readable before it hits (pose, flash or ground marker)",
+    "enemies never stack into one blob; separation and flanking",
+    "deaths are satisfying: burst, flop or shatter, never just vanish",
+    "difficulty knobs (hp, speed, aggression) are data, not code"
+   ],
+   "showcase": "?showcase=enemies: a lineup of all four archetypes with names, then ?showcase=enemies&fight=<type> spawns one against the hero",
+   "judge_focus": "Stills of the lineup plus strips of each telegraph and death. Which cast is more readable and characterful?",
+   "reference_hint": "top-rated itch.io roguelite or top-down action game with a varied enemy roster",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "arenas",
+   "title": "Arenas and environment",
+   "judged": true,
+   "owns": [
+    "src/world/arena.js",
+    "src/world/tiles.js",
+    "src/world/props.js",
+    "src/world/waves.js",
+    "src/world/showcase-arenas.js"
+   ],
+   "depends_on": [
+    "look",
+    "enemies"
+   ],
+   "goal": "Seeded arena generation from hand-authored templates with variation: floor and wall voxel tiles, props (pillars, braziers, bones, rubble, banners), torches, doors that seal and open with ceremony, wave spawning with escalation, and a clear room-clear moment.",
+   "must_have": [
+    "rooms look hand-made, not random: composition, focal props, floor variation",
+    "doors slam shut on entry with shake and dust; the clear moment is celebrated",
+    "wave composition escalates across the 5 arenas and is seed-reproducible",
+    "props break or react when hit where it makes sense"
+   ],
+   "showcase": "?showcase=arenas&seed=N: fly-through of 5 generated arenas, then one played with waves",
+   "judge_focus": "Stills of several rooms and a door-slam strip. Which levels look more handcrafted and inviting?",
+   "reference_hint": "top-rated itch.io dungeon crawler or roguelite with handsome room art",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "gauntlet",
+   "title": "Gauntlet corridors",
+   "judged": true,
+   "owns": [
+    "src/world/corridor.js",
+    "src/world/traps.js",
+    "src/world/collapse.js",
+    "src/world/showcase-gauntlet.js"
+   ],
+   "depends_on": [
+    "arenas",
+    "movement"
+   ],
+   "goal": "The signature segments: short corridors chased by the collapse (a wall of falling rock and embers that advances and kills on contact), with traps (spike floors, swinging blades, fire jets, crumbling tiles) laid out in readable rhythms that reward dashing.",
+   "must_have": [
+    "the collapse is spectacular: falling voxels, dust, rumbling shake, ember glow",
+    "every trap telegraphs its timing and is fair on first sight",
+    "tension ramps: the collapse speeds up if you dawdle and eases if you are far ahead",
+    "reaching the end has a release beat: door slams behind you, the rumble stops"
+   ],
+   "showcase": "?showcase=gauntlet&seed=N: one corridor played start to finish, with trap timing overlay toggled by T",
+   "judge_focus": "Strips of the chase and trap dodges. Which sequence looks more tense and exciting?",
+   "reference_hint": "top-rated itch.io game with a chase or escape sequence, or trap-gauntlet platforming",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "boons",
+   "title": "Boons and pickups",
+   "judged": true,
+   "owns": [
+    "src/progression/"
+   ],
+   "depends_on": [
+    "combat",
+    "vfx"
+   ],
+   "goal": "About 16 boons with visible effects (for example chain sparks on hit, dash leaves an ember trail, third hit fires a wave, lifesteal motes), rarity tiers, a pick-1-of-3 shrine with beautiful cards, stacking rules, plus currency (soul shards) and heart pickups that are satisfying to collect.",
+   "must_have": [
+    "every boon changes something you can SEE in combat, not just a number",
+    "the choice screen is a moment: cards animate in, hover and select feel tactile",
+    "pickups vacuum toward the player with a sound ladder",
+    "synergies exist between at least 4 pairs of boons"
+   ],
+   "showcase": "?showcase=boons: the choice screen with 3 random boons; ?showcase=boons&give=<id> puts the hero in a dummy room with that boon",
+   "judge_focus": "Stills of the choice screen and strips of boons in action. Which upgrade system looks more exciting?",
+   "reference_hint": "top-rated itch.io roguelite with an upgrade or card choice screen",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "boss",
+   "title": "Boss: The Warden",
+   "judged": true,
+   "owns": [
+    "src/boss/"
+   ],
+   "depends_on": [
+    "enemies",
+    "arenas",
+    "vfx"
+   ],
+   "goal": "A big voxel jailer-knight fought in a round arena: intro sequence with name card, 3 phases (sweeping chain, ground slams with shockwaves, summoning husks and caging the arena), each with learnable telegraphs, phase transitions with spectacle, a stagger or punish window, and a triumphant death sequence.",
+   "must_have": [
+    "the intro makes you nervous: camera, name card, roar, arena lights up",
+    "every attack is learnable and dodgeable on reaction with a dash",
+    "phase transitions are events, not just a stat change",
+    "the death sequence is the best-looking moment in the game"
+   ],
+   "showcase": "?showcase=boss&phase=1|2|3: boss fight starting at that phase; ?showcase=boss&intro=1 plays the intro",
+   "judge_focus": "Intro stills and strips of each phase's signature attack. Which boss looks more epic and fair?",
+   "reference_hint": "top-rated itch.io pixel-art boss fight or boss-rush game",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "hud",
+   "title": "HUD and in-game UI",
+   "judged": true,
+   "owns": [
+    "src/ui/hud.js",
+    "src/ui/damage-numbers.js",
+    "src/ui/widgets/",
+    "src/ui/showcase-hud.js"
+   ],
+   "depends_on": [
+    "combat",
+    "boons"
+   ],
+   "goal": "In-run UI in the pixel style: hearts or health with a damage drain, dash pips, shard counter that ticks up, boon icon row with tooltips, room progress track (arena/corridor/boss), boss health bar, damage numbers, low-health vignette. Minimal, framed, animated.",
+   "must_have": [
+    "pixel-perfect: integer-scaled, palette-bound, pixel font",
+    "every number and bar animates its changes (drain, tick, pulse)",
+    "never covers the action; readable at a glance mid-fight",
+    "low health is felt (heartbeat pulse and vignette) without being noisy"
+   ],
+   "showcase": "?showcase=hud: a dummy fight that exercises every HUD element, with keys to take damage, gain shards, add boons",
+   "judge_focus": "Mid-fight stills and a damage-taken strip. Which HUD looks more polished and readable?",
+   "reference_hint": "top-rated itch.io pixel-art action roguelite with a clean HUD",
+   "reference": null,
+   "status": "built",
+   "history": []
+  },
+  {
+   "id": "audio",
+   "title": "Audio",
+   "judged": true,
+   "owns": [
+    "src/audio/"
+   ],
+   "depends_on": [
+    "foundation"
+   ],
+   "goal": "Everything synthesised in WebAudio: a jsfxr-style SFX bank (swings, hits by weight, dash, footsteps per surface, enemy barks, pickups ladder, doors, collapse rumble, boss) with per-play pitch variation, plus music: a title theme, an arena combat loop that layers up with intensity, a corridor chase layer, and a boss theme. A mixer with ducking and settings volumes.",
+   "must_have": [
+    "no sound repeats identically twice in a row (pitch or volume variation)",
+    "music reacts to game state (combat intensity, chase, low health)",
+    "mix is balanced: hits cut through, music never masks telegraph cues",
+    "audio starts cleanly after the first user gesture; no clicks or pops"
+   ],
+   "showcase": "?showcase=audio: a sound board listing every SFX and music stem with keys to play them, plus a waveform or meter",
+   "judge_focus": "Critic records audio via the page (MediaRecorder on the master bus) and describes it; judge compares spectrogram strips plus written descriptions. Which soundscape is more satisfying and coherent?",
+   "reference_hint": "top-rated itch.io game praised for its soundtrack or sound design, ideally chiptune or synth",
+   "reference": null,
+   "status": "unbuilt",
+   "history": []
+  },
+  {
+   "id": "title",
+   "title": "Title screen and menus",
+   "judged": true,
+   "owns": [
+    "src/ui/title.js",
+    "src/ui/menus.js",
+    "src/ui/settings.js",
+    "src/ui/showcase-title.js"
+   ],
+   "depends_on": [
+    "look",
+    "audio",
+    "vfx"
+   ],
+   "goal": "The first frame: an animated voxel title scene (the runner at the Gauntlet's mouth, embers, torchlight), a crafted logo, and menus (Start, Settings, Controls, Credits) plus pause. Settings cover volumes, screen shake, flashes and key display. Everything navigable by keyboard, mouse and gamepad, with hover and select juice and sound.",
+   "must_have": [
+    "the first frame after load is already beautiful; no flash of unstyled content",
+    "the logo is designed, not just a font",
+    "menu navigation has sound, motion and a clear focus state",
+    "settings persist in localStorage and apply live"
+   ],
+   "showcase": "?showcase=title (same as the default entry) plus ?showcase=title&menu=settings",
+   "judge_focus": "The first frame, a menu-navigation strip and the settings screen. Which title screen makes you want to press Start?",
+   "reference_hint": "top-rated itch.io pixel-art game with a memorable title screen",
+   "reference": null,
+   "status": "unbuilt",
+   "history": []
+  },
+  {
+   "id": "run-flow",
+   "title": "Run flow and endings",
+   "judged": true,
+   "owns": [
+    "src/run/"
+   ],
+   "depends_on": [
+    "arenas",
+    "gauntlet",
+    "boons",
+    "boss",
+    "hud",
+    "title"
+   ],
+   "goal": "Stitches a run together: intro drop-in, arena/corridor/boss sequencing with transitions, death sequence (slow-mo, collapse of the screen), a game-over run summary (time, kills, boons taken, cause of death), a victory sequence, instant restart (one key, under 1 s to control), and light meta (best time, unlocked lore line).",
+   "must_have": [
+    "death to back in control takes under 3 s if the player wants",
+    "transitions between segments are seamless and styled (wipes, camera moves)",
+    "the run summary is a satisfying screen worth screenshotting",
+    "a full run is completable, and the seed is shown so runs can be shared"
+   ],
+   "showcase": "?showcase=run-flow&at=death|victory|summary jumps to each ending; normal play covers the rest",
+   "judge_focus": "Strips of the death sequence, summary and victory. Which run loop feels more complete and replayable?",
+   "reference_hint": "top-rated itch.io roguelite with a strong death/restart loop",
+   "reference": null,
+   "status": "unbuilt",
+   "history": []
+  }
+ ]
 }

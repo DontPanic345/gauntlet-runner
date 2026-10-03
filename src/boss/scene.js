@@ -13,22 +13,26 @@ import { debug } from '../core/debug.js';
 import { createProgression } from '../progression/index.js';
 import { spawnHandler } from '../enemies/index.js';
 import { createBossFight } from './fight.js';
+import { createHud, wardenSource } from '../ui/hud.js';   // hud piece: hearts, boss bar, damage numbers
 
 scenes.define('boss', (() => {
-  let fight = null, prog = null, endT = -1;
+  let fight = null, prog = null, hud = null, endT = -1;
   return {
     pausable: true,
     enter(data, root) {
       world.reset();
       display.setZoom(1);
-      fight = createBossFight(root, { intro: data?.intro ?? true, phase: data?.phase ?? 1, hp: data?.hp ?? 5, maxHp: data?.maxHp });
+      fight = createBossFight(root, { intro: data?.intro ?? true, phase: data?.phase ?? 1, hp: data?.hp ?? 5, maxHp: data?.maxHp, numbers: false });
+      fight.externalHud = true;
       world.room = { index: 5, kind: 'boss', id: 'warden', name: "THE WARDEN'S PIT" };
-      prog = createProgression(root, { ctl: fight.ctl, anim: fight.anim, rig: fight.rig, health: fight.health, combat: fight.combat, drops: false });
+      prog = createProgression(root, { ctl: fight.ctl, anim: fight.anim, rig: fight.rig, health: fight.health, combat: fight.combat, drops: false, hud: false });
+      hud = createHud({ health: fight.health, runtime: prog.runtime, boss: wardenSource(fight) });
       debug.handle('spawn', spawnHandler(fight.mgr));
       endT = -1;
     },
     exit() {
       prog?.dispose(); prog = null;
+      hud?.dispose(); hud = null;
       fight?.dispose(); fight = null;
       debug.handle('spawn', () => ({ ok: false, error: 'no spawner in this scene' }));
     },
@@ -41,7 +45,7 @@ scenes.define('boss', (() => {
     },
     frame() { fight?.frame(); prog?.frame(); },
     render(alpha) { fight.render(alpha); prog.render(alpha); },
-    ui(g) { fight.ui(g); prog.ui(g); },
+    ui(g) { hud.ui(g); fight.ui(g); prog.ui(g); },
     state() { return { boss: fight?.info() ?? null }; },
   };
 })());
