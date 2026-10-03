@@ -98,3 +98,9 @@ where the outputs are.
 ## 2026-09-30 — w1 build: budget stop
 
 - The budget guard tripped after gauntlet: the session window was at 72%, over the 50% limit, and weekly was at 93%. The next run resumes the build queue at `boons`.
+
+## 2026-10-03 — w1 build: boons
+
+- Builder added `src/progression/` (`boons.js`, `icons.js`, `sfx.js`, `pickups.js`, `effects.js`, `cards.js`, `shrine.js`, `hud.js`, `index.js`, `showcase.js`): 16 boons in four rarity tiers with stack limits, each with its own effect in combat, and 6 synergy pairs that the cards, the boon bar and a banner announce. A shrine rises after an arena clear, and E opens a pick-1-of-3 card screen where the cards land, flip and flare by rarity, and the chosen card flies into the hero. Soul shards and hearts pop out, vacuum to the hero, and the shard pickup sound climbs a scale. `?showcase=boons` is a self-running shrine demo, and `&give=<ids>` gives a room of passive, respawning husks.
+- Cross-piece edits: `src/combat/combat.js` (optional `modHit` and `guard` hooks), `src/core/placeholders.js` and `src/world/corridor.js` (they wire in the progression system), and `src/core/showcase.js` (the router entry). Notes are in `waves/w1/build/boons.md`. With bulwark's ward or phoenix unspent, `debug.kill()` and `debug.hurt()` are refused once. Shards cannot be spent yet. The post-clear shrine lives in the run placeholder for `run-flow` to take over. Lightning draws over walls, and the sounds have not been listened to.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.

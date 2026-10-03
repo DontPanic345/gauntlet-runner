@@ -281,6 +281,8 @@ export class HeroHealth {
       if (this.ctl.invulnerable) events.emit('combat:dodge', { x: this.x, z: this.z, source });
       return { ok: false, reason: this.ctl.invulnerable ? 'dodged' : 'iframes' };
     }
+    // boons hook: a ward or a phoenix may refuse the hurt (src/progression/effects.js)
+    if (this.guard?.(amount, source)) return { ok: false, reason: 'guarded' };
     const sx = source?.x ?? this.x - Math.sin(this.ctl.face), sz = source?.z ?? this.z - Math.cos(this.ctl.face);
     let dx = this.x - sx, dz = this.z - sz;
     const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
@@ -454,8 +456,12 @@ export class HeroCombat {
       const s = spec.arc === 'h' ? (spec.mirror ? 1 : -1) : 0;
       let tx = Math.cos(ang) * s, tz = -Math.sin(ang) * s;
       if (!s) { tx = 0; tz = 0; }
-      const dmg = spec.dmg + (spec.spread ? ((this.swing * 7 + hits.length * 3 + t.hits) % (spec.spread * 2 + 1)) - spec.spread : 0);
-      const h = strike(t, { x: ctl.x, z: ctl.z }, spec, { step: a.step, tx, tz, dmg });
+      let dmg = spec.dmg + (spec.spread ? ((this.swing * 7 + hits.length * 3 + t.hits) % (spec.spread * 2 + 1)) - spec.spread : 0);
+      let sp = spec;
+      // boons hook: crits and knockback (src/progression/effects.js)
+      const mod = this.modHit?.({ target: t, spec, dmg, step: a.step });
+      if (mod) { dmg = mod.dmg ?? dmg; sp = mod.spec ?? spec; }
+      const h = strike(t, { x: ctl.x, z: ctl.z }, sp, { step: a.step, tx, tz, dmg });
       this.struck.add(t);
       if (h) hits.push(h);
     }

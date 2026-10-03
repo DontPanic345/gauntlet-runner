@@ -31,6 +31,7 @@ import { createEnemies, spawnHandler } from '../enemies/index.js';   // enemies 
 import { Arena, generateArena, cameraBounds, setActiveArena, ARENA_COUNT } from '../world/arena.js';   // arenas piece: the run's rooms
 import { events } from './events.js';
 import '../world/corridor.js';   // gauntlet piece: defines the 'gauntlet' scene (corridors between arenas)
+import { createProgression } from '../progression/index.js';   // boons piece: boons, shard/heart pickups, the shrine after a clear
 
 const note = (g, text) => drawText(g, text, 6, display.height - 12, 'mist', { shadow: 'ink' });
 const blink = (period = 1.1) => (loop.realTime % period) < period * 0.62;
@@ -63,7 +64,7 @@ scenes.define('title', (() => {
 // ---- run / boss: a stand-in hero on the stage ------------------------------------------
 function runScene(label) {
   const TORCHES = [[-3.5, -3], [3.5, -3], [-3.5, 3], [3.5, 3]];
-  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes, arena, offs = [];
+  let stage, hero, anim, rig, ctl, cam, deadT, combat, cfx, foes, arena, prog, offs = [];
   return {
     pausable: true,
     enter(data, root) {
@@ -114,9 +115,11 @@ function runScene(label) {
         return { ok: true, id: d.id };
       }));
       if (!arena) world.room = { index: 0, kind: label === 'boss' ? 'boss' : 'arena', placeholder: true };
+      prog = createProgression(root, { ctl, anim, rig, health: hero, combat, arena, shrineOnClear: label === 'run' });
     },
     exit() {
       offs.forEach((f) => f()); offs = [];
+      prog.dispose();
       setCollision(null); cfx.dispose();
       if (arena) { arena.dispose(); arena = null; } else foes.dispose();
       debug.handle('goto', () => ({ ok: false, error: 'no rooms in this scene' }));
@@ -128,6 +131,7 @@ function runScene(label) {
       for (const e of world.enemies) if (!foes.list.includes(e)) e.tick?.();
       if (arena) arena.tick(); else foes.tick();   // the arena ticks its own enemies and waves
       cfx.tick();
+      prog.tick();
       if (hero.dead && deadT < 0) deadT = 0;
       if (deadT >= 0 && ++deadT > 80) scenes.go('gameover', { cause: 'debug' });
     },
@@ -140,10 +144,13 @@ function runScene(label) {
       if (arena) arena.render(alpha); else foes.render(alpha);
       stage?.render(alpha);
       cfx.render(alpha);
+      prog.render(alpha);
     },
+    frame() { prog?.frame(); },
     ui(g) {
       cfx.ui(g);
       arena?.ui(g);
+      prog.ui(g);
       drawText(g, `HP ${hero.hp}/${hero.maxHp}`, 6, 6, hero.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
       drawText(g, label === 'boss' ? 'BOSS (PLACEHOLDER)' : 'RUN (PLACEHOLDER)', display.width - 6, 6, 'mist', { align: 'right', shadow: 'ink' });
       note(g, `PLACEHOLDER ${label.toUpperCase()} SCENE (FOUNDATION). WASD MOVE  K DASH  J ATTACK  ESC PAUSE`);

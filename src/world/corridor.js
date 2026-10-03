@@ -56,6 +56,7 @@ import { HeroCombat, HeroHealth } from '../combat/combat.js';
 import { createCombatFx } from '../combat/fx.js';
 import { createTrap, gauntletSfx, BLADE, pinAt } from './traps.js';
 import { Collapse } from './collapse.js';
+import { createProgression } from '../progression/index.js';   // boons piece
 
 const V = VOXEL;
 const VX = 8;
@@ -998,7 +999,7 @@ export function createCorridorRun(root, { index = 0, seed = 1, layout = null, so
 // Walking down the stair goes to scenes 'run' { room }; dying goes to 'gameover'.
 // ---------------------------------------------------------------------------------------
 scenes.define('gauntlet', (() => {
-  let run = null, deadT = -1, next = 1, offs = [];
+  let run = null, deadT = -1, next = 1, offs = [], prog = null;
   return {
     pausable: true,
     enter(data, root) {
@@ -1008,22 +1009,28 @@ scenes.define('gauntlet', (() => {
       next = data?.room ?? index + 1;
       run = createCorridorRun(root, { index, seed: data?.seed ?? window.__GR?.seed ?? 1 });
       deadT = -1;
+      // boons piece: held boons work in corridors too (no drops here)
+      prog = createProgression(root, { ctl: run.ctl, anim: run.anim, rig: run.rig, health: run.health, combat: run.combat, drops: false });
       offs.push(events.on('gauntlet:exit', () => scenes.go('run', { room: next })));
       debug.handle('goto', (i) => { scenes.go('run', { room: i | 0 }); return { ok: true, room: i | 0 }; });
     },
     exit() {
       offs.forEach((f) => f()); offs = [];
+      prog?.dispose(); prog = null;
       run?.dispose(); run = null;
       debug.handle('goto', () => ({ ok: false, error: 'no rooms in this scene' }));
     },
     tick() {
       run.tick();
+      prog.tick();
       if (run.health.dead && deadT < 0) deadT = 0;
       if (deadT >= 0 && ++deadT > 90) scenes.go('gameover', { cause: 'collapse' });
     },
-    render(alpha) { run.render(alpha); },
+    render(alpha) { run.render(alpha); prog.render(alpha); },
+    frame() { prog?.frame(); },
     ui(g) {
       run.ui(g);
+      prog.ui(g);
       const h = run.health;
       drawText(g, `HP ${h.hp}/${h.maxHp}`, 6, 6, h.hp <= 1 ? 'red' : 'bone', { shadow: 'ink' });
     },
