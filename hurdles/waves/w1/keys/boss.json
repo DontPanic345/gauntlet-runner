@@ -1,0 +1,20 @@
+{
+  "ours": "A",
+  "pairs": 5,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/boss/ours/01-intro-reveal.png",
+      "hurdles/waves/w1/critic/boss/ours/02-intro-strip.png",
+      "hurdles/waves/w1/critic/boss/ours/03-phase1-attack-strip.png",
+      "hurdles/waves/w1/critic/boss/ours/04-phase2-attack-strip.png",
+      "hurdles/waves/w1/critic/boss/ours/05-late-phase-still.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/boss/ref/01-intro-reveal.png",
+      "hurdles/waves/w1/critic/boss/ref/02-intro-strip.png",
+      "hurdles/waves/w1/critic/boss/ref/03-phase1-attack-strip.png",
+      "hurdles/waves/w1/critic/boss/ref/04-phase2-attack-strip.png",
+      "hurdles/waves/w1/critic/boss/ref/05-late-phase-still.png"
+    ]
+  }
+}

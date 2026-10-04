@@ -334,7 +334,12 @@
       "showcase": "?showcase=boss&phase=1|2|3: boss fight starting at that phase; ?showcase=boss&intro=1 plays the intro",
       "judge_focus": "Intro stills and strips of each phase's signature attack. Which boss looks more epic and fair?",
       "reference_hint": "top-rated itch.io pixel-art boss fight or boss-rush game",
-      "reference": null,
+      "reference": {
+        "url": "https://aylanonsense.itch.io/just-one-boss",
+        "rating": "4.7 stars, 557 ratings",
+        "why": "the top-rated HTML5 \"boss battle\" game on itch: one boss, multi-stage, an intro reveal, every attack telegraphed and dodgeable on reaction",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
