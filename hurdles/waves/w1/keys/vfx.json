@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/vfx/ref/01-hit-spark-strip.png",
+      "hurdles/waves/w1/critic/vfx/ref/02-death-burst-strip.png",
+      "hurdles/waves/w1/critic/vfx/ref/03-dash-strip.png",
+      "hurdles/waves/w1/critic/vfx/ref/04-hit-contact-still.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/vfx/ours/01-hit-spark-strip.png",
+      "hurdles/waves/w1/critic/vfx/ours/02-death-burst-strip.png",
+      "hurdles/waves/w1/critic/vfx/ours/03-dash-strip.png",
+      "hurdles/waves/w1/critic/vfx/ours/04-hit-contact-still.png"
+    ]
+  }
+}

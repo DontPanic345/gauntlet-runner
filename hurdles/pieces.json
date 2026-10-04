@@ -176,7 +176,12 @@
       "showcase": "?showcase=vfx: an effects reel that plays each effect in turn, labelled, looping; keys cycle effects",
       "judge_focus": "Frame strips of hit-spark, death burst, dash, spawn. Which effects look more crafted and punchy?",
       "reference_hint": "top-rated itch.io pixel-art game known for particle effects and juice",
-      "reference": null,
+      "reference": {
+        "url": "https://ember-paw-games.itch.io/gaunt-valkyr",
+        "rating": "4.9 stars (94 ratings)",
+        "why": "top-down pixel roguelite on itch's top-rated roguelite and dungeon-crawler lists, built on loud juice (silhouette hit flashes, floor-lighting muzzle flashes, starburst explosions, gore and casings that stay on the floor); already the pinned reference for look",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

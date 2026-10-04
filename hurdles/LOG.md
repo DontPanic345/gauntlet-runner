@@ -181,3 +181,8 @@ where the outputs are.
 ## 2026-10-04 — w1 critique: budget stop
 
 - The budget guard tripped after combat: the session window was at 66%, over the 50% limit. Weekly was at 34%. The next run resumes the critique queue at `vfx`. Critic prompts were generated under the gitignored `shots/critic/`, so the next run regenerates them from `prompts/critic.md`.
+
+## 2026-10-04 — w1 critique: vfx
+
+- The critic found that kills aren't events. Effects are small, mostly white on a warm floor, gone within about 300 ms, and leave nothing on the floor. It asks for a white-then-black silhouette flip, a torch-orange starburst about 2.5x the enemy with rising black smoke, 10–16 body-coloured chunks that come to rest, and a splat decal that stays for the room. Must-haves: pooling passes (2544 particles at 0.1 ms sim; 60 fps unmeasurable headless); palette and grid pass; ambient layer passes; pop-then-fade is a weak pass (fade lasts 2–3 frames). 4 pairs: hit, death and dash strips at 10 fps of game time, plus a hit still. There is no spawn pair because the reference media shows none. Our side was captured on a paused fake clock, frame by frame. The reference isn't HTML5, so its side comes from its gameplay GIFs. Pinned reference: https://ember-paw-games.itch.io/gaunt-valkyr (4.9 stars (94 ratings)).
+- Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/vfx/review.md`.
