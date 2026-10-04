@@ -144,3 +144,7 @@ where the outputs are.
 - Cross-piece edits: `src/core/scenes.js` (a `scenes.router` hook, `goNow()` and a `pending` getter, inert without a router), `src/main.js` (one import and the `flow.draw` call) and `src/core/showcase.js` (the router entry). Notes are in `waves/w1/build/run-flow.md`. The sounds have not been listened to, there is no gamepad restart button, cause of death is inferred from events, corridors and the boss have no drop-in, and time to control after R was not measured on real hardware (headless ran at 4 to 7 fps).
 - Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.
 - Wave 1 build is complete. The next phase is integrate.
+
+## 2026-10-04 — w1: budget stop
+
+- The budget guard tripped after run-flow: the session window was at 69%, over the 50% limit. Weekly was at 25%. The next run starts the integrate phase.
