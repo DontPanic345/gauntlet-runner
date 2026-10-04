@@ -1,0 +1,18 @@
+{
+  "ours": "A",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/gauntlet/ours/01-trap-crossing.png",
+      "hurdles/waves/w1/critic/gauntlet/ours/02-dash-past-hazard.png",
+      "hurdles/waves/w1/critic/gauntlet/ours/03-killed-by-hazard.png",
+      "hurdles/waves/w1/critic/gauntlet/ours/04-mid-run-still.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/gauntlet/ref/01-trap-crossing.png",
+      "hurdles/waves/w1/critic/gauntlet/ref/02-dash-past-hazard.png",
+      "hurdles/waves/w1/critic/gauntlet/ref/03-killed-by-hazard.png",
+      "hurdles/waves/w1/critic/gauntlet/ref/04-mid-run-still.png"
+    ]
+  }
+}

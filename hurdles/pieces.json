@@ -273,7 +273,12 @@
       "showcase": "?showcase=gauntlet&seed=N: one corridor played start to finish, with trap timing overlay toggled by T",
       "judge_focus": "Strips of the chase and trap dodges. Which sequence looks more tense and exciting?",
       "reference_hint": "top-rated itch.io game with a chase or escape sequence, or trap-gauntlet platforming",
-      "reference": null,
+      "reference": {
+        "url": "https://maddymakesgamesinc.itch.io/celesteclassic",
+        "rating": "4.69 stars (1,000+ ratings)",
+        "why": "the best-known top-rated HTML5 trap gauntlet: spikes and crumbling blocks laid out in readable screens that reward precise dashing, which is exactly this piece's job",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
