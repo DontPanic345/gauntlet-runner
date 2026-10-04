@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/enemies/ref/01-cast-in-a-fight-still.png",
+      "hurdles/waves/w1/critic/enemies/ref/02-telegraph-strip.png",
+      "hurdles/waves/w1/critic/enemies/ref/03-death-strip.png",
+      "hurdles/waves/w1/critic/enemies/ref/04-hit-reaction-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/enemies/ours/01-cast-in-a-fight-still.png",
+      "hurdles/waves/w1/critic/enemies/ours/02-telegraph-strip.png",
+      "hurdles/waves/w1/critic/enemies/ours/03-death-strip.png",
+      "hurdles/waves/w1/critic/enemies/ours/04-hit-reaction-strip.png"
+    ]
+  }
+}

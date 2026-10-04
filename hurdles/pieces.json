@@ -206,7 +206,12 @@
       "showcase": "?showcase=enemies: a lineup of all four archetypes with names, then ?showcase=enemies&fight=<type> spawns one against the hero",
       "judge_focus": "Stills of the lineup plus strips of each telegraph and death. Which cast is more readable and characterful?",
       "reference_hint": "top-rated itch.io roguelite or top-down action game with a varied enemy roster",
-      "reference": null,
+      "reference": {
+        "url": "https://playwithfurcifer.itch.io/furcifers-fungeon",
+        "rating": "4.7 stars (126 ratings)",
+        "why": "top-down pixel-art action roguelite (itch tags roguelite, bullet-hell, pixel-art; on the top-rated bullet-hell list) with a large, loud, characterful enemy roster that telegraphs with flashes and poses and dies in big bursts; HTML5 (Godot), so it can be played live",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
