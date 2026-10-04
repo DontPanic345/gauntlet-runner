@@ -80,6 +80,7 @@ const bufferedUntil = {};      // action -> tick until which a press stays buffe
 const bufferedAt = {};         // action -> tick of the buffered press
 const pressTime = {};          // action -> event timestamp (ms) of the latest press
 const uiPressed = new Set();
+const uiCounts = new Map();     // action -> presses this frame (two fast taps in one frame count twice)
 const uiKeys = new Set();
 const injected = new Set();    // actions held by input.inject()
 const stick = { x: 0, z: 0 };
@@ -129,10 +130,11 @@ export const input = {
     pollGamepad();
     uiPressed.clear();
     uiKeys.clear();
+    uiCounts.clear();
     for (const ev of uiQueue) {
       if (!ev.down) continue;
       uiKeys.add(ev.code);
-      for (const a of actionsFor(ev.code)) uiPressed.add(a);
+      for (const a of actionsFor(ev.code)) { uiPressed.add(a); uiCounts.set(a, (uiCounts.get(a) ?? 0) + 1); }
     }
     uiQueue = [];
   },
@@ -142,6 +144,8 @@ export const input = {
     pressed: (action) => uiPressed.has(action),
     /** Raw code pressed since the last frame (debug/showcase keys outside the bindings table). */
     key: (code) => uiKeys.has(code),
+    /** How many times the action was pressed since the last frame (menus step once per press). */
+    count: (action) => uiCounts.get(action) ?? 0,
   },
 
   // ---- per-tick (sim) ----------------------------------------------------------------

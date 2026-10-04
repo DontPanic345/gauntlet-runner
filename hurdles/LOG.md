@@ -131,3 +131,9 @@ where the outputs are.
 ## 2026-10-03 — w1 build: budget stop
 
 - The budget guard tripped after audio: the session window was at 53%, over the 50% limit. Weekly was at 16%. The next run resumes the build queue at `title`.
+
+## 2026-10-04 — w1 build: title
+
+- Builder added `src/ui/title.js`, `menus.js`, `settings.js` and `showcase-title.js`: a voxel title scene (the hero rig idling before a carved arch with a skull keystone, braziers, banners, drifting embers and a periodic tremor), a logo drawn pixel by pixel from custom letterforms (carved GAUNTLET with ember cracks, a sword, molten RUNNER, a sweeping glint), and a main menu (Start Run, Settings, Controls, Credits) with a springing focus plaque, flame cursor and sounds. Start Run sends the runner into the arch and a dithered iris opens on the run. Settings (master/music/SFX volume, shake, flashes, button prompts) persist in localStorage and apply live. Controls rebinds each action's main key. A pause menu works over run, gauntlet and boss, with a confirm before quitting to the title. Keyboard, mouse and gamepad paths exist.
+- Cross-piece edits: `src/main.js` (import, iris drawn after the scene UI, pause toggle yields to the pause menu), `src/core/input.js` (`input.ui.count`, so fast presses are not merged on slow frames), `src/core/settings.js` (`keyDisplay`), `src/core/showcase.js` (the router entry) and `src/audio/director.js` (title music in the showcase). Notes are in `waves/w1/build/title.md`. The UI sounds have not been listened to, gamepad is untested, and the scene takes about 400 ms to build behind a dark background.
+- Smoke test: showcase, title and run all exit 0 with 0 console errors and non-blank frames.

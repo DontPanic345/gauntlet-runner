@@ -196,6 +196,7 @@ events.on('scene:enter', (e) => {
   else if (n === 'gameover') enterMode('gameover');
   else if (n === 'victory') enterMode('victory');
   else if (n === 'showcase' && e.data?.id === 'audio') enterMode('board');
+  else if (n === 'showcase' && e.data?.id === 'title') enterMode('title');   // title piece: its showcase is the title screen
   else enterMode('silent');
 });
 events.on('pause', (e) => {

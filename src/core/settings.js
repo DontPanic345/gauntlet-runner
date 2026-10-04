@@ -13,6 +13,7 @@ export const SETTING_DEFAULTS = {
   shake: 1,          // 0..1 multiplier on all screen shake (accessibility)
   flashes: 1,        // 0..1 multiplier on full-screen flashes (accessibility)
   showFps: false,
+  keyDisplay: 'auto', // prompt glyphs: 'auto' (last device used) | 'keyboard' | 'gamepad' (title piece)
 };
 
 const values = { ...SETTING_DEFAULTS };

@@ -25,6 +25,8 @@ import { vfx } from './vfx/vfx.js';   // shared particle/effect pools: ticks on 
 // (e.g. `import './ui/title.js';` once the title piece exists; it calls scenes.define('title', ...))
 import './boss/scene.js';   // boss piece: the 'boss' scene (the Warden's Pit)
 import './audio/index.js';  // audio piece: mixer, SFX bank, music, ambience, director (debug.audio)
+import './ui/title.js';     // title piece: the 'title' and 'pause' scenes (menus, settings, controls, credits)
+import { wipe } from './ui/menus.js';   // title piece: scene-transition iris, drawn over every scene
 
 const params = new URLSearchParams(location.search);
 const seedParam = parseInt(params.get('seed') ?? '', 10);
@@ -40,7 +42,8 @@ loop.start({
   frame(realDt) {
     input.beginFrame();
     scenes.flush();
-    if (input.ui.pressed('pause') && (scenes.paused || scenes.def?.pausable)) scenes.togglePause();
+    // a pause menu that sets ownsPauseKey handles Esc / P / Start itself (back, then resume)
+    if (input.ui.pressed('pause') && (scenes.paused ? !scenes.def?.ownsPauseKey : scenes.def?.pausable)) scenes.togglePause();
     scenes.frame(realDt);
     scenes.flush();
   },
@@ -56,6 +59,7 @@ loop.start({
     display.render(realDt);
     if (scenes.current) scenes.ui(display.ui, alpha);
     else drawText(display.ui, 'LOADING', display.width / 2, display.height / 2 - 4, 'mist', { align: 'center' });
+    wipe.draw(display.ui, realDt);   // title piece: scene-transition iris over everything
     drawDebugOverlay();
     if (!GR.ready && scenes.current) GR.ready = true;
   },

@@ -28,7 +28,7 @@ export const SHOWCASES = {
   boss: { title: 'Boss: The Warden', load: () => import('../boss/showcase.js') },
   hud: { title: 'HUD and in-game UI', load: () => import('../ui/showcase-hud.js') },
   audio: { title: 'Audio', load: () => import('../audio/showcase.js') },
-  title: { title: 'Title screen and menus', load: null },
+  title: { title: 'Title screen and menus', load: () => import('../ui/showcase-title.js') },
   'run-flow': { title: 'Run flow and endings', load: null },
 };
 
