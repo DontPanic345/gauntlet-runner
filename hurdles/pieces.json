@@ -82,7 +82,12 @@
       "showcase": "?showcase=hero: hero on a plinth cycling every animation with its name labelled; keys 1-9 pick an animation",
       "judge_focus": "Frame strips of idle, run, dash, attack combo, hurt, death. Which character feels more alive and appealing?",
       "reference_hint": "top-rated itch.io pixel-art action game with an expressive small player character",
-      "reference": null,
+      "reference": {
+        "url": "https://slo-nod.itch.io/bright-lancer",
+        "rating": "4.5 stars (140 ratings)",
+        "why": "top-down pixel-art action game on itch's top-rated hack-and-slash list, whose small hooded, caped hero has an expressive spear combo, dash, and cape motion; it is HTML5, so it can be captured live",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

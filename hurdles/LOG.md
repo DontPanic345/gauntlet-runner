@@ -162,3 +162,8 @@ where the outputs are.
 
 - The critic found the floor as loud as the characters (ink-black grout, heavy speckle), so actors don't separate from the floor. Must-haves: outlines on dark surfaces and the finished-game still frame fail; texel snapping and palette pass; torch flicker is a weak pass. 4 pairs (2 stills, 2 strips). The reference isn't HTML5, so its side comes from page screenshots and GIFs. Pinned reference: https://ember-paw-games.itch.io/gaunt-valkyr (4.9 stars (94 ratings)).
 - Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/look/review.md`.
+
+## 2026-10-04 — w1 critique: hero
+
+- The critic found the hero reads as a plain navy box from behind and the side, close in value to the floor, and asks for a smaller hood, a lagging cloak and a lighter or warmer hood/cloak colour. Must-haves: silhouette at 1x fails; the other four pass, some weakly. 5 pairs (idle, run, dash and combo strips at 10 fps, plus an in-scene still). The reference's Unity build was played locally. Pinned reference: https://slo-nod.itch.io/bright-lancer (4.5 stars (140 ratings)).
+- Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/hero/review.md`.
