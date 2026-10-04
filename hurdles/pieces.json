@@ -146,7 +146,12 @@
       "showcase": "?showcase=combat: hero vs 3 training dummies that show hit counts and knockback, plus one dummy that attacks back slowly",
       "judge_focus": "Bursts through a full combo landing on a target. Which hits feel heavier and more satisfying?",
       "reference_hint": "top-rated itch.io action game praised for juicy combat or hit feel",
-      "reference": null,
+      "reference": {
+        "url": "https://slo-nod.itch.io/bright-lancer",
+        "rating": "4.5 stars (140 ratings)",
+        "why": "top-down pixel action game on itch's top-rated hack-and-slash list with a three-part spear combo (sweep, thrust, overhead) and a strong hurt reaction; it is HTML5, so it can be played live, and it is already the pinned reference for hero and movement",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

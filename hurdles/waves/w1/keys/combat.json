@@ -1,0 +1,18 @@
+{
+  "ours": "A",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/combat/ours/01-combo-strip.png",
+      "hurdles/waves/w1/critic/combat/ours/02-first-hit-contact.png",
+      "hurdles/waves/w1/critic/combat/ours/03-third-hit-finisher.png",
+      "hurdles/waves/w1/critic/combat/ours/04-getting-hurt-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/combat/ref/01-combo-strip.png",
+      "hurdles/waves/w1/critic/combat/ref/02-first-hit-contact.png",
+      "hurdles/waves/w1/critic/combat/ref/03-third-hit-finisher.png",
+      "hurdles/waves/w1/critic/combat/ref/04-getting-hurt-strip.png"
+    ]
+  }
+}
