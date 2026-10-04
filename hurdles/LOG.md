@@ -167,3 +167,8 @@ where the outputs are.
 
 - The critic found the hero reads as a plain navy box from behind and the side, close in value to the floor, and asks for a smaller hood, a lagging cloak and a lighter or warmer hood/cloak colour. Must-haves: silhouette at 1x fails; the other four pass, some weakly. 5 pairs (idle, run, dash and combo strips at 10 fps, plus an in-scene still). The reference's Unity build was played locally. Pinned reference: https://slo-nod.itch.io/bright-lancer (4.5 stars (140 ratings)).
 - Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/hero/review.md`.
+
+## 2026-10-04 — w1 critique: movement
+
+- The critic found the dash reads as a hop (2.5 units in 11 ticks, one visible frame) and asks for about 3.8 units over about 13 ticks with a smear, after-images, take-off dust and a landing skid. Must-haves: start/stop and dash pass (dash presses more than about 133 ms early are dropped); wall sliding fails on round pillars; camera look-ahead fails in arena play because the clamp removes the lead. 5 strip pairs at 10 fps. The reference is the same game as hero's (Bright Lancer), played live from the local copy. Pinned reference: https://slo-nod.itch.io/bright-lancer (4.5 stars (140 ratings)).
+- Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/movement/review.md`.

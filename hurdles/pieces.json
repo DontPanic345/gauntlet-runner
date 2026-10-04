@@ -115,7 +115,12 @@
       "showcase": "?showcase=movement: an obstacle-course room with pillars, corners and narrow gaps, plus a ghost trail showing the last 2 s of positions",
       "judge_focus": "Bursts of starts, stops, turns and dashes around corners. Which movement looks tighter and more responsive?",
       "reference_hint": "top-rated itch.io top-down action game praised for tight movement or dash",
-      "reference": null,
+      "reference": {
+        "url": "https://slo-nod.itch.io/bright-lancer",
+        "rating": "4.5 stars (140 ratings)",
+        "why": "top-down pixel action game on itch's top-rated hack-and-slash list, tagged fast-paced, with a long streaking dash and a following camera; HTML5, so it can be played live with scripted keys",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
