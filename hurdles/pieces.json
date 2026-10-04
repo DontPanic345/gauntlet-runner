@@ -400,7 +400,7 @@
       "judge_focus": "Strips of the death sequence, summary and victory. Which run loop feels more complete and replayable?",
       "reference_hint": "top-rated itch.io roguelite with a strong death/restart loop",
       "reference": null,
-      "status": "unbuilt",
+      "status": "built",
       "history": []
     }
   ]

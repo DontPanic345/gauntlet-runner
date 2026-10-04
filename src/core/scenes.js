@@ -38,11 +38,24 @@ export const scenes = {
   get paused() { return current?.name === 'pause'; },
   get def() { return current?.def ?? null; },
 
+  /**
+   * Optional router (piece `run-flow`, src/run/flow.js): router(name, data, from) returns true to
+   * take the change over (it styles the transition, then calls scenes.goNow itself).
+   */
+  router: null,
   /** Request a scene change. Applied between ticks, so a tick never runs half in one scene. */
   go(name, data = {}) {
     if (!defs.has(name)) throw new Error(`scenes.go: no scene named "${name}"`);
+    if (scenes.router?.(name, data, (under ?? current)?.name ?? null)) return;
     pending = { name, data };
   },
+  /** Request a scene change, bypassing the router. */
+  goNow(name, data = {}) {
+    if (!defs.has(name)) throw new Error(`scenes.goNow: no scene named "${name}"`);
+    pending = { name, data };
+  },
+  /** The pending change, if any ({ name, data }). */
+  get pending() { return pending; },
 
   /** Apply a pending change now. Called by main between frames/ticks. */
   flush() {

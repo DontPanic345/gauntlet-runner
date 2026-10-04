@@ -27,6 +27,7 @@ import './boss/scene.js';   // boss piece: the 'boss' scene (the Warden's Pit)
 import './audio/index.js';  // audio piece: mixer, SFX bank, music, ambience, director (debug.audio)
 import './ui/title.js';     // title piece: the 'title' and 'pause' scenes (menus, settings, controls, credits)
 import { wipe } from './ui/menus.js';   // title piece: scene-transition iris, drawn over every scene
+import { flow } from './run/index.js';   // run-flow piece: 'run', 'gameover', 'victory' scenes; routed transitions, death sequence, restart
 
 const params = new URLSearchParams(location.search);
 const seedParam = parseInt(params.get('seed') ?? '', 10);
@@ -59,6 +60,7 @@ loop.start({
     display.render(realDt);
     if (scenes.current) scenes.ui(display.ui, alpha);
     else drawText(display.ui, 'LOADING', display.width / 2, display.height / 2 - 4, 'mist', { align: 'center' });
+    flow.draw(display.ui, realDt);   // run-flow piece: transition wall, death overlay (over the scene UI)
     wipe.draw(display.ui, realDt);   // title piece: scene-transition iris over everything
     drawDebugOverlay();
     if (!GR.ready && scenes.current) GR.ready = true;

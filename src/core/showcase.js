@@ -29,7 +29,7 @@ export const SHOWCASES = {
   hud: { title: 'HUD and in-game UI', load: () => import('../ui/showcase-hud.js') },
   audio: { title: 'Audio', load: () => import('../audio/showcase.js') },
   title: { title: 'Title screen and menus', load: () => import('../ui/showcase-title.js') },
-  'run-flow': { title: 'Run flow and endings', load: null },
+  'run-flow': { title: 'Run flow and endings', load: () => import('../run/showcase.js') },
 };
 
 /** Load and enter a showcase. Always ends in a drawn scene: the showcase or an error screen. */
