@@ -85,8 +85,8 @@ export function createBossFight(root, opts = {}) {
   const health = new HeroHealth({ ctl, anim, rig, hp: O.hp, maxHp: O.maxHp ?? Math.max(5, O.hp) });
   const combat = new HeroCombat({ ctl, anim, health, targets: () => world.enemies });
   world.hero = health;
-  const cfx = createCombatFx(root, { numbers: O.numbers ?? true });
-  vfx.bind(['move']);
+  const cfx = createCombatFx(root, { numbers: O.numbers ?? true });   // particles: the shared vfx pool (bound by cfx)
+  vfx.bind(['move', 'kill']);
 
   const mgr = createEnemies(root, { collision: pit.collision, bounds: { minX: -PIT.RP, maxX: PIT.RP, minZ: -PIT.RP, maxZ: PIT.RP }, hero: () => world.hero });
   const warden = new Warden(mgr, { x: WARDEN_HOME.x, z: WARDEN_HOME.z, yaw: 0, phase: O.phase, state: O.intro ? 'dormant' : 'ready' });

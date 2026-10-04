@@ -36,6 +36,7 @@ import { HeroController } from '../hero/controller.js';
 import { CameraRig } from '../render/camera.js';
 import { HeroCombat, HeroHealth, COMBO, RULES } from './combat.js';
 import { createCombatFx } from './fx.js';
+import { vfx } from '../vfx/vfx.js';
 import './sfx.js';
 import { TrainingDummy, SparringDummy, SPAR } from './dummy.js';
 
@@ -248,7 +249,7 @@ export default function combatShowcase(params) {
       on('input:press', (e) => { if (auto && e.action !== 'pause') goLive(); });
       on('hero:dead', () => { deadT = 0; });
       on('combat:heroHurt', () => { hurtFlash.t = 0; });
-      on('combat:dummyLand', (e) => { if (e.v > 1.5) cfx.ring(e.x, e.z, 0.5, 10, 'mist', 2.5); });
+      on('combat:dummyLand', (e) => { if (e.v > 1.5) vfx.land(e.x, e.z, { size: 0.6 }); });   // the shared vfx pool (cfx particles are off)
 
       // debug.spawn('dummy' | 'sparring', x, z) while this showcase runs
       debug.handle('spawn', (type, x, z) => {

@@ -12,6 +12,8 @@
 //     render(alpha, realDt) {},   // before the GL draw: place meshes from interpolated state
 //     ui(g, alpha) {},            // after the GL draw: 2D pixel UI into g = display.ui
 //     state() {},                 // optional extra fields for window.__GR.state()
+//     shakeUi: false,             // true: ui() is drawn offset by the feedback shake too (2D-only
+//                                 // scenes such as gameover/victory, where the 3D camera shows nothing)
 //   });
 //   scenes.go('run', { seed: 4 });    // switch at the next safe point (between ticks)
 //
@@ -21,6 +23,7 @@ import * as THREE from 'three';
 import { display } from './display.js';
 import { loop } from './loop.js';
 import { events } from './events.js';
+import { feedback } from './feedback.js';
 
 const defs = new Map();
 let current = null;     // { name, def, root }
@@ -99,7 +102,10 @@ export const scenes = {
   },
   ui(g, alpha) {
     under?.def.ui?.(g, alpha);
+    const sh = current?.def.shakeUi ? feedback.lastOffset : null;
+    if (sh && (sh.x || sh.y)) g.setTransform(1, 0, 0, 1, sh.x, sh.y);
     current?.def.ui?.(g, alpha);
+    if (sh) g.setTransform(1, 0, 0, 1, 0, 0);
   },
   extraState() {
     const s = (under ?? current)?.def.state?.();

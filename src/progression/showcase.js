@@ -41,6 +41,7 @@ import { spawnHandler } from '../enemies/index.js';
 import { Arena, generateArena, cameraBounds, setActiveArena } from '../world/arena.js';
 import { BOONS, BOON_IDS, RARITY, progress, giveBoon, resetProgress, rollChoice, has } from './boons.js';
 import { createProgression } from './index.js';
+import { createHud } from '../ui/hud.js';   // integration: the same HUD as normal play
 import { choiceTiming } from './shrine.js';
 import { drawIcon } from './icons.js';
 import { richText, bevel } from './cards.js';
@@ -61,7 +62,7 @@ export default function boonsShowcase(params) {
   const slowP = parseFloat(P('slow', '1'));
   let slowIdx = Math.max(0, SLOWS.indexOf(slowP));
 
-  let root, arena, rig, anim, ctl, cam, health, combat, cfx, prog;
+  let root, arena, rig, anim, ctl, cam, health, combat, cfx, prog, ghud;
   let offs = [];
   const homes = [];
   const respawn = [];
@@ -224,11 +225,12 @@ export default function boonsShowcase(params) {
       if (mode === 'choice') cam.reset((start.x + SHRINE.x) / 2, (start.z + SHRINE.z) / 2 + 0.2); else cam.reset(start.x, start.z);
       health = new HeroHealth({ ctl, anim, rig, hp: 5 });
       combat = new HeroCombat({ ctl, anim, health, targets: () => [...world.enemies, ...arena.targets()] });
-      cfx = createCombatFx(root);
+      cfx = createCombatFx(root, { numbers: false });   // the HUD draws the numbers
       vfx.bind(['move', 'kill']);
       world.hero = health;
       world.enemies = world.enemies || [];
-      prog = createProgression(root, { ctl, anim, rig, health, combat, arena });
+      prog = createProgression(root, { ctl, anim, rig, health, combat, arena, hud: false });
+      ghud = createHud({ health, runtime: prog.runtime, track: false });
       debug.handle('spawn', spawnHandler(arena.foes));
       if (mode === 'room') {
         for (const tok of (giveP === 'all' ? BOON_IDS : giveP.split(','))) {
@@ -252,7 +254,7 @@ export default function boonsShowcase(params) {
     },
     exit() {
       offs.forEach((f) => f()); offs = [];
-      prog.dispose(); cfx.dispose(); arena.dispose();
+      prog.dispose(); ghud?.dispose(); ghud = null; cfx.dispose(); arena.dispose();
       setCollision(null);
       loop.setTimeScale(1);
       choiceTiming.speed = 1;
@@ -295,18 +297,20 @@ export default function boonsShowcase(params) {
     },
     ui(g) {
       cfx.ui(g);
+      ghud.hidden = prog.choosing;
+      ghud.ui(g);
       prog.ui(g);
       if (!hud) return;
       const W = display.width, H = display.height;
       if (prog.choosing) return;
       // top left: what this is
-      drawText(g, mode === 'room' ? 'BOONS: DUMMY ROOM' : 'BOONS: THE SHRINE', 6, 6, 'bone', { shadow: 'ink' });
-      drawText(g, auto ? 'DEMO' : 'LIVE', 6, 16, auto ? 'gold' : 'leaf', { shadow: 'ink' });
-      if (auto && pilot.label) drawText(g, pilot.label, 34, 16, 'fog', { shadow: 'ink' });
+      drawText(g, mode === 'room' ? 'BOONS: DUMMY ROOM' : 'BOONS: THE SHRINE', 6, 42, 'bone', { shadow: 'ink' });
+      drawText(g, auto ? 'DEMO' : 'LIVE', 6, 52, auto ? 'gold' : 'leaf', { shadow: 'ink' });
+      if (auto && pilot.label) drawText(g, pilot.label, 34, 52, 'fog', { shadow: 'ink' });
       if (mode === 'room') boonPanel(g);
       if (loop.realTime < status.until) drawText(g, status.text, W / 2, H - 70, 'gold', { align: 'center', scale: 2, outline: 'ink' });
       const keys = mode === 'room' ? 'WASD MOVE  J ATTACK  K DASH  B DEMO  R RESPAWN  Z ZOOM  T SLOW  H HUD' : 'WASD MOVE  E OFFER  A/D CHOOSE  J TAKE  R REROLL  B DEMO/LIVE  H HUD';
-      drawText(g, keys, W / 2, H - 11, 'mist', { align: 'center', shadow: 'ink' });
+      drawText(g, keys, W - 6, H - 11, 'mist', { align: 'right', shadow: 'ink' });   // right: the HUD's boon row is bottom left
     },
     state() {
       return { showcase: { id: 'boons', mode, auto, give: giveP, gives: gives.map((r) => (r.ok ? `${r.id}:${r.stacks}` : r.error)), pilot: { step: pilot.step, label: pilot.label, cycle: pilot.cycle }, zoom, progression: prog?.info() } };
@@ -316,7 +320,7 @@ export default function boonsShowcase(params) {
   // the panel describing the held boons (room mode): icon, name, the card text
   function boonPanel(g) {
     const ids = progress.order;
-    let y = 30;
+    let y = 64;
     const w = 168;
     for (const id of ids.slice(0, 3)) {
       const B = BOONS[id], R = RARITY[B.rarity];

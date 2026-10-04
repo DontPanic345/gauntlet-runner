@@ -148,3 +148,12 @@ where the outputs are.
 ## 2026-10-04 — w1: budget stop
 
 - The budget guard tripped after run-flow: the session window was at 69%, over the 50% limit. Weekly was at 25%. The next run starts the integrate phase.
+
+## 2026-10-04 — w1 integrate
+
+- The integrator played title → run → arena 1 (clear, shrine, boon choice) → corridor 1 → arena 2 → pause, then a death and an R restart, a corridor death and Esc to the title, and the boss from a run (intro, three phases, death, victory). It measured performance in a 6-enemy fight.
+- Fixes: combat hit particles now go through the shared vfx pool and use the hud's real damage numbers (`src/combat/fx.js`, `combat.js`); the boss and boons showcases use the real HUD; the HUD hides during the boss intro and the boon choice, and the run card no longer draws under the pause panel; the corridor and boss clocks wait for the transition wall to open; a new opt-in `shakeUi` scene flag lets the gameover and victory screens shake (`src/core/scenes.js`, `feedback.js`, `run/endings.js`); the attack input buffer went from 200 ms to dash's 133 ms.
+- Foundation: all five `must_have` items pass.
+- Seams left: two impact stars on every hit (combat/vfx), the collapse kills on first touch (gauntlet), no drop-in for corridors and the boss (run-flow), shards have no use and the title shows no best time, dead placeholder scenes (foundation), dark between torches (look), gamepad untested, audio not listened to, and performance on a real GPU unmeasured (headless corridors run at 4 to 5 fps). The integrator said no piece needs a rebuild. The report is in `waves/w1/integration.md`.
+- Smoke test: all 15 showcases, `/` and `/?scene=run&seed=1` exit 0 with 0 console errors and non-blank frames.
+- The next phase is critique, with all 14 judged pieces queued.

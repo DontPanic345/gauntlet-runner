@@ -158,6 +158,7 @@ scenes.define('gameover', (() => {
   let finishOnSlab = false, lastDt = 1 / 60, t = 0, col = null, S = null, R = null, voidBg = null, skip = false, slabT = -1, slammed = false, crumbled = false, lastLit = 0, armT = 0;
   const offs = [];
   return {
+    shakeUi: true,   // a 2D scene: the crumble's feedback.shake moves the drawn frame (foundation channel)
     enter(data) {
       world.reset();
       display.setZoom(1);
@@ -321,6 +322,7 @@ function createDawn(seed) {
 scenes.define('victory', (() => {
   let t = 0, snap = null, S = null, R = null, dawn = null, slabT = -1, armT = 0, dawned = false, rays = null;
   return {
+    shakeUi: true,   // a 2D scene: shakes move the drawn frame (foundation channel)
     enter(data) {
       world.reset();
       display.setZoom(1);

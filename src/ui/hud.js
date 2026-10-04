@@ -187,7 +187,7 @@ export function createHud(opts = {}) {
     tick,
     /** Set or clear the boss source: () => ({ name, hp, maxHp, ... }) | null. */
     setBoss(fn) { O.boss = fn; },
-    set hidden(v) { hidden = !!v; }, get hidden() { return hidden; },
+    set hidden(v) { if (hidden && !v) t = 0; hidden = !!v; }, get hidden() { return hidden; },   // showing again slides the panels back in
     info() {
       const h = heroOf();
       return {

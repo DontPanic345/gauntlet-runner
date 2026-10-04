@@ -40,6 +40,7 @@ import { spawnHandler } from '../enemies/index.js';
 import { createBossFight, INTRO } from './fight.js';
 import { WARDEN, ROMAN } from './warden.js';
 import { PIT } from './models.js';
+import { createHud, wardenSource } from '../ui/hud.js';   // the same HUD as normal play (?scene=boss)
 
 const SLOWS = [1, 0.5, 0.25, 0.1];
 const ATTACKS = ['sweep', 'lash', 'stomp', 'leap', 'summon', 'cage'];
@@ -70,7 +71,7 @@ export default function bossShowcase(params) {
   const phaseP = Math.max(1, Math.min(3, parseInt(params.get('phase') ?? '1', 10) || 1));
   let start = params.get('death') === '1' ? 'death' : params.get('intro') === '1' ? 'intro' : `phase${phaseP}`;
   let slowIdx = Math.max(0, SLOWS.indexOf(O.slow));
-  let root = null, F = null, offs = [], deadT = -1, t = 0;
+  let root = null, F = null, hud = null, offs = [], deadT = -1, t = 0;
 
   // ---- the demo pilot: keyboard-style input only --------------------------------------------
   const pilot = {
@@ -187,13 +188,18 @@ export default function bossShowcase(params) {
   function build(which) {
     start = which;
     if (F) { F.dispose(); F = null; vfx.clear(); }
+    hud?.dispose(); hud = null;
     world.enemies = [];
     deadT = -1; t = 0;
     pilot.n = 0; pilot.dashCool = 0; pilot.atkCool = 0; pilot.want = {}; pilot.rng = 1; pilot.label = '';
     vfx.seed(17);
     const phase = which === 'death' ? 3 : which === 'intro' ? 1 : +which.slice(5);
-    F = createBossFight(root, { intro: which === 'intro', phase, source: auto ? pilot : input, numbers: O.numbers, force: attack, zoom: O.zoom, focus: O.focus });
+    F = createBossFight(root, { intro: which === 'intro', phase, source: auto ? pilot : input, numbers: false, force: attack, zoom: O.zoom, focus: O.focus });
     F.barLift = O.hud ? 10 : 0;
+    // integration: the hud piece's hearts, dash pip, boss bar and damage numbers, as in normal play
+    F.externalHud = true;
+    const boss = wardenSource(F);
+    hud = createHud({ health: F.health, boss: () => { const b = boss(); if (b) b.lift = F.barLift; return b; }, numbers: O.numbers, track: false, shards: false, boons: false });
     if (O.passive) F.warden.passive = true;
     if (which === 'death') { F.warden.hp = 22; F.warden.passive = true; F.ctl.teleport(0, -1.2, Math.PI); }
     if (attack === 'cage') F.warden.caged = false;
@@ -213,6 +219,7 @@ export default function bossShowcase(params) {
     exit() {
       offs.forEach((f) => f()); offs = [];
       F?.dispose(); F = null;
+      hud?.dispose(); hud = null;
       loop.setTimeScale(1);
       debug.handle('spawn', () => ({ ok: false, error: 'no spawner in this scene' }));
     },
@@ -244,6 +251,8 @@ export default function bossShowcase(params) {
     render(alpha) { F.render(alpha); },
     ui(g) {
       const W = display.width, H = display.height;
+      hud.hidden = F.state === 'intro';
+      hud.ui(g);
       F.ui(g);
       if (O.status.text && loop.realTime < O.status.until) drawText(g, O.status.text, W / 2, 46, 'gold', { align: 'center', outline: 'ink' });
       if (!O.hud) return;
@@ -252,8 +261,8 @@ export default function bossShowcase(params) {
       const tg = TAG[w.state] ?? [w.state.toUpperCase(), 'fog'];
       if (F.state !== 'intro') drawText(g, `${ROMAN[w.phase]}  ${tg[0]}`, W / 2, 16, tg[1], { align: 'center', shadow: 'ink' });
       else drawText(g, `INTRO  ${Math.min(INTRO.fight, F.t)}/${INTRO.fight}`, W / 2, 16, 'mist', { align: 'center', shadow: 'ink' });
-      drawText(g, auto ? 'DEMO  (ANY KEY: TAKE OVER)' : 'LIVE  (B: DEMO)', 8, 22, auto ? 'mist' : 'leaf', { shadow: 'ink' });
-      if (auto && pilot.labelT > 0) drawText(g, pilot.label, 8, 32, pilot.label === 'TANK IT' ? 'rose' : pilot.label === 'PUNISH' ? 'leaf' : 'sky', { shadow: 'ink' });
+      drawText(g, auto ? 'DEMO  (ANY KEY: TAKE OVER)' : 'LIVE  (B: DEMO)', 8, 42, auto ? 'mist' : 'leaf', { shadow: 'ink' });
+      if (auto && pilot.labelT > 0) drawText(g, pilot.label, 8, 52, pilot.label === 'TANK IT' ? 'rose' : pilot.label === 'PUNISH' ? 'leaf' : 'sky', { shadow: 'ink' });
       if (attack) drawText(g, `ATTACK: ${attack.toUpperCase()} ONLY`, W - 8, 22, 'gold', { align: 'right', shadow: 'ink' });
       if (loop.timeScale !== 1) drawText(g, `X${+loop.timeScale.toFixed(2)}`, W - 8, 32, 'gold', { align: 'right', shadow: 'ink' });
       const help = '1-3 PHASE  4 INTRO  5 DEATH  B DEMO  R RESTART  T SLOW  H HUD';

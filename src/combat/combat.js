@@ -71,7 +71,7 @@ export const COMBO = [
 ];
 
 export const RULES = {
-  queueTicks: 12,        // an attack press waits this long for the hero to be free (dash, hurt stun)
+  queueTicks: 8,         // an attack press waits this long for the hero to be free (dash, hurt stun); matches MOVE.dashBuffer (GAME.md: ~120 ms for both)
   linger: 14,            // ticks after an attack ends in which the next press still continues the combo
   assistRange: 2.3,      // keyboard aim assist: snap the swing toward a target this close ...
   assistAngle: 55,       // ... within this many degrees of the facing

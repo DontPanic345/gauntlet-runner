@@ -58,6 +58,7 @@ import { createTrap, gauntletSfx, BLADE, pinAt } from './traps.js';
 import { Collapse } from './collapse.js';
 import { createProgression } from '../progression/index.js';   // boons piece
 import { createHud } from '../ui/hud.js';   // hud piece: the in-run HUD in the 'gauntlet' scene
+import { flow } from '../run/flow.js';   // integration: hold the corridor while a transition wall covers it
 
 const V = VOXEL;
 const VX = 8;
@@ -965,7 +966,7 @@ export function createCorridorRun(root, { index = 0, seed = 1, layout = null, so
   B.combat = new HeroCombat({ ctl: B.ctl, anim: B.anim, health: B.health, targets: () => world.enemies });
   B.cam = new CameraRig({});
   B.cam.reset(s.x + 3, CAM_Z);
-  B.cfx = createCombatFx(root, { numbers: false });
+  B.cfx = createCombatFx(root, { numbers: false });   // particles: the shared vfx pool (bound by cfx)
   B.cor = cor;
   world.hero = B.health;
   const unbind = vfx.bind(['move', 'kill']);
@@ -1024,6 +1025,9 @@ scenes.define('gauntlet', (() => {
       debug.handle('goto', () => ({ ok: false, error: 'no rooms in this scene' }));
     },
     tick() {
+      // integration: nothing runs behind run-flow's transition wall (the arena's drop-in waits
+      // the same way), so the intro's 75 ticks before the collapse are all on screen
+      if (flow.covered) return;
       run.tick();
       prog.tick();
       if (run.health.dead && deadT < 0) deadT = 0;

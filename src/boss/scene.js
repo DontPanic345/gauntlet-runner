@@ -14,6 +14,7 @@ import { createProgression } from '../progression/index.js';
 import { spawnHandler } from '../enemies/index.js';
 import { createBossFight } from './fight.js';
 import { createHud, wardenSource } from '../ui/hud.js';   // hud piece: hearts, boss bar, damage numbers
+import { flow } from '../run/flow.js';   // integration: hold the intro while a transition wall covers it
 
 scenes.define('boss', (() => {
   let fight = null, prog = null, hud = null, endT = -1;
@@ -37,6 +38,7 @@ scenes.define('boss', (() => {
       debug.handle('spawn', () => ({ ok: false, error: 'no spawner in this scene' }));
     },
     tick() {
+      if (flow.covered) return;   // integration: the intro starts when run-flow's transition wall opens
       fight.tick();
       prog.tick();
       if (fight.state === 'lost' && endT < 0) endT = 0;
@@ -45,7 +47,10 @@ scenes.define('boss', (() => {
     },
     frame() { fight?.frame(); prog?.frame(); },
     render(alpha) { fight.render(alpha); prog.render(alpha); },
-    ui(g) { hud.ui(g); fight.ui(g); prog.ui(g); },
+    ui(g) {
+      hud.hidden = fight.state === 'intro';   // the intro is a cinematic: the HUD slides in when the fight starts
+      hud.ui(g); fight.ui(g); prog.ui(g);
+    },
     state() { return { boss: fight?.info() ?? null }; },
   };
 })());

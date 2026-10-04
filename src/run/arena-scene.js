@@ -95,7 +95,7 @@ scenes.define('run', (() => {
       cam.reset(start.x, start.z);
       hero = new HeroHealth({ ctl, anim, rig, hp, maxHp });
       combat = new HeroCombat({ ctl, anim, health: hero, targets: () => [...world.enemies, ...arena.targets()] });
-      cfx = createCombatFx(root, { numbers: false });   // the hud piece draws damage numbers
+      cfx = createCombatFx(root, { numbers: false });   // hud draws numbers; cfx hands particles to vfx
       vfx.bind(['move', 'kill']);
       world.hero = hero;
       run.hp = hp; run.maxHp = maxHp;
@@ -153,9 +153,10 @@ scenes.define('run', (() => {
       cfx.ui(g);
       arena.ui(g);
       drawRocks(g);
+      hud.hidden = prog.choosing;   // the boon choice owns the screen; the HUD slides back in after the pick
       hud.ui(g);
       prog.ui(g);
-      if (card && !flow.dying && !hero.dead) drawRunCard(g, card);
+      if (card && !flow.dying && !hero.dead && !scenes.paused) drawRunCard(g, card);   // not under the pause panel
     },
     state() { return { run: flow.info(), drop: drop ? { t: drop.t, landed: drop.landed } : null }; },
   };

@@ -1,7 +1,12 @@
 // Combat effects (piece `combat`): what a hit looks like, driven only by combat:* events so
 // the `vfx` and `hud` pieces can take any part over without touching combat.js.
 //
-//   const cfx = createCombatFx(root, { numbers: true });   // numbers: stand-in damage numbers
+//   const cfx = createCombatFx(root, { numbers: true });   // numbers: damage numbers (the hud piece's)
+//   particles (default false): false hands the 3D sparks, debris and slam ring to the shared vfx
+//   pool (vfx.bind(['combat']), bound here), so every scene and showcase shows the same hit;
+//   true keeps the stand-in particles below. The 2D marks and the hurt vignette always stay.
+//   numbers: true draws the hud piece's real damage numbers (src/ui/damage-numbers.js); pass
+//   false where a full HUD (createHud) already draws them.
 //   tick: cfx.tick();   render: cfx.render(alpha);   ui: cfx.ui(g);   exit: cfx.dispose();
 //
 // 3D (voxel cubes, unlit palette colours, no outline):
@@ -22,12 +27,14 @@ import { drawText, textWidth } from '../core/pixelfont.js';
 import { css, hex } from '../render/palette.js';
 import { look } from '../render/look.js';
 import { DT } from '../core/loop.js';
+import { vfx } from '../vfx/vfx.js';
+import { createDamageNumbers } from '../ui/damage-numbers.js';
 
 const MAX = 320;
 const G = 14;              // gravity for sparks, units/s^2
 const Z_SCREEN = 0.77;     // world z -> screen y foreshortening at the camera pitch
 
-export function createCombatFx(root, { numbers = true } = {}) {
+export function createCombatFx(root, { numbers = true, particles = false } = {}) {
   const geo = new THREE.BoxGeometry(1, 1, 1);
   const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   const inst = new THREE.InstancedMesh(geo, mat, MAX);
@@ -35,6 +42,12 @@ export function createCombatFx(root, { numbers = true } = {}) {
   inst.count = 0;
   look.noOutline(inst);
   root.add(inst);
+
+  // integration: one particle system (vfx) and one set of damage numbers (hud) everywhere
+  let unbindVfx = particles ? null : vfx.bind(['combat']);
+  const offClear = particles ? null : events.on('vfx:clear', () => { unbindVfx = null; });   // rebound on the next tick
+  const dn = numbers ? createDamageNumbers() : null;
+  numbers = false;      // the stand-in numbers below stay off
 
   const P = [];          // particles
   const marks = [];      // 2D impact marks
@@ -51,6 +64,7 @@ export function createCombatFx(root, { numbers = true } = {}) {
   };
 
   function add(p) {
+    if (!particles) return;
     if (P.length >= MAX) P.shift();
     p.px = p.x; p.py = p.y; p.pz = p.z; p.life = 0;
     P.push(p);
@@ -136,6 +150,8 @@ export function createCombatFx(root, { numbers = true } = {}) {
 
   return {
     tick() {
+      if (!particles && !unbindVfx) unbindVfx = vfx.bind(['combat']);
+      dn?.tick();
       for (const p of P) {
         p.px = p.x; p.py = p.y; p.pz = p.z;
         p.life += DT;
@@ -212,7 +228,8 @@ export function createCombatFx(root, { numbers = true } = {}) {
           g.fillRect(Math.round(p.x + Math.cos(ang) * rd), Math.round(p.y + Math.sin(ang) * rd), z >= 2 ? 3 : 2, z >= 2 ? 3 : 2);
         }
       }
-      // damage numbers (stand-in)
+      dn?.ui(g);
+      // damage numbers (stand-in; off: the hud piece's numbers draw above)
       for (const n of nums) {
         const p = display.worldToScreen(n.x, n.y, n.z);
         const t = n.t;
@@ -243,7 +260,7 @@ export function createCombatFx(root, { numbers = true } = {}) {
     /** Direct calls, for pieces that want an effect without an event. */
     sparks, debris, ring,
     get count() { return P.length; },
-    dispose() { offs.forEach((f) => f()); offs.length = 0; root.remove(inst); geo.dispose(); mat.dispose(); },
+    dispose() { offs.forEach((f) => f()); offs.length = 0; unbindVfx?.(); unbindVfx = null; offClear?.(); dn?.dispose(); root.remove(inst); geo.dispose(); mat.dispose(); },
   };
 }
 

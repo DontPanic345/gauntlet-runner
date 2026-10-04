@@ -20,6 +20,7 @@ let traumaLeft = 0;
 let kickX = 0, kickY = 0;
 let flashColor = 'white', flashAlpha = 0, flashMs = 1, flashLeft = 0;
 let seed = 1;
+let last = { x: 0, y: 0 };   // the offset handed out this frame (offset() draws new noise)
 const noise = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647 * 2 - 1; };
 
 export const feedback = {
@@ -57,8 +58,11 @@ export const feedback = {
   offset() {
     const t = traumaLeft / traumaMs;
     const amp = trauma * t * t;
-    return { x: Math.round(noise() * amp + kickX), y: Math.round(noise() * amp + kickY) };
+    last = { x: Math.round(noise() * amp + kickX), y: Math.round(noise() * amp + kickY) };
+    return last;
   },
+  /** This frame's offset again, without drawing new noise (2D scenes that opt in: shakeUi). */
+  get lastOffset() { return last; },
   flashState() {
     return flashLeft > 0 ? { color: flashColor, alpha: flashAlpha * (flashLeft / flashMs) } : null;
   },

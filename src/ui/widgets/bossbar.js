@@ -67,7 +67,7 @@ export function createBossBar() {
     const bw = Math.min(300, W - 150), x0 = Math.round((W - bw) / 2);
     const slide = Math.round((1 - easeOut(s.show)) * 44);
     const sh = shakeT < 8 ? ((shakeT & 2) ? 1 : -1) : 0;
-    const y0 = H - 22 + slide;
+    const y0 = H - 22 - (s.lift ?? 0) + slide;   // lift: px up, for a help line under it (showcases)
     geom = { x0, y0, bw };
     const fw = (v) => Math.max(0, Math.min(bw, Math.round(bw * Math.max(0, v) / s.maxHp)));
     const X = x0 + sh;
