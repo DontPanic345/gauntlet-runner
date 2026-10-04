@@ -303,7 +303,12 @@
       "showcase": "?showcase=boons: the choice screen with 3 random boons; ?showcase=boons&give=<id> puts the hero in a dummy room with that boon",
       "judge_focus": "Stills of the choice screen and strips of boons in action. Which upgrade system looks more exciting?",
       "reference_hint": "top-rated itch.io roguelite with an upgrade or card choice screen",
-      "reference": null,
+      "reference": {
+        "url": "https://poncle.itch.io/vampire-survivors",
+        "rating": "4.8 stars (1,656 ratings)",
+        "why": "the itch roguelite most known for its upgrade loop: pick-1-of-N level-up choices, upgrades that each have a distinct, screen-filling visual, gem pickups that vacuum to the player, and weapon+passive evolutions as synergies; its HTML5 build can be played live",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

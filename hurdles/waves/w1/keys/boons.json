@@ -1,0 +1,22 @@
+{
+  "ours": "B",
+  "pairs": 6,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/boons/ref/01-choice-screen-open.png",
+      "hurdles/waves/w1/critic/boons/ref/02-choice-screen-appearing-strip.png",
+      "hurdles/waves/w1/critic/boons/ref/03-taking-an-upgrade-strip.png",
+      "hurdles/waves/w1/critic/boons/ref/04-orbiting-upgrade-in-combat-strip.png",
+      "hurdles/waves/w1/critic/boons/ref/05-many-upgrades-in-combat-strip.png",
+      "hurdles/waves/w1/critic/boons/ref/06-pickups-collected-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/boons/ours/01-choice-screen-open.png",
+      "hurdles/waves/w1/critic/boons/ours/02-choice-screen-appearing-strip.png",
+      "hurdles/waves/w1/critic/boons/ours/03-taking-an-upgrade-strip.png",
+      "hurdles/waves/w1/critic/boons/ours/04-orbiting-upgrade-in-combat-strip.png",
+      "hurdles/waves/w1/critic/boons/ours/05-many-upgrades-in-combat-strip.png",
+      "hurdles/waves/w1/critic/boons/ours/06-pickups-collected-strip.png"
+    ]
+  }
+}
