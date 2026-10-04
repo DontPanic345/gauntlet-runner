@@ -177,3 +177,7 @@ where the outputs are.
 
 - The critic found hits don't visibly land on the blade: the contact frame is a solid white silhouette and the smear is drawn above the hero's head. It asks for a slash streak at the contact point, cut along the swing, with a shorter tinted flash; the smear part needs the hero piece too. Must-haves: the per-hit impact set and getting hurt fail (hits 1 and 2 barely knock back and sound the same; the hurt flash is faint); the combo window is half (forgiving but mashy); no whiffs passes. 4 pairs (a combo strip, a first-hit still, a third-hit still and a hurt strip). The reference is Bright Lancer, played live. Pinned reference: https://slo-nod.itch.io/bright-lancer (4.5 stars (140 ratings)).
 - Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/combat/review.md`.
+
+## 2026-10-04 — w1 critique: budget stop
+
+- The budget guard tripped after combat: the session window was at 66%, over the 50% limit. Weekly was at 34%. The next run resumes the critique queue at `vfx`. Critic prompts were generated under the gitignored `shots/critic/`, so the next run regenerates them from `prompts/critic.md`.
