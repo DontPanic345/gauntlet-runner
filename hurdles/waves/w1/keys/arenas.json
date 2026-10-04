@@ -1,0 +1,18 @@
+{
+  "ours": "A",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/arenas/ours/01-arena-in-fight-a.png",
+      "hurdles/waves/w1/critic/arenas/ours/02-arena-in-fight-b.png",
+      "hurdles/waves/w1/critic/arenas/ours/03-arena-in-fight-c.png",
+      "hurdles/waves/w1/critic/arenas/ours/04-clear-exit-opens-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/arenas/ref/01-arena-in-fight-a.png",
+      "hurdles/waves/w1/critic/arenas/ref/02-arena-in-fight-b.png",
+      "hurdles/waves/w1/critic/arenas/ref/03-arena-in-fight-c.png",
+      "hurdles/waves/w1/critic/arenas/ref/04-clear-exit-opens-strip.png"
+    ]
+  }
+}
