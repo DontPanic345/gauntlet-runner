@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/hud/ref/01-mid-fight-low-health-still.png",
+      "hurdles/waves/w1/critic/hud/ref/02-room-cleared-still.png",
+      "hurdles/waves/w1/critic/hud/ref/03-damage-taken-strip.png",
+      "hurdles/waves/w1/critic/hud/ref/04-mid-fight-full-health-small-still.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/hud/ours/01-mid-fight-low-health-still.png",
+      "hurdles/waves/w1/critic/hud/ours/02-room-cleared-still.png",
+      "hurdles/waves/w1/critic/hud/ours/03-damage-taken-strip.png",
+      "hurdles/waves/w1/critic/hud/ours/04-mid-fight-full-health-small-still.png"
+    ]
+  }
+}

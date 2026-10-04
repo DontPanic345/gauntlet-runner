@@ -367,7 +367,12 @@
       "showcase": "?showcase=hud: a dummy fight that exercises every HUD element, with keys to take damage, gain shards, add boons",
       "judge_focus": "Mid-fight stills and a damage-taken strip. Which HUD looks more polished and readable?",
       "reference_hint": "top-rated itch.io pixel-art action roguelite with a clean HUD",
-      "reference": null,
+      "reference": {
+        "url": "https://ember-paw-games.itch.io/gaunt-valkyr",
+        "rating": "4.9 stars (94 ratings)",
+        "why": "top-down pixel action roguelite on itch's top-rated roguelite lists whose in-run HUD has the same job as ours: health with a drain bar, an item and upgrade icon row, a currency counter that ticks, a kill counter, an area marker (\"AREA 2\", \"3-3\"), and a full-screen hurt wash. It is already pinned for look and vfx.",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
