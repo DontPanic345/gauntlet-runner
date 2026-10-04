@@ -1,0 +1,18 @@
+{
+  "ours": "B",
+  "pairs": 4,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/look/ref/01-lit-arena-still.png",
+      "hurdles/waves/w1/critic/look/ref/02-combat-still-hud.png",
+      "hurdles/waves/w1/critic/look/ref/03-dark-arena-fight-strip.png",
+      "hurdles/waves/w1/critic/look/ref/04-camera-pan-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/look/ours/01-lit-arena-still.png",
+      "hurdles/waves/w1/critic/look/ours/02-combat-still-hud.png",
+      "hurdles/waves/w1/critic/look/ours/03-dark-arena-fight-strip.png",
+      "hurdles/waves/w1/critic/look/ours/04-camera-pan-strip.png"
+    ]
+  }
+}

@@ -49,7 +49,12 @@
       "showcase": "?showcase=look: a static lit arena vignette with hero, two enemies, torches, props; slow camera pan to test snapping",
       "judge_focus": "Still frames and a slow pan strip. Which one looks like a finished, beautiful game?",
       "reference_hint": "top-rated pixel-art or voxel action/roguelite on itch.io with a strong visual identity",
-      "reference": null,
+      "reference": {
+        "url": "https://ember-paw-games.itch.io/gaunt-valkyr",
+        "rating": "4.9 stars (94 ratings)",
+        "why": "top-down pixel action roguelite on itch's top-rated roguelite and dungeon-crawler lists; dark dungeons lit by dynamic light pools, with the same fixed overhead arena framing and the same \"crypt lit by torches\" job as our render look",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },

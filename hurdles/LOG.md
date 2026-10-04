@@ -157,3 +157,8 @@ where the outputs are.
 - Seams left: two impact stars on every hit (combat/vfx), the collapse kills on first touch (gauntlet), no drop-in for corridors and the boss (run-flow), shards have no use and the title shows no best time, dead placeholder scenes (foundation), dark between torches (look), gamepad untested, audio not listened to, and performance on a real GPU unmeasured (headless corridors run at 4 to 5 fps). The integrator said no piece needs a rebuild. The report is in `waves/w1/integration.md`.
 - Smoke test: all 15 showcases, `/` and `/?scene=run&seed=1` exit 0 with 0 console errors and non-blank frames.
 - The next phase is critique, with all 14 judged pieces queued.
+
+## 2026-10-04 — w1 critique: look
+
+- The critic found the floor as loud as the characters (ink-black grout, heavy speckle), so actors don't separate from the floor. Must-haves: outlines on dark surfaces and the finished-game still frame fail; texel snapping and palette pass; torch flicker is a weak pass. 4 pairs (2 stills, 2 strips). The reference isn't HTML5, so its side comes from page screenshots and GIFs. Pinned reference: https://ember-paw-games.itch.io/gaunt-valkyr (4.9 stars (94 ratings)).
+- Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/look/review.md`.
