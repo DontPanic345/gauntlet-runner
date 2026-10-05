@@ -129,6 +129,8 @@ export class Enemy extends Hurtable {
   turnTo(yaw, rate) { const d = wrap(yaw - this.yaw); this.yaw = wrap(this.yaw + Math.max(-rate, Math.min(rate, d))); return Math.abs(d); }
   /** Set `want` toward a point at up to `speed`, easing in over the last `soft` units. */
   seek(x, z, speed, soft = 0.4) {
+    const w = this.mgr.nav?.(this, x, z);   // the room's pathing (arenas): a waypoint round pits and walls
+    if (w) { x = w[0]; z = w[1]; }
     const dx = x - this.x, dz = z - this.z, d = Math.hypot(dx, dz);
     if (d < 0.02) { this.want.x = 0; this.want.z = 0; return d; }
     const k = Math.min(1, d / soft) * speed;

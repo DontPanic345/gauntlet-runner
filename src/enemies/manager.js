@@ -254,7 +254,7 @@ export class EnemyManager {
       }
       let pop = null;
       if (o.t >= o.life) pop = 'fizzle';
-      else if (cw && cw.blocked(o.x, o.z, o.r * 0.7)) pop = 'wall';
+      else if (cw && cw.blocked(o.x, o.z, o.r * 0.7, true)) pop = 'wall';   // orbs fly over pits and water
       else if (hero && !hero.dead && Math.hypot(hero.x - o.x, hero.z - o.z) < o.r + 0.3) {
         const r = hero.hurt ? hero.hurt(dmg(o.dmg), { x: o.x - o.vx * 0.05, z: o.z - o.vz * 0.05 }) : { ok: false };
         if (r.ok || r.reason !== 'dodged') pop = 'hit';        // a dash passes through it

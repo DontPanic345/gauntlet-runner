@@ -84,7 +84,7 @@ scenes.define('run', (() => {
       const hp = fresh ? 5 : Math.max(1, data?.hp ?? run.hp ?? 5);
       const maxHp = fresh ? 5 : (data?.maxHp ?? run.maxHp ?? 5);
 
-      arena = setActiveArena(new Arena(root, generateArena(index, rng.seed), { hero: () => ctl }));
+      arena = setActiveArena(new Arena(root, generateArena(index, rng.seed), { hero: () => ctl, bannerHold: () => !!card && card.t < 200 }));   // the room's title waits for the run card
       const start = arena.start;
       rig = createHeroRig();
       root.add(rig.group);

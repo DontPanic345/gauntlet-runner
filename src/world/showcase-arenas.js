@@ -18,6 +18,10 @@
 //          &dur=<s>            tour: seconds per room (default 5)
 //          &zoom=1..3          (default 1, game scale)      &slow=<s>   time scale
 //          &hud=0              no showcase labels (the arena's own banners still show)
+//          &tpl=<id>[,<id>..]  force templates onto arenas 1.. (one id: every arena uses it);
+//                              ids: antechamber cistern shrine ossuary hall crossing maw
+//          &var=0|1            force a template's layout variant (the Maw has two)
+//          &cam=x,z            tour: hold the camera on a world point (close-up stills with &zoom=2)
 // Keys:    tour: Left/Right room, Space hold, Enter/P2 play this room
 //          play: WASD J K, B demo, R restart the room, N next room
 //          both: M tour/play, Z zoom, T slow-mo, H hud, P/Esc pause
@@ -44,7 +48,7 @@ import { vfx } from '../vfx/vfx.js';
 import { spawnHandler } from '../enemies/index.js';
 import { Arena, generateArena, cameraBounds, setActiveArena, ARENA_COUNT, TEMPLATES } from './arena.js';
 import { describeUnits } from './waves.js';
-import { THEMES } from './tiles.js';
+import { THEMES, SOLID_TILES } from './tiles.js';
 
 const SLOWS = [1, 0.5, 0.25, 0.1];
 
@@ -70,7 +74,10 @@ export default function arenasShowcase(params) {
   const status = { text: '', until: 0 };
   const say = (s) => { status.text = s; status.until = loop.realTime + 1.3; };
   const layouts = [];
-  const layout = (i) => (layouts[i] ??= generateArena(i, seed));
+  // &tpl=<id>[,<id>...]: force templates onto arenas 1.. (to see every template); &var=0|1 a layout
+  const tplList = (params.get('tpl') ?? '').split(',').filter((t) => TEMPLATES[t]);
+  const varParam = params.get('var');
+  const layout = (i) => (layouts[i] ??= generateArena(i, seed, { template: tplList[i] ?? (tplList.length === 1 ? tplList[0] : null), variant: varParam === null ? null : (parseInt(varParam, 10) || 0) }));
 
   // ---- building rooms --------------------------------------------------------------------
   function clearRoom(rebind = true) {
@@ -139,12 +146,20 @@ export default function arenasShowcase(params) {
   // walkable tiles: not a block, not under a solid prop
   function walkGrid() {
     const L = arena.L;
-    const g = L.tiles.map((row) => [...row].map((c) => c !== '#'));
+    const g = L.tiles.map((row) => [...row].map((c) => !SOLID_TILES[c === 'Z' ? '^' : c]));
     for (const p of arena.props.list) {
-      if (!p.def.solid || p.dead || p.kind === 'urn' || p.kind === 'crate' || p.kind === 'barrel' || p.kind === 'candles') continue;
+      if (!p.def.solid || p.dead || p.y || p.kind === 'urn' || p.kind === 'crate' || p.kind === 'barrel' || p.kind === 'candles') continue;
       const i = Math.floor(p.x + L.W / 2), j = Math.floor(p.z + L.D / 2);
       if (g[j]?.[i] !== undefined) g[j][i] = false;
       if (p.kind === 'sarcophagus') { const i2 = Math.floor(p.x - 0.5 + L.W / 2); if (g[j]?.[i2] !== undefined) g[j][i2] = false; }
+      if (p.def.setPiece) {
+        // a set-piece covers several tiles: block every tile its body reaches
+        const hx = (p.def.boxW ?? p.def.r ?? 1) + 0.2, hz = (p.def.boxD ?? p.def.r ?? 1) + 0.2;
+        for (let jj = 0; jj < L.D; jj++) for (let ii = 0; ii < L.W; ii++) {
+          const cx = ii - L.W / 2 + 0.5, cz = jj - L.D / 2 + 0.5;
+          if (Math.abs(cx - p.x) < hx && Math.abs(cz - p.z) < hz) g[jj][ii] = false;
+        }
+      }
     }
     return g;
   }
@@ -285,8 +300,10 @@ export default function arenasShowcase(params) {
   function goDemo() { if (!hero) return; auto = true; hero.ctl.source = pilot; world.god = true; say('DEMO'); }
 
   // ---- tour camera ---------------------------------------------------------------------------
+  const camParam = (params.get('cam') ?? '').split(',').map(Number);
   function tourCamera() {
     const L = arena.L;
+    if (camParam.length === 2 && camParam.every(Number.isFinite)) { display.setCameraTarget(camParam[0], 0.5, camParam[1]); return; }
     const k = t / dur;
     const b = cameraBounds(L, zoom);
     // a slow drift across the room, from the back wall toward the gate
@@ -391,7 +408,7 @@ export default function arenasShowcase(params) {
           if (hold) drawText(g, 'HOLD', W - 8, 16, 'gold', { align: 'right', shadow: 'ink' });
           // the room card
           const lines = [
-            [`${THEMES[L.theme].label}  ${TEMPLATES[L.id] ? L.id.toUpperCase() : ''}${L.mirror ? '  MIRRORED' : ''}  ${L.W}X${L.D}`, 'mist'],
+            [`${THEMES[L.theme].label}  ${TEMPLATES[L.id] ? L.id.toUpperCase() : ''}${L.variant ? ' B' : ''}${L.mirror ? '  MIRRORED' : ''}  ${L.W}X${L.D}`, 'mist'],
             ...L.plan.waves.map((w, k) => [`W${k + 1}  ${describeUnits(w.units)}`, 'fog']),
           ];
           const cw = Math.max(textWidth(L.name) * 2, ...lines.map(([s]) => textWidth(s))) + 16;

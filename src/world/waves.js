@@ -6,7 +6,7 @@
 //   dir.start(); each tick: dir.tick();  dir.done -> every wave spawned and dead
 //
 // Escalation (ESCALATION below), across the five arenas of zone 1:
-//   arena 1  2 waves, husks and a mite swarm. Wave 1 is always two husks: learn the tell.
+//   arena 1  3 small waves, husks and a mite swarm. Wave 1 is always two husks: learn the tell.
 //   arena 2  2 waves. The ember wisp arrives (always in wave 1, so it is met in a small fight).
 //   arena 3  3 waves. The brute arrives, alone with fodder, in the last wave.
 //   arena 4  3 waves, bigger budgets, a brute may lead wave 2 or 3.
@@ -31,7 +31,7 @@ export const COST = { husk: 2, mites: 3, wisp: 3, brute: 6 };
  * (to introduce it). first: a fixed opening wave.
  */
 export const ESCALATION = [
-  { budgets: [4, 6], allow: ['husk', 'mites'], caps: { mites: 1 }, first: ['husk', 'husk'] },
+  { budgets: [4, 5, 6], allow: ['husk', 'mites'], caps: { mites: 1 }, first: ['husk', 'husk'] },
   { budgets: [6, 8], allow: ['husk', 'mites', 'wisp'], caps: { wisp: 1, mites: 1 }, force: { 0: 'wisp' } },
   { budgets: [6, 8, 12], allow: ['husk', 'mites', 'wisp'], caps: { wisp: 1, mites: 2 }, force: { 2: 'brute' }, bruteCap: 1 },
   { budgets: [8, 11, 13], allow: ['husk', 'mites', 'wisp', 'brute'], caps: { wisp: 2, mites: 2, brute: 1 }, noBrute: [0], force: { 1: 'brute' } },

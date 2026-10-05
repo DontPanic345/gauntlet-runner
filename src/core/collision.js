@@ -105,10 +105,13 @@ export class CollisionWorld {
     return d - lim;
   }
 
-  /** True if a circle at (x, z) of radius r overlaps any shape (touching does not count). */
-  blocked(x, z, r) {
+  /**
+   * True if a circle at (x, z) of radius r overlaps any shape (touching does not count).
+   * overLow: ignore shapes marked `low` (pits and water: they stop feet, not things in the air).
+   */
+  blocked(x, z, r, overLow = false) {
     const o = { nx: 0, nz: 0 };
-    for (const s of this.shapes) if (this._pen(s, x, z, r, o) > 1e-4) return true;
+    for (const s of this.shapes) if (!(overLow && s.low) && this._pen(s, x, z, r, o) > 1e-4) return true;
     return false;
   }
 
