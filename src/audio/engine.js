@@ -5,6 +5,7 @@
 // Graph (every sound in the game ends up here):
 //
 //   music  -> musicFilter (low-health / pause / death lowpass) -> musicEq (2.2 kHz dip: room for cues)
+//          -> musicCue (an extra 1.5-4 kHz dip while a telegraph plays: audio.cue)
 //          -> musicDuck -> musicVol (settings.musicVolume) --------------------------+
 //   sfx    -> sfxDuckless --------------------------\                                |
 //   cue    (telegraphs: never ducked) ----------------> sfxVol (settings.sfxVolume) -+-> sum
@@ -101,14 +102,18 @@ function build() {
   G.verb.connect(G.verbOut).connect(G.sum);
 
   // music
-  G.music = gain(1.25);
+  G.music = gain(0.62);   // the score sits ~6 dB under the hits (wave-1 hits were praised for cutting through)
   G.musicFilter = c.createBiquadFilter();
   G.musicFilter.type = 'lowpass'; G.musicFilter.frequency.value = 20000; G.musicFilter.Q.value = 0.7;
   G.musicEq = c.createBiquadFilter();
   G.musicEq.type = 'peaking'; G.musicEq.frequency.value = 2200; G.musicEq.Q.value = 0.6; G.musicEq.gain.value = -3;
+  // the cue dip: 0 dB normally; while a telegraph plays, a few dB out of 1.5-4 kHz, where the
+  // tells live, so the music steps aside for them (see audio.cue)
+  G.musicCue = c.createBiquadFilter();
+  G.musicCue.type = 'peaking'; G.musicCue.frequency.value = 2600; G.musicCue.Q.value = 0.9; G.musicCue.gain.value = 0;
   G.musicDuck = gain(1);
   G.musicVol = gain(taper(settings.get('musicVolume') ?? 0.7));
-  G.music.connect(G.musicFilter).connect(G.musicEq).connect(G.musicDuck).connect(G.musicVol).connect(G.sum);
+  G.music.connect(G.musicFilter).connect(G.musicEq).connect(G.musicCue).connect(G.musicDuck).connect(G.musicVol).connect(G.sum);
   G.musicSend = gain(0.2);
   G.musicVol.connect(G.musicSend).connect(G.verb);
 
@@ -156,6 +161,28 @@ function duckBus(which, db, hold, release, attack) {
   p.linearRampToValueAtTime(Math.min(now, depth), t + attack);
   p.setValueAtTime(depth, end);
   p.setTargetAtTime(1, end, release / 3);
+}
+
+let cueEnd = 0;
+/**
+ * A telegraph is playing: duck the music by db and dip its 1.5-4 kHz band by dipDb for `hold`
+ * seconds, so the tell is never masked. Overlapping cues extend each other. The attack is 8 ms:
+ * most tells put their energy in their first 50 ms, so a slower duck would arrive after them.
+ */
+function cue(db = 8, hold = 0.35, release = 0.35, dipDb = 4) {
+  if (!G) return;
+  duckBus('music', db, hold, release, 0.008);
+  duckBus('amb', db * 0.7, hold, release, 0.008);
+  const t = ctx.currentTime;
+  const end = Math.max(cueEnd, t + 0.04 + hold);
+  cueEnd = end;
+  const p = G.musicCue.gain;
+  const now = p.value;
+  p.cancelScheduledValues(t);
+  p.setValueAtTime(now, t);
+  p.linearRampToValueAtTime(Math.min(now, -Math.abs(dipDb)), t + 0.02);
+  p.setValueAtTime(-Math.abs(dipDb), Math.max(end, t + 0.02));
+  p.setTargetAtTime(0, end, release / 3);
 }
 
 // ---- recording ---------------------------------------------------------------------------------
@@ -280,6 +307,8 @@ export const audio = {
   bus(name) { return G ? G[name] ?? G.sfx : null; },
   /** Duck the music (and ambience) under something important. db: depth, seconds for the rest. */
   duck(db = 6, hold = 0.2, release = 0.5, attack = 0.015) { duckBus('music', db, hold, release, attack); duckBus('amb', db * 0.7, hold, release, attack); },
+  /** A telegraph cue: duck the music (8 ms attack) and dip its 1.5-4 kHz band for `hold` s. */
+  cue,
   /** The master bus as a MediaStream (for MediaRecorder). Creates the context if needed. */
   stream,
   record,

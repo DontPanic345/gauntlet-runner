@@ -3,7 +3,7 @@
 //
 //   __GR.debug.audio()                         info: context, mixer, music, director, recent plays, meter
 //   __GR.debug.audio('play', name, opts)       play a bank sound ('hit.heavy', 'step.wet', ...)
-//   __GR.debug.audio('music', song)            'title' | 'crypt' | 'warden' | null
+//   __GR.debug.audio('music', song, {from})    'title' | 'crypt' | 'warden' | 'dirge' | null; from: a section ('B') or step
 //   __GR.debug.audio('stems', ['bed', ...])    exactly these stems
 //   __GR.debug.audio('intensity', 0..1)        also: 'filter', mode; 'level', stem, v; 'duck', db, hold; 'amb', {wind, crackle, drip, debris}
 //   __GR.debug.audio('record', ms)             -> Promise {ok, mime, bytes, b64}: MediaRecorder on the master bus
@@ -37,7 +37,7 @@ debug.add('audio', (action, a, b) => {
     case 'play': audio.ensure(true); return { ok: sfx.play(a, b ?? {}) };
     case 'shard': return { ok: sfx.shard(a ?? 0) };
     case 'step': return { ok: sfx.step(a, b) };
-    case 'music': audio.ensure(true); music.play(a ?? null); return { ok: true, song: a ?? null };
+    case 'music': audio.ensure(true); music.play(a ?? null, { restart: !!b?.from || !!b?.restart, ...(b ?? {}) }); return { ok: true, song: a ?? null };
     case 'stems': music.only(a ?? []); return { ok: true };
     case 'intensity': music.intensity = a; return { ok: true };
     case 'level': music.level(a, b); return { ok: true };
