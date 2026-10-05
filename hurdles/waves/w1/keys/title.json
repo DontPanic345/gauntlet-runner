@@ -1,0 +1,22 @@
+{
+  "ours": "B",
+  "pairs": 6,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/title/ref/01-first-frame.png",
+      "hurdles/waves/w1/critic/title/ref/02-title-idle-strip.png",
+      "hurdles/waves/w1/critic/title/ref/03-main-menu.png",
+      "hurdles/waves/w1/critic/title/ref/04-menu-navigation-strip.png",
+      "hurdles/waves/w1/critic/title/ref/05-open-settings-strip.png",
+      "hurdles/waves/w1/critic/title/ref/06-settings-screen.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/title/ours/01-first-frame.png",
+      "hurdles/waves/w1/critic/title/ours/02-title-idle-strip.png",
+      "hurdles/waves/w1/critic/title/ours/03-main-menu.png",
+      "hurdles/waves/w1/critic/title/ours/04-menu-navigation-strip.png",
+      "hurdles/waves/w1/critic/title/ours/05-open-settings-strip.png",
+      "hurdles/waves/w1/critic/title/ours/06-settings-screen.png"
+    ]
+  }
+}

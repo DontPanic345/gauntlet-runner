@@ -430,7 +430,12 @@
       "showcase": "?showcase=title (same as the default entry) plus ?showcase=title&menu=settings",
       "judge_focus": "The first frame, a menu-navigation strip and the settings screen. Which title screen makes you want to press Start?",
       "reference_hint": "top-rated itch.io pixel-art game with a memorable title screen",
-      "reference": null,
+      "reference": {
+        "url": "https://poncle.itch.io/vampire-survivors",
+        "rating": "4.8 stars (1,656 ratings)",
+        "why": "the best-known pixel-art roguelite on itch, with one of its most recognisable title screens (a blood-red moon, a looming Dracula, the hooded hero swooping in, a blinking prompt) followed by a main menu and an options screen with sound, music and flashing-VFX toggles; its HTML5 build can be played live",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
