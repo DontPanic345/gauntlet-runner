@@ -287,3 +287,8 @@ where the outputs are.
 - **title**: won (clear). Loser's biggest gap: Replace the generic flat rounded buttons and system/monospace fonts (START, POWER UP, COLLECTION, Options panel, 'PRESS TO START') with a bespoke pixel-art UI kit (a pixel font at the same scale as the art, beveled or ornate frames that match the gothic key art) so the menu looks authored, not like a placeholder web overlay.
 - **run-flow**: won (decisive). Loser's biggest gap: Replace the bare GAME OVER + QUIT overlay with a staged death beat (hit-stop, character death animation or shatter, camera push) that hands off to a summary with an immediate one-key Run Again, so the player is not routed back through the title screen and character select.
 - 7 won, 7 lost. Wave 2 starts at build with the lost pieces: look, hero, movement, vfx, enemies, arenas, audio.
+
+## 2026-10-05 — w2 build: look
+
+- The builder added `src/render/impact.js`, a combat impact layer available in every scene: blood droplets that splat on the floor, stains that stay for the whole scene, a pool under each kill, debris chips, contact shadows under actors, a ~75 ms white/ink kill frame (skipped when the flashes setting is below 0.5) and a kill shake through the shared channel. Hit flashes are now pure white, the rim light and shadow lift are stronger, and torch flicker is deeper with a guttering dip. `?showcase=look` now runs a real autopilot fight in the lit room (`&fight=0` gives the old still scene), and the showcase floor has softer grout and less speckle. The swing arc and smear frames were left to hero and vfx. No cross-piece edits.
+- Smoke test passed (showcase, title, run seed 1). Notes: `waves/w2/build/look.md`.

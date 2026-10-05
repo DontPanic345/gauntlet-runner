@@ -10,6 +10,8 @@
 //   look.noShadow(obj)                  obj (and children) cast no shadow
 //   look.snap(vec3)                     snap a world position to the screen texel grid (moving sprites)
 //   look.options                        live tunables (post.js postOptions)
+//   look.impact                         what fights leave on the floor: droplets, stains, chips,
+//                                       contact shadows, kill frame (see impact.js)
 //
 // Shadows are automatic: every mesh with a lit material (Lambert / Phong / Standard) casts
 // and receives, unless it (or an ancestor) has userData.noShadow.
@@ -20,6 +22,8 @@ import { debug } from '../core/debug.js';
 import { voxelUniforms } from './voxel/index.js';
 import { createPost, postOptions, LAYER_NO_OUTLINE } from './post.js';
 import { createLights, MOODS } from './lights.js';
+import { createImpact } from './impact.js';
+import { settings } from '../core/settings.js';
 
 const cp = Math.cos(CAMERA_PITCH), sp = Math.sin(CAMERA_PITCH);
 const origin = { x: 0, y: 0 };
@@ -27,6 +31,7 @@ const v = new THREE.Vector3();
 
 let post = null;
 let lights = null;
+let impact = null;
 let installed = false;
 let frameMs = 0;
 
@@ -44,6 +49,7 @@ function markShadows(scene) {
 
 function pipeline(renderer, scene, camera) {
   const t0 = performance.now();
+  impact.render();
   if (!postOptions.enabled) { renderer.shadowMap.needsUpdate = true; renderer.render(scene, camera); return; }
   const P = PPU * camera.zoom;
   const c = camera.position;
@@ -54,6 +60,14 @@ function pipeline(renderer, scene, camera) {
   lights.update(Math.min(0.1, (t0 - (pipeline.last ?? t0)) / 1000), display.cameraTarget);
   pipeline.last = t0;
   markShadows(scene);
+
+  // kill frame: a two-tone burst around the kill, scaled off by the flashes setting
+  const kf = impact.killFrame();
+  const U = post.uniforms.impact.value;
+  if (kf && postOptions.impact && settings.get('flashes') >= 0.5) {
+    v.set(kf.x, kf.y, kf.z).project(camera);
+    U.set((v.x + 1) / 2 * display.width, (v.y + 1) / 2 * display.height, (kf.k > 0.75 ? 38 : 24) * camera.zoom, kf.k > 0.75 ? 0.22 : 0.4);
+  } else U.w = 0;
 
   // torch haze positions in pixels (bottom-left origin, like gl_FragCoord)
   const w = display.width, h = display.height;
@@ -73,6 +87,7 @@ export const look = {
   MOODS,
   LAYER_NO_OUTLINE,
   get lights() { return lights; },
+  get impact() { return impact; },
   get frameMs() { return frameMs; },
 
   install() {
@@ -83,6 +98,7 @@ export const look = {
     r.shadowMap.type = THREE.BasicShadowMap; // hard, pixel-edged shadows
     r.shadowMap.autoUpdate = false;          // post.js renders the map once per frame
     lights = createLights(display);
+    impact = createImpact();
     post = createPost(r);
     display.pipeline = pipeline;
 
@@ -91,10 +107,12 @@ export const look = {
         for (const k in opts) {
           if (k === 'mood') lights.mood(opts.mood);
           else if (k === 'flicker') lights.flickerOn = !!opts.flicker;
+          else if (k === 'impact' && typeof opts.impact === 'object') continue;
           else if (k in postOptions) postOptions[k] = opts[k];
         }
       }
-      return { ...postOptions, mood: lights.moodName, flicker: lights.flickerOn, torches: lights.torches.size, lightsUsed: lights.active.length, ms: +frameMs.toFixed(2) };
+      if (opts && opts.impact && typeof opts.impact === 'object') Object.assign(impact.options, opts.impact);
+      return { ...postOptions, impactLayer: { ...impact.options, ...impact.stats() }, mood: lights.moodName, flicker: lights.flickerOn, torches: lights.torches.size, lightsUsed: lights.active.length, ms: +frameMs.toFixed(2) };
     });
   },
 

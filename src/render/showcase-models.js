@@ -13,7 +13,10 @@ export const FLOOR = { w: 192, d: 96 }; // voxels: 24 x 12 world units
   const { w: W, d: D } = FLOOR;
   const g = new VoxelGrid(W, 4, D);
   const r = new Rng('look.floor');
-  g.box(0, 0, 0, W - 1, 2, D - 1, 'stoneDark');
+  // the grout bed is one step below the slabs (not ink): with AO in the joint it reads as
+  // `stoneDark`, so actor outlines stay the darkest line on the floor
+  g.box(0, 0, 0, W - 1, 1, D - 1, 'stoneDark');
+  g.box(0, 2, 0, W - 1, 2, D - 1, 'stone');
   const rowD = 16;
   for (let z0 = 0; z0 < D; z0 += rowD) {
     let x0 = -r.int(0, 12);
@@ -26,8 +29,9 @@ export const FLOOR = { w: 192, d: 96 }; // voxels: 24 x 12 world units
       for (let z = z0 + 1; z <= z1; z++) for (let x = Math.max(0, x0 + 1); x <= Math.min(W - 1, x1); x++) {
         let c = shade;
         const f = r.next();
-        if (f < 0.025) c = 'stoneLight';
-        else if (f < 0.045) c = 'stoneDark';
+        // sparse speckle, within a step of the slab
+        if (f < 0.008) c = shade === 'dusk' ? 'stone' : 'stoneLight';
+        else if (f < 0.016) c = shade === 'stoneLight' ? 'stone' : 'dusk';
         // chipped corners, the odd bitten edge
         const cx = x === x0 + 1 || x === x1, cz = z === z0 + 1 || z === z1;
         if (cx && cz && r.chance(0.6)) continue;
@@ -46,8 +50,11 @@ export const FLOOR = { w: 192, d: 96 }; // voxels: 24 x 12 world units
       const d = Math.hypot(x + 0.5 - cx, (z + 0.5 - cz) * 1.0);
       if (d > R - 1 && d <= R + 1 && g.get(x, 3, z)) {
         const a = Math.atan2(z + 0.5 - cz, x + 0.5 - cx);
+        // worn: a dull inlay a step off the floor, broken into partial arcs
         const notch = Math.abs(((a / (Math.PI / 4)) % 1 + 1) % 1 - 0.5) > 0.46;
-        g.set(x, 3, z, notch ? 'stoneLight' : 'slate');
+        const worn = Math.sin(a * 3 + 1.1) + Math.sin(a * 7.3) * 0.5 < -0.35;
+        if (worn) continue;
+        g.set(x, 3, z, notch ? 'stone' : 'dusk');
       }
     }
   }
