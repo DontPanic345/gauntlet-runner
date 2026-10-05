@@ -38,6 +38,14 @@ export const CAMERA = {
   smooth: 0.16,         // spring time, s: how long the camera takes to catch its goal
   maxOffX: 5.5,         // never let the hero get further than this from the view centre
   maxOffZ: 3.6,
+  edgeX: 0.7,           // ... and never further than this fraction of the half-screen (wins over bounds)
+  edgeZ: 0.62,
+  padX: 1.0,            // room bounds are widened by this much, so the camera can still lead in a
+  padZ: 0.8,            //   room no wider than the screen (it pans a little over the walls)
+  stopSmooth: 0.08,     // spring time while the camera settles after the hero stops
+  stopSettle: 0.3,      // on a stop, keep this fraction of the camera's remaining catch-up
+  stopHold: 36,         // ticks the movement lead is held after a stop before it starts to relax
+  stopRelax: 0.012,     // per tick, after that: how fast the held lead relaxes
 };
 
 const cp = Math.cos(CAMERA_PITCH), sp = Math.sin(CAMERA_PITCH);
@@ -65,6 +73,10 @@ export class CameraRig {
     this.vel = { x: 0, z: 0 };
     this.goal = { x: 0, z: 0 };
     this.lead = { x: 0, z: 0 };
+    this.vLead = { x: 0, z: 0 };  // movement part of the lead
+    this.aLead = { x: 0, z: 0 };  // aim part
+    this.still = 0;               // ticks the hero has been at rest
+    this.settle = 0;              // ticks left of the quick post-stop settle
     this.want = { x: 0, z: 0 };   // hero + lead, before the dead-zone
     this.relSnap = true;          // hero-relative texel rounding (see header)
     this.offset = { x: 0, y: 0, z: 0 };
@@ -78,6 +90,8 @@ export class CameraRig {
     this.want.x = x; this.want.z = z;
     this.vel.x = 0; this.vel.z = 0;
     this.lead.x = 0; this.lead.z = 0;
+    this.vLead.x = this.vLead.z = this.aLead.x = this.aLead.z = 0;
+    this.still = 0; this.settle = 0;
     this._clamp(this.pos.cur); this._clamp(this.pos.prev);
   }
 
@@ -86,48 +100,75 @@ export class CameraRig {
     this.pos.snap();
     if (!this.follow) return;
     const top = h.T?.speed ?? 4.2;
-    // look-ahead: toward the velocity (scaled by speed) plus toward the aim
-    let lx = 0, lz = 0;
+    // look-ahead, movement part: toward the velocity (scaled by speed). When the hero stops it
+    // is held where it was (then relaxes slowly), so the view stops when the hero stops.
     const vx = h.vx ?? 0, vz = h.vz ?? 0;
     const sp_ = Math.hypot(vx, vz);
+    const c = this.pos.cur;
+    const wasStill = this.still;
     if (sp_ > 0.05) {
+      this.still = 0;
       const k = Math.min(1, sp_ / top);
-      lx += (vx / sp_) * o.lead * k; lz += (vz / sp_) * o.lead * k;
+      let lx = (vx / sp_) * o.lead * k, lz = (vz / sp_) * o.lead * k;
       if (h.state === 'dash') { lx += (vx / sp_) * o.dashLead; lz += (vz / sp_) * o.dashLead; }
+      this.vLead.x += (lx - this.vLead.x) * o.leadRate;
+      this.vLead.z += (lz - this.vLead.z) * o.leadRate;
+    } else {
+      this.still++;
+      if (this.still > o.stopHold) { this.vLead.x *= 1 - o.stopRelax; this.vLead.z *= 1 - o.stopRelax; }
     }
+    // aim part
+    let ax = 0, az = 0;
     if (h.aim) {
       const a = h.aimSource === 'mouse' ? o.aimLead * Math.min(1, (h.aimDist ?? 3) / 4) : o.facingLead;
-      lx += h.aim.x * a; lz += h.aim.z * a;
+      ax = h.aim.x * a; az = h.aim.z * a;
     }
-    this.lead.x += (lx - this.lead.x) * o.leadRate;
-    this.lead.z += (lz - this.lead.z) * o.leadRate;
+    this.aLead.x += (ax - this.aLead.x) * o.leadRate;
+    this.aLead.z += (az - this.aLead.z) * o.leadRate;
+
+    const g = this.goal;
+    if (this.still === 1 && wasStill === 0) {
+      // the hero just stopped: cut the catch-up short. The goal moves most of the way to where
+      // the camera already is, and the held lead is rebased so the dead-zone agrees with it.
+      g.x = c.x + (g.x - c.x) * o.stopSettle;
+      g.z = c.z + (g.z - c.z) * o.stopSettle;
+      this.vLead.x = g.x - h.x - this.aLead.x;
+      this.vLead.z = g.z - h.z - this.aLead.z;
+      this.settle = 12;
+    }
+    this.lead.x = this.vLead.x + this.aLead.x;
+    this.lead.z = this.vLead.z + this.aLead.z;
     this.want.x = h.x + this.lead.x;
     this.want.z = h.z + this.lead.z;
 
     // dead-zone: the goal only moves when the wanted point leaves the box around it
-    const g = this.goal;
     if (this.want.x > g.x + o.deadX) g.x = this.want.x - o.deadX;
     if (this.want.x < g.x - o.deadX) g.x = this.want.x + o.deadX;
     if (this.want.z > g.z + o.deadZ) g.z = this.want.z - o.deadZ;
     if (this.want.z < g.z - o.deadZ) g.z = this.want.z + o.deadZ;
     this._clamp(g);
 
-    const c = this.pos.cur;
-    [c.x, this.vel.x] = damp(c.x, g.x, this.vel.x, o.smooth, DT);
-    [c.z, this.vel.z] = damp(c.z, g.z, this.vel.z, o.smooth, DT);
-    // hard leash: the hero never leaves the safe part of the screen
-    if (h.x - c.x > o.maxOffX) c.x = h.x - o.maxOffX;
-    if (c.x - h.x > o.maxOffX) c.x = h.x + o.maxOffX;
-    if (h.z - c.z > o.maxOffZ) c.z = h.z - o.maxOffZ;
-    if (c.z - h.z > o.maxOffZ) c.z = h.z + o.maxOffZ;
+    const smooth = this.settle > 0 ? o.stopSmooth : o.smooth;
+    if (this.settle > 0) this.settle--;
+    [c.x, this.vel.x] = damp(c.x, g.x, this.vel.x, smooth, DT);
+    [c.z, this.vel.z] = damp(c.z, g.z, this.vel.z, smooth, DT);
     this._clamp(c);
+    // hard leash, after the room clamp so it wins: the hero never nears the screen edge
+    const P = PPU * display.zoom;
+    const mx = Math.min(o.maxOffX, (display.width / 2 / P) * o.edgeX);
+    const mz = Math.min(o.maxOffZ, (display.height / 2 / P / sp) * o.edgeZ);
+    if (h.x - c.x > mx) c.x = h.x - mx;
+    if (c.x - h.x > mx) c.x = h.x + mx;
+    if (h.z - c.z > mz) c.z = h.z - mz;
+    if (c.z - h.z > mz) c.z = h.z + mz;
   }
 
   _clamp(p) {
     const b = this.bounds;
     if (!b) return;
-    p.x = Math.min(b.maxX, Math.max(b.minX, p.x));
-    p.z = Math.min(b.maxZ, Math.max(b.minZ, p.z));
+    const px = this.o.padX, pz = this.o.padZ;
+    p.x = Math.min(b.maxX + px, Math.max(b.minX - px, p.x));
+    p.z = Math.min(b.maxZ + pz, Math.max(b.minZ - pz, p.z));
   }
 
   /**
@@ -158,7 +199,7 @@ export class CameraRig {
     const r = (n) => Math.round(n * 1000) / 1000;
     const c = this.pos.cur;
     return { x: r(c.x), z: r(c.z), goal: { x: r(this.goal.x), z: r(this.goal.z) }, lead: { x: r(this.lead.x), z: r(this.lead.z) },
-      want: { x: r(this.want.x), z: r(this.want.z) }, dead: [this.o.deadX, this.o.deadZ], follow: this.follow, relSnap: this.relSnap,
+      want: { x: r(this.want.x), z: r(this.want.z) }, still: this.still, settle: this.settle, dead: [this.o.deadX, this.o.deadZ], follow: this.follow, relSnap: this.relSnap,
       target: { x: r(display.cameraTarget.x), y: r(display.cameraTarget.y), z: r(display.cameraTarget.z) } };
   }
 }

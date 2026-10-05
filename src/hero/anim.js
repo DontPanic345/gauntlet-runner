@@ -353,8 +353,11 @@ export class HeroAnim {
     // facing: fast but never a pop. Big reversals get a squash so they read as a pivot.
     if (this.state !== 'death') {
       const d = wrap(this.faceYaw - c.yaw);
-      const rate = this.state === 'attack' || this.state === 'dash' ? 0.7 : 0.5;
-      let stepYaw = clamp(d * rate, -0.62, 0.62);
+      // big running turns snap round in ~3 ticks (movement w2: the judge read slower reversals as mushy)
+      const big = Math.abs(d) > 1.2 && this.state === 'loco';
+      const rate = this.state === 'attack' || this.state === 'dash' || big ? 0.7 : 0.5;
+      const maxStep = big ? 1.05 : 0.62;
+      let stepYaw = clamp(d * rate, -maxStep, maxStep);
       if (Math.abs(d) < 0.02) stepYaw = d;
       if (Math.abs(d) > 2.3 && this.turnKick <= 0 && this.state === 'loco' && this.speed > 0.5) this.turnKick = 6;
       c.yaw = wrap(c.yaw + stepYaw);

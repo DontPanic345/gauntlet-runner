@@ -32,6 +32,7 @@ import { createHeroRig } from '../hero/model.js';
 import { HeroAnim } from '../hero/anim.js';
 import { HeroController, MOVE } from '../hero/controller.js';
 import { CameraRig } from '../render/camera.js';
+import { vfx } from '../vfx/vfx.js';
 
 const V = VOXEL;
 const ROOM = { minX: -16, maxX: 16, minZ: -10, maxZ: 10 };
@@ -86,7 +87,7 @@ const ROUTE = [
   { attack: true }, { wait: 13 }, { hold: D, t: 1 }, { dash: true }, { hold: D, t: 12 }, { wait: 14 },
   { attack: true }, { wait: 13 }, { hold: UL, t: 1 }, { dash: true }, { hold: UL, t: 10 }, { wait: 20 },
   { st: 'slide', label: 'WALL SLIDE' },
-  { to: [6, -0.5] }, { to: [5.6, -6] }, { hold: UL, t: 72 }, { wait: 10 }, { hold: UR, t: 50 }, { wait: 12 },
+  { to: [6, -0.5] }, { to: [5.6, -6] }, { hold: UL, t: 72 }, { wait: 10 }, { hold: UR, t: 34 }, { wait: 12 },
   { st: 'dashgap', label: 'DASH THROUGH GAP 0.9' },
   { to: [6.5, -4] }, { hold: L, t: 2 }, { dash: true }, { hold: L, t: 30 },
   { label: 'BACK TO START' }, { to: [0, 0] }, { wait: 30 },
@@ -114,7 +115,8 @@ function brickModel(name, w, d, h) {
     if ((along + off) % 6 === 5) { g.set(x, y, z, 'stoneDark'); continue; } // head joint
     const f = hash(bi, row, x === 0 || x === w - 1 ? 1 : 2);
     let c = f < 0.5 ? 'stone' : f < 0.8 ? 'stoneLight' : 'dusk';
-    if (y === 0 && hash(x, z, 4) < 0.3) c = 'moss';
+    if (y === 1 && hash(x, z, 4) < 0.3) c = 'moss';
+    if (y === 0) c = 'night';   // a dark base line, so the wall foot separates from the floor
     g.set(x, y, z, c);
   }
   defineModel(name, { grid: g });
@@ -329,14 +331,12 @@ export default function movementShowcase(params) {
       world.room = { index: 0, kind: 'showcase', id: 'movement' };
 
       trail = makeTrail(root);
+      // the game's own effects, exactly as in play: vfx's move bindings (dash burst, bonk,
+      // steps) plus the controller's streak and its turn, stop and landing dust (MOVE_FX).
+      // The local dust pool is kept but no longer fed.
       dust = makeDust(root, rng.fork('move-dust'));
+      offs.push(vfx.bind(['move']));
       const on = (name, fn) => offs.push(events.on(name, fn));
-      on('move:dash', (e) => dust.puff(e.x, e.z, -e.dx, -e.dz, 8, 1.2));
-      on('move:bonk', (e) => { dust.ring(e.x - e.nx * 0.3, e.z - e.nz * 0.3, 8, 0.9); });
-      on('move:dashEnd', (e) => dust.puff(e.x, e.z, e.dx, e.dz, 4, 0.7));
-      on('move:turn', (e) => dust.puff(e.x, e.z, -Math.sin(e.yaw), -Math.cos(e.yaw), 5, 0.9));
-      on('move:stop', (e) => dust.puff(e.x, e.z, Math.sin(e.ctl.face), Math.cos(e.ctl.face), 3, 0.5));
-      on('hero:step', (e) => dust.puff(e.x, e.z, -Math.sin(e.yaw), -Math.cos(e.yaw), 2, 0.4));
       on('input:press', () => { if (auto) goLive(); });
 
       if (auto) startDemo(at && STATION_POS[at] ? at : 'start');

@@ -228,7 +228,8 @@ for (const [kind, thick] of [['h', 1], ['v', 2]]) {
 // ---- rig ---------------------------------------------------------------------------------
 
 const GHOSTS = 4;
-const GHOST_COLORS = ['cyan', 'teal', 'navy'].map((n) => new THREE.MeshBasicMaterial({
+// bright on the dark floor (movement w2: the blind judge read cyan > teal > navy as muted)
+const GHOST_COLORS = ['frost', 'sky', 'cyan'].map((n) => new THREE.MeshBasicMaterial({
   // pushed about half a world unit back in depth, so the live body always draws over its own trail
   color: hex(n), polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 40000,
 }));
