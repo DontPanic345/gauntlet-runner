@@ -1,0 +1,20 @@
+{
+  "ours": "B",
+  "pairs": 5,
+  "sources": {
+    "A": [
+      "hurdles/waves/w1/critic/run-flow/ref/01-death-strip.png",
+      "hurdles/waves/w1/critic/run-flow/ref/02-death-summary.png",
+      "hurdles/waves/w1/critic/run-flow/ref/03-victory-banner.png",
+      "hurdles/waves/w1/critic/run-flow/ref/04-victory-summary.png",
+      "hurdles/waves/w1/critic/run-flow/ref/05-restart-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w1/critic/run-flow/ours/01-death-strip.png",
+      "hurdles/waves/w1/critic/run-flow/ours/02-death-summary.png",
+      "hurdles/waves/w1/critic/run-flow/ours/03-victory-banner.png",
+      "hurdles/waves/w1/critic/run-flow/ours/04-victory-summary.png",
+      "hurdles/waves/w1/critic/run-flow/ours/05-restart-strip.png"
+    ]
+  }
+}
