@@ -307,3 +307,7 @@ where the outputs are.
 
 - The builder added a kill burst (`vfx.kill`) on every `combat:kill`: the enemy's white flash, 2 ticks of a black silhouette, then a jagged orange starburst about 2.5x the enemy's width with a white core and black outline, a floor ring, a light flash, sparks and smoke. After that come chunks in the enemy's colours (some stay on the floor), rising embers and smoke, and a lasting blast mark drawn with look's `look.impact` decals, which glows and cools to black. The burst scales with the enemy, and with the flashes setting below half the silhouette and white core are dropped. Hits now get a small outlined jagged burst and a black silhouette frame after the white flash. The spawn portal opens with an overshoot, and the dash leaves a floor scuff. `?showcase=vfx` now uses real enemies and combat for its hit, kill and spawn entries. Cross-piece edit: `src/render/post.js` (2 lines) so exact orange and yellow fire colours are no longer dithered to red and pink, which changes braziers and embers everywhere. Known gaps: the first kill frame is still a white blob where look's kill flash overlaps, and the oldest floor marks start to disappear after about 12 kills in one room.
 - Smoke test passed (showcase, title, run seed 1). Notes: `waves/w2/build/vfx.md`.
+
+## 2026-10-05 — w2 build: budget stop
+
+- The budget guard tripped after vfx: the session window was at 63%, over the 50% limit. Weekly was at 65%. look, hero, movement and vfx are built. The next run resumes the wave 2 build queue at enemies, then arenas and audio.
