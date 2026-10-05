@@ -2,8 +2,8 @@
 //
 // LINEUP (default): all four archetypes side by side in a lit crypt, named, looping through
 // the same beats together so they can be compared: SPAWN, IDLE, MOVE, ATTACK (telegraph then
-// strike; the windups are timed so all four tells are on screen at once, then all four land
-// together), HURT (two hits each; the second is a finisher, which staggers even the brute),
+// strike; the windups are timed so all four tells are on screen at once; the mite swarm hops
+// one after another, as it does in play), HURT (two hits each; the second is a finisher, which staggers even the brute),
 // DEATH. Each one's current state is labelled under its name. They are puppets here: the
 // real archetype code, driven by the showcase instead of by their AI.
 //
@@ -33,7 +33,7 @@ import { world } from '../core/world.js';
 import { events } from '../core/events.js';
 import { debug } from '../core/debug.js';
 import { feedback } from '../core/feedback.js';
-import { drawText, textWidth } from '../core/pixelfont.js';
+import { drawText, textWidth, wrapText } from '../core/pixelfont.js';
 import { css } from '../render/palette.js';
 import { defineModel, voxelMesh, VoxelGrid, VOXEL } from '../render/voxel/index.js';
 import { look } from '../render/look.js';
@@ -60,11 +60,12 @@ const PHASES = [
   { id: 'hurt', label: 'HURT', note: 'A HIT, THEN A FINISHER (EVEN THE BRUTE STAGGERS)', dur: 150 },
   { id: 'death', label: 'DEATH', note: 'FLOP, GUTTER, TOPPLE, POP', dur: 150 },
 ];
+// spaced so the whole cast (the mite swarm spreads 0.8 either side) fits a 640 px view at zoom 2
 const CAST = [
-  { kind: 'husk', x: -3.8 },
-  { kind: 'wisp', x: -1.3 },
-  { kind: 'brute', x: 1.3 },
-  { kind: 'mite', x: 3.85 },
+  { kind: 'husk', x: -3.45 },
+  { kind: 'wisp', x: -1.2 },
+  { kind: 'brute', x: 1.1 },
+  { kind: 'mite', x: 3.4 },
 ];
 const LINE_Z = -2.0;
 const FIGHTS = ['husk', 'wisp', 'brute', 'mites', 'wave', 'mite'];
@@ -179,6 +180,8 @@ function helpBar(g, text) {
 function lineupScene(params) {
   const O = common(params, params.get('only') ? 3 : 2);
   const only = CAST.find((c) => c.kind === params.get('only'))?.kind ?? null;
+  const maxZoom = only ? 3 : 2;            // the full cast does not fit a zoom-3 view
+  O.zoom = Math.min(O.zoom, maxZoom);
   const holdId = params.get('phase');
   let hold = PHASES.some((p) => p.id === holdId);
   let pi = Math.max(0, PHASES.findIndex((p) => p.id === holdId));
@@ -245,7 +248,8 @@ function lineupScene(params) {
     if (id === 'attack') {
       // windups timed so every tell is on the floor at once and all four land together
       const at = { brute: 2, wisp: 10, husk: 22, mite: 36 };
-      for (const a of actors) if (t === at[a.kind]) for (const e of a.list) e.act?.('charge');
+      // the swarm's five hop in sequence, as they do in play (data: mite.attack.stagger)
+      for (const a of actors) a.list.forEach((e, k) => { if (t === at[a.kind] + (a.kind === 'mite' ? k * 4 - 8 : 0)) e.act?.('charge'); });
     }
     if (id === 'hurt') {
       for (const e of all()) {
@@ -308,7 +312,7 @@ function lineupScene(params) {
       if (k('Space')) begin(pi);
       if (k('ArrowRight') || k('KeyD')) begin(pi + 1);
       if (k('ArrowLeft') || k('KeyA')) begin(pi - 1);
-      if (k('KeyZ')) { O.zoom = O.zoom >= 3 ? 1 : O.zoom + 1; display.setZoom(O.zoom); O.say(`ZOOM ${O.zoom}X`); }
+      if (k('KeyZ')) { O.zoom = O.zoom >= maxZoom ? 1 : O.zoom + 1; display.setZoom(O.zoom); O.say(`ZOOM ${O.zoom}X`); }
       if (k('KeyT')) { slowIdx = (slowIdx + 1) % SLOWS.length; loop.setTimeScale(SLOWS[slowIdx]); O.say(`SPEED X${SLOWS[slowIdx]}`); }
       if (k('KeyH')) O.hud = !O.hud;
     },
@@ -340,20 +344,22 @@ function lineupScene(params) {
         drawText(g, `${i + 1} ${ph.id.toUpperCase()}`, 6, 17 + i * 9, on ? 'gold' : 'slate', { shadow: on ? null : 'ink' });
       });
       if (hold) drawText(g, 'HOLD', 6, 17 + PHASES.length * 9 + 2, 'gold', { shadow: 'ink' });
-      // name plates on the floor in front of each
-      for (const c of cast()) {
+      // name plates on the floor in front of each, wrapped to the slot so they never collide
+      const C = cast();
+      const slotW = C.length > 1 ? Math.abs(C[1].x - C[0].x) * PPU * display.zoom - 6 : W * 0.6;
+      for (const c of C) {
         const D = ENEMY_DATA[c.kind];
         const a = actor(c.kind);
         const s = display.worldToScreen(c.x, 0, LINE_Z + 1.25);
         const name = c.kind === 'mite' ? 'MITE SWARM' : D.name;
-        drawText(g, name, s.x, s.y, 'bone', { align: 'center', outline: 'ink' });
-        drawText(g, D.blurb, s.x, s.y + 10, 'mist', { align: 'center', shadow: 'ink' });
+        let y = s.y;
+        for (const ln of wrapText(name, slotW)) { drawText(g, ln, s.x, y, D.color ?? 'bone', { align: 'center', outline: 'ink' }); y += 10; }
+        for (const ln of wrapText(D.blurb, slotW)) { drawText(g, ln, s.x, y, 'fog', { align: 'center', shadow: 'ink' }); y += 9; }
         const e = a?.list.find((x) => !x.remove);
         if (e) {
           const tag = stateTag(e);
-          drawText(g, tag, s.x, s.y + 20, TAG_COLOR[tag] ?? 'fog', { align: 'center', shadow: 'ink' });
-          const hp = `HP ${D.hp}`;
-          drawText(g, hp, s.x, s.y + 30, 'slate', { align: 'center', shadow: 'ink' });
+          drawText(g, tag, s.x, y + 1, TAG_COLOR[tag] ?? 'fog', { align: 'center', shadow: 'ink' });
+          drawText(g, `HP ${D.hp}`, s.x, y + 11, 'slate', { align: 'center', shadow: 'ink' });
         }
       }
       helpBar(g, '1-6 BEAT  < > PREV/NEXT  L HOLD  SPACE RESTART  Z ZOOM  T SLOW  H HUD   ?FIGHT=HUSK|WISP|BRUTE|MITES|WAVE');

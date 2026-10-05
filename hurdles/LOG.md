@@ -311,3 +311,8 @@ where the outputs are.
 ## 2026-10-05 — w2 build: budget stop
 
 - The budget guard tripped after vfx: the session window was at 63%, over the 50% limit. Weekly was at 65%. look, hero, movement and vfx are built. The next run resumes the wave 2 build queue at enemies, then arenas and audio.
+
+## 2026-10-05 — w2 build: enemies
+
+- The builder added `src/enemies/material.js`, a material that keeps each enemy's body from falling below its own palette colours away from torches, with a flat light ramp per face (`__GR.debug.enemies('lit', 0)` turns it off to show the wave 1 look). New palettes: the husk is bright green with a white skull head, moss scalp, gold eyes and tan rags; the brute is a purple bull-ogre with pink top faces, pale steel plates, white horns and fists and a lit face; the wisp is a pale skull with sky-blue eyes in a red-tipped flame, firing white orbs with a pink band; mites get white eyes. Death debris uses each type's lightest colours. Wind-ups now show on the body (husk rears back with a white flash, wisp swells and its aim line grows toward the hero, brute crouches with a glowing mouth, mites crouch, flash and blink red). Mite swarms attack one at a time about 9 ticks apart (data), hits give one white frame then a half-strength red tint and a squash along the blow, wisps avoid torch light and the top edge, spawns inside props or walls are moved to the nearest free spot, and the lineup showcase fits the cast at zoom 1 and 2. No cross-piece edits. Known gaps: the hero now looks darker than the enemies, the brute's pink matches the hero's hood, the brute's charge lane stair-steps on diagonals, and knockback distance was not retuned.
+- Smoke test passed (showcase, title, run seed 1). Notes: `waves/w2/build/enemies.md`.

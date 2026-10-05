@@ -134,7 +134,7 @@ export class Husk extends Enemy {
     if (k === 62) {
       // crumble: rot and bone burst out of the body lying on the floor
       const bx = this.x - Math.sin(this.yaw) * 0.55, bz = this.z - Math.cos(this.yaw) * 0.55;
-      vfx.death(bx, 0.25, bz, { colors: this.debris, power: 0.8, ring: 'moss' });
+      vfx.death(bx, 0.25, bz, { colors: this.debris, power: 1.1, ring: 'leaf' });
       enemySfx.crumble();
       this.mgr.decal(bx, bz, 'rot', { r: 0.5, life: 260 });
     }
@@ -162,11 +162,15 @@ export class Husk extends Enemy {
         return;
       }
       case 'windup': {
-        const u = smooth(s / (A.windup * 0.45));          // snaps up fast, then holds and trembles
-        const tr = s > A.windup - 12 ? Math.sin(s * 2.1) * 0.06 : 0;
-        tgt = { hipY: 0.5 * u, hunch: 0.45 - 0.75 * u, roll: tr, twist: 0, hp: -0.45 * u, hr: tr * 2, hy: 0, jaw: 0.1 + 0.55 * u,
-          lx: -0.3 - 2.45 * u, lz: -0.35 * u + tr, rx: -0.3 - 2.45 * u, rz: 0.35 * u - tr, legL: -0.25 * u, legR: 0.3 * u };
-        if (s > A.windup - 10) { this.tell = (s >> 1) & 1 ? 0.3 : 0; this.tellColor = 'red'; }
+        // snaps up fast (8 ticks) into a rear-back: arms overhead, torso tilted back, up on
+        // its toes, jaw wide; then holds and trembles. The skull flashes white as it starts
+        // (the "it noticed you" beat) and the body strobes red over the last 10 ticks.
+        const u = smooth(s / 8);
+        const tr = s > A.windup - 12 ? Math.sin(s * 2.1) * 0.07 : 0;
+        tgt = { hipY: 1.1 * u, hunch: 0.45 - 0.85 * u, roll: tr, twist: 0, hp: -0.5 * u, hr: tr * 2, hy: 0, jaw: 0.1 + 0.6 * u,
+          lx: -0.3 - 2.55 * u, lz: -0.45 * u + tr, rx: -0.3 - 2.55 * u, rz: 0.45 * u - tr, legL: -0.3 * u, legR: 0.35 * u };
+        if (s < 7) { this.tell = s < 4 ? 0.7 : 0.35; this.tellColor = 'white'; }
+        if (s > A.windup - 10) { this.tell = (s >> 1) & 1 ? 0.45 : 0; this.tellColor = 'red'; }
         break;
       }
       case 'attack': {
@@ -200,10 +204,10 @@ export class Husk extends Enemy {
         // shamble: surging steps, torso lurching over the good leg, head lolling
         const ph = this.phase;
         const reach = this.reach;
-        tgt = { hipY: -Math.abs(Math.sin(ph)) * 0.7 * walk + (1 - walk) * idle * 0.2, hunch: 0.45 + 0.12 * Math.sin(ph * 2) * walk - 0.15 * reach, roll: Math.sin(ph) * 0.14 * walk + idle * 0.05 * (1 - walk),
-          twist: Math.sin(ph) * 0.12 * walk, hp: 0.1 + Math.sin(this.t * 0.03) * 0.08 - 0.3 * reach, hr: Math.sin(this.t * 0.035 + 1) * 0.25, hy: Math.sin(this.t * 0.021) * 0.2 * (1 - reach),
+        tgt = { hipY: -Math.abs(Math.sin(ph)) * 1.7 * walk + (1 - walk) * idle * 0.35, hunch: 0.45 + 0.12 * Math.sin(ph * 2) * walk - 0.15 * reach, roll: Math.sin(ph) * 0.14 * walk + idle * 0.05 * (1 - walk),
+          twist: Math.sin(ph) * 0.12 * walk, hp: 0.1 + Math.sin(this.t * 0.03) * 0.08 - 0.3 * reach, hr: Math.sin(this.t * 0.035 + 1) * 0.25 + Math.sin(ph) * 0.2 * walk, hy: Math.sin(this.t * 0.021) * 0.2 * (1 - reach),
           jaw: 0.15 + 0.15 * Math.max(0, Math.sin(this.t * 0.11)) + 0.2 * reach,
-          lx: -0.15 - Math.sin(ph) * 0.35 * walk - 1.2 * reach, lz: -0.12, rx: -0.15 + Math.sin(ph) * 0.35 * walk - 1.35 * reach + Math.sin(this.t * 0.2) * 0.1 * reach, rz: 0.12,
+          lx: -0.15 - Math.sin(ph) * 0.55 * walk - 1.2 * reach, lz: -0.12, rx: -0.15 + Math.sin(ph) * 0.55 * walk - 1.35 * reach + Math.sin(this.t * 0.2) * 0.1 * reach, rz: 0.12,
           legL: 0, legR: 0 };
       }
     }

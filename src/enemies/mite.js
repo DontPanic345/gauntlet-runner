@@ -80,7 +80,10 @@ export class Mite extends Enemy {
         if (l > 0.3) { const wx = this.want.x, wz = this.want.z; this.want.x = wx - (wz / l) * z; this.want.z = wz + (wx / l) * z; }
         if (th.d < 1.6 && l < 0.5) this.turnTo(th.yaw, 0.3);
         else if (this.moveSpeed > 0.2) this.turnTo(Math.atan2(this.mvx, this.mvz), 0.35);
-        if (th.d <= A.range && this.cool <= 0 && this.takeToken()) this.startWindup(th);
+        // a swarm attacks one after another, never all at once: a mite may start its windup only
+        // `stagger` ticks after the last mite did, so the hop markers read as a sequence
+        const gap = this.mgr.t - (this.mgr.lastMiteWindup ?? -1e9);
+        if (th.d <= A.range && this.cool <= 0 && gap >= (A.stagger ?? 0) && this.takeToken()) this.startWindup(th);
         break;
       }
       case 'windup': {
@@ -122,6 +125,7 @@ export class Mite extends Enemy {
     const d = Math.min(Math.max(0, th.d - 0.15), A.hop);
     this.lx = this.x + th.dx * d; this.lz = this.z + th.dz * d;
     this.yaw = th.yaw;
+    this.mgr.lastMiteWindup = this.mgr.t;
     enemySfx.windup('mite');
     events.emit('combat:enemyWindup', { enemy: this, x: this.x, z: this.z });
   }
@@ -146,8 +150,8 @@ export class Mite extends Enemy {
     if (k === 14) {
       // pop: goo chunks, a cool spark ring, a stain
       const y = 0.15 + this.y;
-      for (let i = 0; i < 9; i++) {
-        const a = (i / 9) * Math.PI * 2 + this.rand(), sp = 1.2 + this.rand() * 2.2;
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2 + this.rand(), sp = 1.2 + this.rand() * 2.2;
         const j = vfx.core.add(this.x, y, this.z, Math.sin(a) * sp, 2 + this.rand() * 3, Math.cos(a) * sp, 0.7, i % 3 ? 2 : 3, this.debris[i % 3], vfx.core.CUBE);
         if (j >= 0) { vfx.core.P.grav[j] = 20; vfx.core.P.bounce[j] = 0.2; vfx.core.P.floorY[j] = 0.03; vfx.core.P.pop[j] = 1.5; vfx.core.P.shrinkAt[j] = 0.7; vfx.core.P.fadeAt[j] = 0.7; }
       }
@@ -166,19 +170,26 @@ export class Mite extends Enemy {
     let t = { hy: 0, pitch: 0, roll: 0, crouch: 0, flip: 0 };
     switch (this.state) {
       case 'windup': {
-        const u = smooth(s / 6);
-        t = { hy: 0, pitch: -0.55 * u, roll: 0, crouch: 0.35 * u, flip: 0 };
-        this.tell = (s >> 2) & 1 ? 0.3 : 0; this.tellColor = 'red';
+        // flattens (a voxel lower), rears its front up, flashes white, then blinks red
+        const u = smooth(s / 5);
+        t = { hy: 0, pitch: -0.6 * u, roll: 0, crouch: 0.55 * u, flip: 0 };
+        if (s < 5) { this.tell = 0.75; this.tellColor = 'white'; }
+        else { this.tell = (s >> 1) & 1 ? 0.4 : 0; this.tellColor = 'red'; }
         break;
       }
       case 'hop': t = { hy: 0, pitch: 0.35, roll: 0, crouch: -0.25, flip: 0 }; break;
       case 'recover': t = { hy: 0, pitch: 0, roll: s < 16 ? Math.sin(s * 1.6) * 0.3 : 0, crouch: 0, flip: 0 }; break;
       case 'hurt': t = { hy: 0, pitch: -0.4, roll: 0.4, crouch: 0, flip: 0 }; break;
       case 'death': t = { hy: 0, pitch: 0, roll: 0, crouch: 0, flip: 1 }; break;
-      default: t.roll = Math.sin(this.phase * 0.5) * 0.08 * clamp01(spd);
+      default: {
+        t.roll = Math.sin(this.phase * 0.5) * 0.08 * clamp01(spd);
+        // a skip every 0.4 s while it runs: up a voxel and down
+        const k = (this.t + (this.seed & 15)) % 24;
+        if (spd > 0.6 && k < 6) t.hy = Math.sin(k / 6 * Math.PI) * 1.2;
+      }
     }
     const k = this.state === 'windup' || this.state === 'hop' ? 0.5 : 0.35;
-    for (const key in t) P[key] = ease(P[key], t[key], k);
+    for (const key in t) P[key] = key === 'hy' ? t[key] : ease(P[key], t[key], k);
   }
 
   apply(p) {
@@ -187,6 +198,7 @@ export class Mite extends Enemy {
     const f = dead ? (this.st >> 1) & 1 : Math.floor(this.phase) & 1;
     this.legs[0].visible = !dead && f === 0; this.legs[1].visible = !dead && f === 1;
     this.tip.rotation.set(p.pitch, 0, p.roll);
+    this.tip.position.y = Math.round(p.hy) * V;
     this.tip.scale.set(1 + p.crouch * 0.3, 1 - p.crouch * 0.5, 1);
     if (dead) this.tip.rotation.z = (this.st & 2 ? 0.2 : -0.2);   // legs kick, body rocks
   }

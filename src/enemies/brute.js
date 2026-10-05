@@ -35,6 +35,10 @@ export class Brute extends Enemy {
     this.legR = pivot(this.hips, 2.5, 0, 0, part('enemies.brute.legR', M));
     this.torso = pivot(this.hips, 0, 0, 0, part('enemies.brute.torso', M));
     this.head = pivot(this.torso, 0, 5.6, 2.6, part('enemies.brute.head', M));
+    this.maw = part('enemies.brute.maw', M);       // flares in the charge windup
+    this.maw.position.set(0, -0.55 * V, 3.2 * V);
+    this.maw.visible = false;
+    this.head.add(this.maw);
     this.armL = pivot(this.torso, -6.4, 7.2, 0.3, part('enemies.brute.armL', M));
     this.armR = pivot(this.torso, 6.4, 7.2, 0.3, part('enemies.brute.armR', M));
     this.stars = new THREE.Group();
@@ -292,7 +296,7 @@ export class Brute extends Enemy {
     }
     if (k === 66) {
       const fx = this.x + Math.sin(this.yaw) * 0.9, fz = this.z + Math.cos(this.yaw) * 0.9;
-      vfx.death(fx, 0.35, fz, { colors: this.debris, power: 1.6, ring: 'rose' });
+      vfx.death(fx, 0.35, fz, { colors: this.debris, power: 1.8, ring: 'rose' });
       enemySfx.crumble(); quake(2, 120);
       this.mgr.decal(fx, fz, 'blood', { r: 0.8, life: 360 });
     }
@@ -310,7 +314,8 @@ export class Brute extends Enemy {
     if (Math.floor(this.phase / Math.PI) !== Math.floor(prev / Math.PI) && spd > 0.3) {
       const side = Math.floor(this.phase / Math.PI) % 2 ? 1 : -1;
       const fx = Math.sin(this.yaw), fz = Math.cos(this.yaw);
-      vfx.dust(this.x + fz * 0.35 * side, this.z - fx * 0.35 * side, { n: this.state === 'charge' ? 4 : 2, size: 0.8, palette: 'dustWarm' });
+      vfx.dust(this.x + fz * 0.35 * side, this.z - fx * 0.35 * side, { n: this.state === 'charge' ? 4 : 3, size: 0.9, palette: 'dustWarm' });
+      if (this.state === 'move') this.squash = Math.max(this.squash, 0.18);   // each stomp lands
       if (this.state === 'charge') quake(1.2, 60);
     }
     const walk = clamp01(spd / 0.9);
@@ -328,8 +333,9 @@ export class Brute extends Enemy {
         // plant, head down, one hoof pawing back and forth
         const u = smooth(s / 12);
         const paw = s < C.windup - 8 ? Math.sin((s % 16) / 16 * Math.PI * 2) : 0;
-        t = { hipY: -1.2 * u, hunch: 0.25 + 0.5 * u, roll: 0, twist: 0, hp: 0.35 * u, hr: 0, lx: -0.35 * u, lz: -0.45 * u - 0.1, rx: -0.35 * u, rz: 0.45 * u + 0.1, legL: -0.25 * u, legR: 0.1 + 0.45 * paw * u, fall: 0 };
-        if (s > C.windup - 12) { this.tell = (s >> 1) & 1 ? 0.3 : 0; this.tellColor = 'red'; }
+        // a bull's crouch: body drops 2+ voxels, head down, fists drawn back past the hips
+        t = { hipY: -2.3 * u, hunch: 0.25 + 0.6 * u, roll: 0, twist: 0, hp: 0.3 * u, hr: 0, lx: 0.75 * u, lz: -0.55 * u - 0.1, rx: 0.75 * u, rz: 0.55 * u + 0.1, legL: -0.3 * u, legR: 0.1 + 0.45 * paw * u, fall: 0 };
+        if (s > C.windup - 12) { this.tell = (s >> 1) & 1 ? 0.35 : 0; this.tellColor = 'red'; }
         break;
       }
       case 'charge': case 'skid': {
@@ -377,7 +383,7 @@ export class Brute extends Enemy {
         return;
       }
       default: {
-        t = { hipY: -Math.abs(Math.sin(ph)) * 0.8 * walk + breathe * (1 - walk), hunch: 0.28 + 0.06 * Math.sin(ph * 2) * walk, roll: Math.sin(ph) * 0.1 * walk, twist: Math.sin(ph) * 0.1 * walk,
+        t = { hipY: -Math.abs(Math.sin(ph)) * 2.0 * walk + breathe * (1 - walk), hunch: 0.28 + 0.06 * Math.sin(ph * 2) * walk, roll: Math.sin(ph) * 0.1 * walk, twist: Math.sin(ph) * 0.1 * walk,
           hp: 0.05 + breathe * 0.05, hr: 0, lx: -0.1 + Math.sin(ph) * 0.35 * walk, lz: -0.15 - breathe * 0.03, rx: -0.1 - Math.sin(ph) * 0.35 * walk, rz: 0.15 + breathe * 0.03,
           legL: -Math.sin(ph) * 0.5 * walk, legR: Math.sin(ph) * 0.5 * walk, fall: 0 };
       }
@@ -396,6 +402,11 @@ export class Brute extends Enemy {
     this.armR.rotation.set(p.rx, 0, p.rz);
     this.legL.rotation.x = p.legL;
     this.legR.rotation.x = p.legR;
+    // the maw flares through the charge windup: blinking, then solid and bigger for the last 12 ticks
+    const aim = this.state === 'aim' && !this.dying;
+    const late = aim && this.st > this.C.windup - 12;
+    this.maw.visible = aim && (late || ((this.st >> 2) & 1) === 0 || this.st < 3) || this.state === 'charge';
+    this.maw.scale.setScalar(late || this.state === 'charge' ? 1.35 : 1);
     // stun stars circle its head while it is dazed
     const dazed = this.state === 'dazed' && !this.dying;
     this.stars.visible = dazed;

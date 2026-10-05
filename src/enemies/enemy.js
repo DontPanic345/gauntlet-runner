@@ -22,7 +22,8 @@
 
 import * as THREE from 'three';
 import { Hurtable } from '../combat/combat.js';
-import { voxelMesh, VOXEL, makeVoxelMaterial } from '../render/voxel/index.js';
+import { voxelMesh, VOXEL } from '../render/voxel/index.js';
+import { makeEnemyMaterial } from './material.js';
 import { hex } from '../render/palette.js';
 import { look } from '../render/look.js';
 import { events } from '../core/events.js';
@@ -85,7 +86,7 @@ export class Enemy extends Hurtable {
     this.attacks = 0; this.landed = 0; this.dodged = 0;
     this.seed = (this.id.split('').reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0) || 1;
     this.cool = this.cooldownTicks(0.2 + 0.6 * this.rand());
-    this.material = makeVoxelMaterial();
+    this.material = makeEnemyMaterial();
     this.group = new THREE.Group();       // world position and yaw
     this.body = new THREE.Group();        // tilt and squash, pivot at the feet
     this.group.add(this.body);
@@ -298,14 +299,25 @@ export class Enemy extends Hurtable {
     // tilt in world axes: undo the yaw so a hit from the left always rocks it right
     const cy = Math.cos(-g.rotation.y), sy = Math.sin(-g.rotation.y);
     this.body.rotation.set(s.tiltX * cy - s.tiltZ * sy, 0, s.tiltX * sy + s.tiltZ * cy);
-    const q = s.squash;
-    this.body.scale.set(1 + q * 0.2, 1 - q * 0.24, 1 + q * 0.2);
+    // squash: a landing squashes straight down; a hit squashes the body ALONG the blow (the
+    // side that was struck flattens, the body widens across it), so it reads which way it went
+    const q = s.squash, hd = Math.min(1, this.recoil * 1.6);
+    if (hd > 0.05 && (this.recoilX || this.recoilZ)) {
+      const yw = g.rotation.y, c = Math.cos(yw), sn = Math.sin(yw);
+      const lx = this.recoilX * c - this.recoilZ * sn, lz = this.recoilX * sn + this.recoilZ * c;
+      const l = Math.hypot(lx, lz) || 1, ax = (lx / l) ** 2, az = (lz / l) ** 2;
+      const k = q * hd;
+      this.body.scale.set(1 + q * 0.2 * (1 - hd) - k * 0.3 * ax + k * 0.15 * az, 1 - q * 0.24 * (1 - hd) - k * 0.08, 1 + q * 0.2 * (1 - hd) - k * 0.3 * az + k * 0.15 * ax);
+    } else this.body.scale.set(1 + q * 0.2, 1 - q * 0.24, 1 + q * 0.2);
     const lp = this.lp, a = this.ppose, b = this.pose;
     for (const k in b) lp[k] = (a[k] ?? b[k]) + (b[k] - (a[k] ?? b[k])) * alpha;
     this.apply(lp, alpha);
+    // hit flash in two tones: solid white for the first half, then the archetype's hurt tint
+    // at half strength (the silhouette and its colours show through), then clear
     const f = this.flashLevel();
     const m = this.material.userData;
-    if (f) { m.flash.value = f; m.flashColor.value.setHex(hex('white')); }
+    if (f >= 1) { m.flash.value = 1; m.flashColor.value.setHex(hex('white')); }
+    else if (f) { m.flash.value = 0.5; m.flashColor.value.setHex(hex(this.D.hurtTint ?? 'red')); }
     else if (this.tell > 0) { m.flash.value = this.tell; m.flashColor.value.setHex(hex(this.tellColor)); }
     else m.flash.value = 0;
   }
