@@ -292,3 +292,8 @@ where the outputs are.
 
 - The builder added `src/render/impact.js`, a combat impact layer available in every scene: blood droplets that splat on the floor, stains that stay for the whole scene, a pool under each kill, debris chips, contact shadows under actors, a ~75 ms white/ink kill frame (skipped when the flashes setting is below 0.5) and a kill shake through the shared channel. Hit flashes are now pure white, the rim light and shadow lift are stronger, and torch flicker is deeper with a guttering dip. `?showcase=look` now runs a real autopilot fight in the lit room (`&fight=0` gives the old still scene), and the showcase floor has softer grout and less speckle. The swing arc and smear frames were left to hero and vfx. No cross-piece edits.
 - Smoke test passed (showcase, title, run seed 1). Notes: `waves/w2/build/look.md`.
+
+## 2026-10-05 — w2 build: hero
+
+- The builder rebuilt the hero's silhouette and colours: a 5-voxel head under a big rose hood with a two-piece flopping tip, a rose capelet, a three-panel scarlet cape on springs, a cyan scarf tail, and pale shin wraps, over the navy tunic. The hero is now 12 voxels tall. The cape reacts to movement, swings, dashes and hurts. Swing smears stay on screen 7 ticks past the hit window (the combat hitbox is unchanged), each combo hit lunges, and hit 3 is a hop into a landing squash. The dash has a crouch, a stretch and a braking skid (new `hero:skid` event). Idle breathing, a run with the face showing, a directional hurt lean, and a death where the sword drops and skids were also added. `ATTACKS` timings are unchanged. No cross-piece edits.
+- Smoke test passed (showcase, title, run seed 1). Notes: `waves/w2/build/hero.md`.

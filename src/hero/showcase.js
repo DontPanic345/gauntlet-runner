@@ -26,13 +26,13 @@ import { createHeroRig } from './model.js';
 import { HeroAnim, ATTACKS, RUN_SPEED } from './anim.js';
 
 const MODES = [
-  { id: 'idle', label: 'IDLE', dur: 300, note: 'BREATHING, BLINKS, A LOOK AROUND' },
-  { id: 'run', label: 'RUN CYCLE', dur: 180, note: 'CONTACT / DOWN / PASSING / UP, FOOTSTEP DUST' },
+  { id: 'idle', label: 'IDLE', dur: 300, note: 'BREATHING, CAPE SWAY, BLINKS, A LOOK AROUND' },
+  { id: 'run', label: 'RUN CYCLE', dur: 180, note: 'CONTACT / DOWN / PASSING / UP, CAPE STREAMS' },
   { id: 'turn', label: 'TURNS', dur: 200, note: 'REVERSALS PIVOT WITH A SQUASH, NEVER POP' },
-  { id: 'dash', label: 'DASH', dur: 150, note: 'STRETCH, AFTERIMAGES, SKID' },
-  { id: 'attack', label: 'ATTACK COMBO', dur: 170, note: 'ANTICIPATION, SMEAR, RECOVERY' },
+  { id: 'dash', label: 'DASH', dur: 150, note: 'CROUCH, STRETCH, AFTERIMAGES, SKID' },
+  { id: 'attack', label: 'ATTACK COMBO', dur: 170, note: 'WIND-UP, LINGERING SMEAR, LUNGE, HOP FINISHER' },
   { id: 'hurt', label: 'HURT', dur: 150, note: 'FLASH, WINCE, FLINCH AWAY FROM THE HIT' },
-  { id: 'death', label: 'DEATH', dur: 170, note: 'JOLT, KNEES, COLLAPSE' },
+  { id: 'death', label: 'DEATH', dur: 170, note: 'JOLT, KNEES, COLLAPSE, BOUNCE, SWORD DROPS' },
   { id: 'spawn', label: 'SPAWN-IN', dur: 110, note: 'DROP, SQUASH, FLOURISH' },
 ];
 const PLINTH_Y = 2 * VOXEL; // top of test.plinth's inner disc
@@ -158,6 +158,7 @@ export default function heroShowcase(params) {
       on('hero:step', (e) => dust.puff(footPos(e), 3, 0.5, e.yaw));
       on('hero:dash', (e) => dust.puff({ x: e.x, z: e.z }, 7, 1.1, e.yaw));
       on('hero:land', (e) => dust.ring(e, 12, 1.1));
+      on('hero:skid', (e) => dust.puff({ x: e.x + Math.sin(e.yaw) * 0.15, z: e.z + Math.cos(e.yaw) * 0.15 }, 6, 0.8, e.yaw + Math.PI));
       on('hero:slam', (e) => dust.ring({ x: e.x + Math.sin(e.yaw) * 0.55, z: e.z + Math.cos(e.yaw) * 0.55 }, 10, 1.3));
       on('hero:thud', (e) => dust.ring({ x: e.x + Math.sin(e.yaw) * 0.5, z: e.z + Math.cos(e.yaw) * 0.5 }, 9, 0.9));
       setMode(modeIdx);
