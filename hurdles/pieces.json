@@ -396,7 +396,12 @@
       "showcase": "?showcase=audio: a sound board listing every SFX and music stem with keys to play them, plus a waveform or meter",
       "judge_focus": "Critic records audio via the page (MediaRecorder on the master bus) and describes it; judge compares spectrogram strips plus written descriptions. Which soundscape is more satisfying and coherent?",
       "reference_hint": "top-rated itch.io game praised for its soundtrack or sound design, ideally chiptune or synth",
-      "reference": null,
+      "reference": {
+        "url": "https://playwithfurcifer.itch.io/furcifers-fungeon",
+        "rating": "4.7 stars (126 ratings)",
+        "why": "top-down action roguelite (HTML5, Godot) whose players single out its soundtrack (\"the soundtrack is amazing\", \"the music is so catchy\"): a full composed score under constant combat SFX, which is the job of this piece; it is already the pinned reference for enemies and arenas, so it can be played and recorded live",
+        "pinned_wave": 1
+      },
       "status": "built",
       "history": []
     },
