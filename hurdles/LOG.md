@@ -247,3 +247,7 @@ where the outputs are.
 - Pinned reference: https://poncle.itch.io/vampire-survivors (4.8 stars (1,656 ratings)), played live from its HTML5 build.
 - Packet, key and `criteria.md` are on disk. Review: `waves/w1/critic/run-flow/review.md`.
 - Wave 1 critique is complete: all 14 judged pieces have packets. The next phase is judge.
+
+## 2026-10-05 — w1 judge: look, hero, movement, combat
+
+- Four blind judges, one per packet, run in parallel. Each one saw only its packet path and the piece's `judge_focus`. Their verdicts are in `waves/w1/verdicts/`; the clerk opens the keys at resolve.

@@ -1,0 +1,18 @@
+{
+  "winner": "A",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A puts a white hit flash, a starburst, damage numbers and visible enemy knockback on every hit, building to a bigger 25 finisher with a ground ring, while B's clean crescent swings hardly touch the small enemy, which barely reacts."},
+    {"pair": "02", "winner": "A", "why": "A's first hit has a clear contact point (white burst, star spark, number pop), while B's crescent is a nice shape but has no visible impact spark or enemy flash where it connects."},
+    {"pair": "03", "winner": "A", "why": "A's finisher is clearly escalated (large boxed 25, stacked numbers, sparks, enemy launched), while B's leaping vertical slash looks dramatic but shows no contact payoff on a target."},
+    {"pair": "04", "winner": "B", "why": "B's full-screen magenta vignette that lingers and fades makes the player getting hit unmistakable, while A's thin red border and small white flash on the player are easy to miss in the clutter."}
+  ],
+  "loser_biggest_gap": "Make the hit land on the enemy: on contact, flash the enemy's sprite white for 1-2 frames, add an impact spark or burst at the contact point, freeze both actors for 2-4 frames (hitstop), and knock the enemy back a few pixels. Right now the swing arc carries all the energy and the target barely reacts.",
+  "loser_other_gaps": [
+    "Escalate the third hit visibly: a bigger impact effect, longer hitstop, a screen shake and a stronger knockback or launch, so the finisher pays off rather than only changing the swing shape.",
+    "Give each hit a clear damage readout or hit counter (pop-up numbers or combo ticks) so the player can read that, and how hard, each swing connected.",
+    "Add a short camera shake or zoom punch on connecting hits; currently the frame stays completely still through the whole combo.",
+    "Spawn debris, dust or particles from the enemy on hit so the contact leaves something behind in the frames after it."
+  ],
+  "reasoning": "The question is how heavy the hits feel, and A sells the contact on every swing: a white smear and flash, a starburst spark, stacked damage numbers, enemy knockback, and a clearly escalated finisher with a big 25 and a shockwave ring. B has more elegant swing animation, with crisp crescent arcs, good anticipation and a leaping vertical third strike, but the energy stays in the weapon trail and the enemy hardly registers the hits, so the hits read as whiffs rather than impacts. B clearly wins on readability when the player is hurt, because its full-screen vignette is far stronger than A's thin red border. A's effects are busy and a bit blobby (the white smear shapes are crude), but on heavy, satisfying hits it is clearly ahead."
+}

@@ -1,0 +1,19 @@
+{
+  "winner": "B",
+  "margin": "slight",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A's start reads immediately through a forward lean, trailing scarf and dust puffs, and it snaps back to idle within a frame or two of stopping, while B's camera pans so much that the run itself is harder to read."},
+    {"pair": "02", "winner": "B", "why": "B's reversals flip between two clean, readable facing poses, while A rotates its voxel model through muddy in-between angles (a front-facing frame, a sword swinging wide) that make each turn look slower and messier."},
+    {"pair": "03", "winner": "A", "why": "A's camera keeps the character steadily framed through all eight directions with a clear facing on each leg, while B's camera drifts and reframes heavily partway through the box."},
+    {"pair": "04", "winner": "B", "why": "B's dash covers a large distance in one or two frames with a bold, high-contrast smear and a clean landing pose, while A's dash is short and its teal afterimage is muted and blends into the dark floor."},
+    {"pair": "05", "winner": "B", "why": "B's character stays pinned to the wall in a stable, high-contrast pose as it slides, while A's blue-on-blue sprite nearly disappears against the wall and its silhouette changes between frames."}
+  ],
+  "loser_biggest_gap": "Make the dash land as one decisive event. Cover clearly more ground in 1-2 frames, and leave a bright, high-contrast smear or afterimage that stands out against the dark floor (not a muted teal). End it on a clean recovery pose, so it reads as a burst instead of a slightly faster run.",
+  "loser_other_gaps": [
+    "Snap facing changes on reversals and 8-way turns to the new direction within a frame, instead of showing the voxel model rotating through in-between angles such as the front-facing frame mid-reversal.",
+    "Increase the character's contrast against the floor and walls with a rim light, outline or brighter cloak value, so its silhouette stays readable while moving fast, especially when pressed against a wall.",
+    "Keep the sword and scarf poses consistent from frame to frame during a run and a wall slide; the sword angle jumps around and makes the silhouette noisy.",
+    "Add a short skid or settle pose with a dust burst on hard stops and reversals, so changes of direction show weight as well as speed."
+  ],
+  "reasoning": "Both sides start and stop quickly, and A's camera actually frames its character more steadily than B's, which drifts and pans a lot. What B does better is make each action read. Its turns snap to clean facing poses, its dash is a big, unmistakable burst with a strong smear, and its small, high-contrast silhouette stays legible in every frame. A has good motion cues (lean, scarf, dust), but its turns smear through rotation angles, its dash looks timid, and its blue-on-dark character often blends into the scene. Overall B looks slightly tighter and more responsive."
+}

@@ -1,0 +1,19 @@
+{
+  "winner": "A",
+  "margin": "decisive",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A's idle has a clear readable silhouette (pink hood, cape, glowing spear tip) with subtle breathing and cloth motion, while B's dark-blue blocky figure barely changes across 18 frames and its body reads as a featureless blob against the dark floor."},
+    {"pair": "02", "winner": "A", "why": "A's run has distinct leg cycles, cape trailing and a strong forward lean; B's run is a rigid block bobbing slightly with the sword held stiffly, with almost no limb articulation and no sense of weight."},
+    {"pair": "03", "winner": "A", "why": "A's dash squashes into a stretched cape shape with a bright speed-streak trail, impact rings and a clean recovery; B's dash shows the character flattening into an unreadable blue box with a red scarf, a teal smear, and recovery frames where the hero is seen from behind as a rectangle."},
+    {"pair": "04", "winner": "A", "why": "A's three hits each have a distinct pose (horizontal slash, wide sweeping arc, leaping overhead plunge with ground shadow) with crisp cyan slash arcs; B's combo rotates a stiff sword around a static body with no swing trails, so hits are hard to tell apart and lack impact."},
+    {"pair": "05", "winner": "A", "why": "A's character pops in the scene through saturated hue contrast against the deck; B's character in the still is a dark blue lump nearly the same value as the floor, with only the red scarf readable."}
+  ],
+  "loser_biggest_gap": "The hero's silhouette and value contrast: B's body is a dark navy block on a dark navy floor, so at gameplay scale it reads as a blob. Give the hero a distinctive high-contrast accent palette (a saturated cloak or helmet color, a lighter rim or outline pass against the floor) and a less boxy, more characterful shape (bigger head-to-body ratio, a cape or plume that breaks the rectangle) so it reads instantly in every pose.",
+  "loser_other_gaps": [
+    "Dash: keep the character's front-facing readable form during the dash instead of flattening into a box seen from behind; add squash/stretch, a bright speed trail or afterimages, and a clear landing/recovery pose.",
+    "Attack combo: add bright slash-arc effects on each swing and give each of the three hits a distinct full-body pose (wind-up, lunge, finisher with a jump or big sweep) with body rotation and anticipation, not just the sword rotating around a static torso.",
+    "Run cycle: articulate the legs and arms clearly with a forward lean, vertical bob, and secondary motion (scarf or plume trailing) so locomotion reads at gameplay scale.",
+    "Idle: add visible breathing, a weapon or cloth sway, and an occasional blink or glint so the character looks alive when standing still."
+  ],
+  "reasoning": "A's hero is a well-crafted pixel character whose saturated pink hood and cyan weapon accents read instantly against the scene, and every state has distinct, well-spaced poses with secondary cloth motion. Its dash and three-hit combo use strong squash/stretch, speed streaks and crisp slash arcs, so actions feel fast and impactful. B's voxel hero is low-contrast navy on a navy floor, boxy, and its animations are mostly rigid rotations of a block and a sword. B's dash turns the character into an unreadable rectangle with a teal smear, and its combo lacks swing effects, so B neither feels alive nor appealing by comparison."
+}

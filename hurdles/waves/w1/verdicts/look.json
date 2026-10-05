@@ -1,0 +1,18 @@
+{
+  "winner": "A",
+  "margin": "slight",
+  "per_pair": [
+    {"pair": "01", "winner": "B", "why": "B's room is warmly lit by braziers and torches, with clear tile work, props and readable silhouettes, while A's room is almost all murky black-green and the player is the only thing you can read."},
+    {"pair": "02", "winner": "A", "why": "A's arena is crowded with enemies, a big slash effect, a dense, finished HUD and strong colour identity, while B's arena is handsome but empty, with a small blue blob for a player and a sparse, placeholder-looking HUD."},
+    {"pair": "03", "winner": "A", "why": "A's fight strip is full of muzzle flashes, tracer fans, shell casings, blood, hit sparks and pickup popups across frames, while in B's strip very little changes from frame to frame: one slash arc, enemies standing in place, and a stiff player sprite."},
+    {"pair": "04", "winner": "B", "why": "B's room is the more attractive composition, with glowing braziers, banners, crates and moss, though the camera barely moves, while A's pan is mostly a flat teal void with a small sand island and generic rock blobs."}
+  ],
+  "loser_biggest_gap": "Combat has almost no feedback or motion. Add strong per-hit juice: a bigger and longer-lasting swing arc with smear frames, hit-flash and knockback on enemies, screen shake, impact particles (sparks, debris, blood that stays on the floor) and damage popups, so that a 12-frame strip of a fight visibly changes in every frame.",
+  "loser_other_gaps": [
+    "The player sprite is small and stiff (a blue blob with a tiny sword). Give it a bigger, more distinct silhouette, plus run and attack animation frames with clear anticipation and follow-through.",
+    "Enemies look idle and static. Give them idle bobbing, walk cycles, telegraphed attack wind-ups and death animations, so the room looks inhabited.",
+    "The HUD is sparse and thin (small hearts, a faint bar, a lone counter). Build a framed, bold HUD with weapon and ammo or ability icons, plus currency and score, at a readable size.",
+    "Arena rooms feel empty and symmetrical. Add environmental life such as flickering light, drifting dust or embers, animated torches and destructible props, and make the camera actually track and lead the action."
+  ],
+  "reasoning": "In still frames B is the prettier image: warm torch light on purple stone, cohesive pixel tiles and well-placed props, while A's dungeon still is murky and its pan strip is a bland teal void. Once motion and combat are judged, though, A is clearly a finished game: a polished, information-rich HUD, dense hordes of enemies, and abundant effects (muzzle flashes, tracers, casings, blood decals, hit sparks, pickup popups) that make each frame of its fight strip feel alive. B's fight strip barely changes over 12 frames, with a single slash arc, small stiff characters and a thin HUD, so it reads as a lovely tech demo, not a shipped game. Since the standard covers motion, feedback and liveliness as well as beauty, A edges it."
+}
