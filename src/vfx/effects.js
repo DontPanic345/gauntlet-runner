@@ -7,9 +7,10 @@
 // never change gameplay determinism.
 
 import { look } from '../render/look.js';
+import { settings } from '../core/settings.js';
 import {
   P, S, add, addShape, ramp, later, stampGhost, colorIndex,
-  SPRITE, CUBE, STREAK, RING, DISC, STAR, ARC, PORTAL, FLOOR, FACING,
+  SPRITE, CUBE, STREAK, RING, DISC, STAR, ARC, PORTAL, BURST, FLOOR, FACING,
 } from './core.js';
 
 // ---- ramps (palette only, stepped) -----------------------------------------------------------
@@ -34,14 +35,19 @@ ramp('mote', [['fog', 1]]);
 ramp('moteLight', [['frost', 1]]);
 ramp('moteDark', [['mist', 1]]);
 ramp('grit', [['stoneLight', 0.5], ['stone', 1]]);
+ramp('smoke', [['ink', 0.35], ['night', 0.7], ['shadow', 1]]);
+ramp('smokeHi', [['shadow/ink', 0.4], ['dusk/night', 0.75], ['violet/shadow', 1]]);
+ramp('flashWhite', [['white', 1]]);
+ramp('flashInk', [['ink', 1]]);
+ramp('killSpark', [['white', 0.15], ['torch', 0.35], ['flame', 0.65], ['ember', 1]]);
 
 /** Palette sets for the multi-part effects: [flare col, flare hot, spark ramp, ring col]. */
 const SETS = {
-  hit: { col: 'gold', hot: 'white', spark: 'spark', ring: 'torch', chip: 'ember', light: 'torch' },
-  hurt: { col: 'red', hot: 'white', spark: 'sparkHurt', ring: 'rose', chip: 'sparkHurt', light: 'red' },
-  cool: { col: 'cyan', hot: 'white', spark: 'sparkCool', ring: 'sky', chip: 'sparkCool', light: 'sky' },
-  rose: { col: 'rose', hot: 'white', spark: 'sparkRose', ring: 'rose', chip: 'sparkRose', light: 'rose' },
-  ember: { col: 'flame', hot: 'torch', spark: 'spark', ring: 'ember', chip: 'emberDim', light: 'flame' },
+  hit: { col: 'gold', rim: 'ember', hot: 'white', spark: 'spark', ring: 'torch', chip: 'ember', light: 'torch' },
+  hurt: { col: 'red', rim: 'red', hot: 'white', spark: 'sparkHurt', ring: 'rose', chip: 'sparkHurt', light: 'red' },
+  cool: { col: 'cyan', rim: 'cyan', hot: 'white', spark: 'sparkCool', ring: 'sky', chip: 'sparkCool', light: 'sky' },
+  rose: { col: 'rose', rim: 'rose', hot: 'white', spark: 'sparkRose', ring: 'rose', chip: 'sparkRose', light: 'rose' },
+  ember: { col: 'flame', rim: 'ember', hot: 'torch', spark: 'spark', ring: 'ember', chip: 'emberDim', light: 'flame' },
 };
 const set = (name) => SETS[name] || SETS.hit;
 
@@ -76,18 +82,23 @@ export function hitSpark(x, y, z, { dx = 1, dz = 0, power = 1, palette = 'hit', 
   const st = set(palette);
   const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
   const p = Math.max(0.3, power);
-  // frame 0-2: a white-hot core with an ink rim; then the flare takes over and shrinks in steps
-  addShape(DISC, FACING, x, y, z, 0.05, 'white', 'white', 0.16 + p * 0.06, 0.5, 0, 1);
-  addShape(STAR, FACING, x, y, z, 0.12 + p * 0.02, st.col, st.hot, 0.4 + p * 0.14, 0.3);
-  addShape(RING, FACING, x, y, z, 0.2, st.ring, st.hot, 0.15, 0.5 + p * 0.18, 0.3, 1);
+  // the flare: a small jagged burst, white-hot core, coloured rim, fat ink outline, so it reads
+  // inside a torch pool. It sits a touch past the contact point, along the blow, so it does
+  // not land on the same pixels as the target's own white flash.
+  const fx = x + dx * 0.12, fz = z + dz * 0.12;
+  const b = addShape(BURST, FACING, fx, y, fz, 0.13 + p * 0.025, st.rim, 'white', 0.42 + p * 0.1, 0.55, 8, rr(0, 50));
+  if (b >= 0) S.col3[b] = colorIndex('ink');
+  addShape(RING, FACING, fx, y, fz, 0.2, st.ring, st.hot, 0.18, 0.5 + p * 0.18, 0.3, 1);
+  // directional streaks along the blow: the first few long and 2 px thick
   const n = Math.round(6 + p * 6);
   for (let k = 0; k < n; k++) {
-    const a = Math.atan2(dx, dz) + rr(-0.7, 0.7) * (k < 3 ? 0.4 : 1);
-    const spd = rr(7, 15) * (0.75 + p * 0.25);
+    const lead = k < 4;
+    const a = Math.atan2(dx, dz) + rr(-0.7, 0.7) * (lead ? 0.35 : 1);
+    const spd = rr(7, 15) * (0.75 + p * 0.25) * (lead ? 1.25 : 1);
     const i = add(x, y + rr(-0.06, 0.1), z, Math.sin(a) * spd, rr(0.5, 5.5) * (0.7 + p * 0.2), Math.cos(a) * spd,
-      rr(0.14, 0.32) * (0.85 + p * 0.15), k < 3 ? 2 : 1, st.spark, STREAK);
+      rr(0.14, 0.32) * (0.85 + p * 0.15), lead ? 2 : 1, st.spark, STREAK);
     if (i < 0) break;
-    P.stretch[i] = 0.055; P.drag[i] = 0.86; P.grav[i] = 16; P.pop[i] = 1; P.shrinkAt[i] = 0.75; P.fadeAt[i] = 0.7;
+    P.stretch[i] = lead ? 0.085 : 0.055; P.drag[i] = 0.86; P.grav[i] = 16; P.pop[i] = 1; P.shrinkAt[i] = 0.75; P.fadeAt[i] = 0.7;
     P.floorY[i] = 0.02; P.bounce[i] = 0.3;
   }
   // a little back-spray against the hit, so it reads as an impact, not a jet
@@ -104,8 +115,20 @@ export function hitSpark(x, y, z, { dx = 1, dz = 0, power = 1, palette = 'hit', 
     if (i < 0) break;
     P.grav[i] = 24; P.bounce[i] = 0.4; P.floorY[i] = 1 / 32; P.pop[i] = 1.5; P.shrinkAt[i] = 0.85; P.fadeAt[i] = 0.8;
   }
-  if (lit) light(x, y, z, st.light, 1.1 + p * 0.5, 2.5 + p, 70 + p * 25);
+  // a white-hot, tight light: brighter than the torch pool it lands in, so it reads as a new source
+  if (lit) light(x, y, z, palette === 'hit' ? 'white' : st.light, 2.2 + p * 0.6, 1.2 + p * 0.3, 50 + p * 15);
 }
+
+/**
+ * Silhouette flash: a solid flat-colour copy of obj's pose drawn OVER the live body for a tick
+ * or two. ink after a white hit flash gives the white / black alternation that makes a hit read
+ * at thumbnail size. Skipped when the flashes setting is under half.
+ */
+export function silhouette(obj, { color = 'ink', ticks = 2, delay = 0 } = {}) {
+  if (!obj || flashesLow()) return null;
+  return stampGhost(obj, color === 'white' ? 'flashWhite' : color === 'ink' ? 'flashInk' : color, ticks / 60 - 0.001, delay > 0 ? delay / 60 - 0.001 : 0, { front: true, hard: true });
+}
+function flashesLow() { try { return (settings.get('flashes') ?? 1) < 0.5; } catch { return false; } }
 
 /**
  * Slash smear: a crescent swept in a flat plane at height y. It sweeps in over the first
@@ -186,6 +209,8 @@ export function land(x, z, { size = 1, palette = 'dust' } = {}) {
 export function dash(x, z, dx, dz, { obj = null, ticks = 10, every = 4, palette = 'ghost', y = 0.5 } = {}) {
   const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
   dust(x, z, { dx: -dx, dz: -dz, n: 7, size: 1.1, spread: 0.8 });
+  // a faint scuff left on the floor where the dash kicked off (stays for the room)
+  if (look.impact) look.impact.splat(x - dx * 0.12, z - dz * 0.12, { r: 0.13, colors: ['stoneLight', 'stone'], grow: 0.5, ragged: 0.55 });
   addShape(RING, FLOOR, x, 0.02, z, 0.18, 'mist', 'frost', 0.15, 0.7, 0.3, 1);
   for (let k = 0; k < 6; k++) {
     const i = add(x + rr(-0.25, 0.25), y + rr(-0.35, 0.45), z + rr(-0.15, 0.15), -dx * rr(6, 10), 0, -dz * rr(6, 10), rr(0.14, 0.24), 1, 'soul', STREAK);
@@ -204,15 +229,131 @@ function ghostCall(a) { afterimage(a.obj, { palette: a.palette }); }
 export function afterimage(obj, { palette = 'ghost', life = 0.24 } = {}) { return stampGhost(obj, palette, life); }
 
 /**
- * Death burst: a white flash disc and flare, a spray of voxel chunks in the body's colours that
- * bounce and settle, a floor shockwave a beat later, then soul wisps drifting up.
+ * Kill burst: the moment something dies. Played on combat:kill for every target (the enemies'
+ * own death animation and crumble run alongside it). In order:
+ *   tick 0     the target's own white hit flash holds through hitstop; a white-hot pin light
+ *   tick 2-3   the body flips to a solid ink silhouette; a black smoke puff blows out
+ *   tick 2     a jagged ember starburst ~2.5x the body pops past full size, then is eaten from
+ *              the inside; a hot floor shockwave; sparks; a big flame light pop
+ *   tick 4+    chunks in the body's colours (half bounce and vanish, half stay on the floor),
+ *              smoke that rises and swells, embers that drift up for a second or two
+ *   floor      a scorch of radiating spokes that glows ember and cools to shadow, and resting
+ *              debris (look.impact), next to the blood pool look's impact layer lays
+ *   size: 1 = a husk (scales everything; mites ~0.5, the brute ~1.4, the Warden 3).
+ *   colors: the body's palette names.  obj: the body's Object3D (for the silhouette).
+ *   dx, dz: the killing blow's direction.  decals: false for no floor marks.
+ */
+export function kill(x, y, z, { size = 1, colors = ['bone', 'frost', 'stone'], obj = null, dx = 0, dz = 1, decals = true, palette = 'ember' } = {}) {
+  const s = Math.max(0.4, Math.min(3, size));
+  const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l;
+  const low = flashesLow();
+  const K = { x, y, z, s, colors, obj, dx, dz, decals, low, palette };
+  light(x, y, z, 'white', 3.5, 1.4 * s, 60);
+  later(2, killPop, K);
+  later(5, killDebris, K);
+  later(9, killSmoke, K);
+  if (decals) later(3, killScorch, K);
+}
+const KILL_COLS = {
+  ember: { body: 'ember', core: 'torch', inner: 'white', ring: 'flame', light: 'flame' },
+  cool: { body: 'cyan', core: 'sky', inner: 'white', ring: 'sky', light: 'sky' },
+  rose: { body: 'rose', core: 'torch', inner: 'white', ring: 'rose', light: 'rose' },
+};
+function killPop(K) {
+  const { x, y, z, s } = K;
+  const c = KILL_COLS[K.palette] || KILL_COLS.ember;
+  if (K.obj && !K.low) silhouette(K.obj, { color: 'ink', ticks: 2 });
+  // the starburst: an outer ember burst and a smaller white-hot one inside it, at different seeds
+  const life = 0.2 + 0.03 * s;
+  const b = addShape(BURST, FACING, x, y, z, life, c.body, c.core, 1.3 * s, K.low ? 0.4 : 0.5, 12, rr(0, 100));
+  const b2 = addShape(BURST, FACING, x, y + 0.02, z, life * 0.7, c.core, K.low ? c.core : c.inner, 0.62 * s, 0.6, 8, rr(0, 100));
+  if (b2 >= 0) S.delay[b2] = 1 / 60;
+  // floor: a hot shockwave out to about twice the burst, and an ink ring chasing it
+  addShape(RING, FLOOR, x, 0.02, z, 0.3, c.body, c.core, 0.4 * s, 1.9 * s, 0.25, 2);
+  const r2 = addShape(RING, FLOOR, x, 0.02, z, 0.26, 'ink', 'night', 0.2 * s, 1.35 * s, 0.35, 1);
+  if (r2 >= 0) S.delay[r2] = 3 / 60;
+  light(x, y, z, c.light, 3.2 + s * 0.5, 3 * s, 140 + 40 * s);
+  // black smoke puff, blown out round the body (dark reads on the dark floor AND in a torch pool)
+  const nSmoke = Math.round(9 + 5 * s);
+  for (let k = 0; k < nSmoke; k++) {
+    const a = (k / nSmoke) * TAU + rr(-0.3, 0.3);
+    const sp = rr(1.6, 2.8) * Math.sqrt(s);
+    const i = add(x + Math.sin(a) * 0.15 * s, y + rr(-0.2, 0.25) * s, z + Math.cos(a) * 0.12 * s, Math.sin(a) * sp, rr(0.2, 1.4), Math.cos(a) * sp * 0.8,
+      rr(0.45, 0.7), Math.round(rr(4, 7) * Math.sqrt(s)), 'smoke', CUBE);
+    if (i < 0) break;
+    P.drag[i] = 0.86; P.grav[i] = -1.2; P.pop[i] = 0.6; P.grow[i] = 0.5; P.shrinkAt[i] = 0.6; P.fadeAt[i] = 0.55;
+    P.delay[i] = 3 / 60 + (k % 3) / 60;   // out from behind the burst as it starts to break up
+  }
+  // sparks: fast radial streaks, biased along the blow
+  const nSp = Math.round(10 + 6 * s);
+  for (let k = 0; k < nSp; k++) {
+    const along = k < nSp / 3;
+    const a = along ? Math.atan2(K.dx, K.dz) + rr(-0.6, 0.6) : rr(0, TAU);
+    const spd = rr(7, 13) * Math.sqrt(s);
+    const i = add(x, y, z, Math.sin(a) * spd, rr(1, 7), Math.cos(a) * spd, rr(0.16, 0.32), along ? 2 : 1, 'killSpark', STREAK);
+    if (i < 0) break;
+    P.stretch[i] = 0.06; P.drag[i] = 0.86; P.grav[i] = 14; P.pop[i] = 1; P.floorY[i] = 0.02; P.bounce[i] = 0.3;
+  }
+}
+function killDebris(K) {
+  const { x, y, z, s, colors } = K;
+  // chunks in the body's colours: they fly, bounce and dissolve ...
+  const n = Math.round(8 + 6 * s);
+  for (let k = 0; k < n; k++) {
+    const a = rr(0, TAU);
+    const spd = rr(1.5, 4.5) * Math.sqrt(s);
+    const i = add(x + rr(-0.15, 0.15) * s, y + rr(-0.2, 0.3) * s, z + rr(-0.15, 0.15) * s, Math.sin(a) * spd, rr(3, 7), Math.cos(a) * spd,
+      rr(0.9, 1.5), pick([3, 4, 4, 5]), colors[k % colors.length], CUBE);
+    if (i < 0) break;
+    P.grav[i] = 22; P.bounce[i] = 0.4; P.floorY[i] = 0.06; P.pop[i] = 1; P.shrinkAt[i] = 0.85; P.fadeAt[i] = 0.85;
+  }
+  // ... and these stay on the floor for the rest of the room (look's impact layer)
+  if (K.decals && look.impact) look.impact.chips(x, y * 0.8, z, K.dx, K.dz, { n: Math.round(4 + 3 * s), colors, speed: 3.5 * Math.sqrt(s), spread: 2.6 });
+  // embers drifting up off the body for a second or two
+  embers(x, y * 0.6, z, { n: Math.round(10 + 6 * s), spread: 0.3 * s, up: 0.9 + 0.2 * s });
+}
+function killSmoke(K) {
+  const { x, y, z, s } = K;
+  // a slow column of smoke that rises and swells off the body
+  const n = Math.round(4 + 3 * s);
+  for (let k = 0; k < n; k++) {
+    const i = add(x + rr(-0.25, 0.25) * s, y + rr(0, 0.3) * s, z + rr(-0.15, 0.15) * s, rr(-0.3, 0.3), rr(0.6, 1.3) * Math.sqrt(s), rr(-0.2, 0.2),
+      rr(0.9, 1.4), Math.round(rr(4, 7) * Math.sqrt(s)), 'smokeHi', CUBE);
+    if (i < 0) break;
+    P.delay[i] = k * 0.06; P.drag[i] = 0.97; P.wob[i] = 1.5; P.ph[i] = rr(0, TAU); P.pop[i] = 0.5; P.grow[i] = 0.7;
+    P.shrinkAt[i] = 0.7; P.fadeAt[i] = 0.45;
+  }
+}
+function killScorch(K) {
+  if (!look.impact) return;
+  const { x, z, s } = K;
+  // a blast mark: radiating soot spokes that glow ember for a moment, then cool to black
+  const spokes = Math.round(7 + 2 * s);
+  const a0 = rr(0, TAU);
+  for (let k = 0; k < spokes; k++) {
+    const a = a0 + (k / spokes) * TAU + rr(-0.22, 0.22);
+    const len = (k % 2 ? 0.8 : 1.25) * rr(0.85, 1.15) * s;
+    const ux = Math.sin(a), uz = Math.cos(a);
+    for (let d = 0.3 * s; d < len; d += 0.12) {
+      const t = (d - 0.3 * s) / Math.max(0.01, len - 0.3 * s);
+      look.impact.splat(x + ux * d, z + uz * d * 0.95, { r: (0.12 * (1 - t * 0.75) + 0.03) * Math.sqrt(s), colors: t < 0.45 ? ['ember', 'night'] : ['flame', 'shadow'], delay: Math.round(t * 4), grow: 0.5, ragged: 0.35 });
+    }
+  }
+  // soot under the body (look's blood pool spreads over its middle)
+  look.impact.splat(x, z, { r: 0.44 * s, colors: ['night', 'ink'], delay: 1, grow: 1, ragged: 0.45 });
+}
+
+/**
+ * Death crumble: what a body does when it finally breaks apart (the enemies' own death
+ * animations call this a beat after the kill burst, when the corpse crumbles). Chunks in the
+ * body's colours that bounce (some stay on the floor), a small burst, a dark puff, a floor ring
+ * and dust, then soul wisps drifting up.
  *   colors: palette names of the body (bone and stone for a skeleton). power: size of the burst.
  */
 export function death(x, y, z, { colors = ['bone', 'frost', 'stone'], power = 1, soul = true, ring = 'mist' } = {}) {
-  addShape(DISC, FACING, x, y, z, 0.1, 'torch', 'white', 0.42 * power + 0.1, 0.6, 0, 1);
-  const st = addShape(STAR, FACING, x, y, z, 0.14, 'gold', 'white', 0.6 * power, 0.2);
-  if (st >= 0) S.delay[st] = 2 / 60;
-  light(x, y, z, 'torch', 2.4 * power, 4 + power, 140);
+  const b = addShape(BURST, FACING, x, y, z, 0.16, 'flame', 'torch', 0.5 * power + 0.1, 0.5, 9, rr(0, 100));
+  if (b >= 0) S.delay[b] = 1 / 60;
+  light(x, y, z, 'torch', 2.2 * power, 3 + power, 120);
   const n = Math.round(14 + 8 * power);
   for (let k = 0; k < n; k++) {
     const a = rr(0, TAU);
@@ -222,6 +363,13 @@ export function death(x, y, z, { colors = ['bone', 'frost', 'stone'], power = 1,
       rr(0.9, 1.6), pick([3, 4, 4, 5]), c, CUBE);
     if (i < 0) break;
     P.grav[i] = 22; P.bounce[i] = 0.42; P.floorY[i] = 0.06; P.pop[i] = 1; P.shrinkAt[i] = 0.82; P.fadeAt[i] = 0.82;
+  }
+  if (look.impact) look.impact.chips(x, y, z, 0, 1, { n: Math.round(3 + 3 * power), colors, speed: 3, spread: 3.2 });
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * TAU + rr(-0.3, 0.3);
+    const i = add(x, y, z, Math.sin(a) * rr(1.2, 2), rr(0.3, 1.2), Math.cos(a) * rr(1, 1.6), rr(0.5, 0.8), Math.round(rr(5, 7) * Math.sqrt(power)), 'smoke', CUBE);
+    if (i < 0) break;
+    P.drag[i] = 0.88; P.grav[i] = -1; P.pop[i] = 0.6; P.grow[i] = 0.5; P.shrinkAt[i] = 0.6; P.fadeAt[i] = 0.55;
   }
   for (let k = 0; k < 10; k++) {
     const a = rr(0, TAU);
@@ -258,11 +406,16 @@ const PORTALS = {
 export function spawnPortal(x, z, { dur = 1.1, radius = 0.85, palette = 'rose' } = {}) {
   const [c1, c2, mote, spark, lightCol] = PORTALS[palette] || PORTALS.rose;
   const close = 0.14;
-  addShape(PORTAL, FLOOR, x, 0.03, z, dur, c1, c2, radius, 0.22, close, 2.2);
+  // snaps open in ~5 ticks with an overshoot (back ease), then spins
+  addShape(PORTAL, FLOOR, x, 0.03, z, dur, c1, c2, radius, 0.09, close, 2.2);
+  // the opening: a flat ring flung out past the rim, and a light under it
+  addShape(RING, FLOOR, x, 0.025, z, 0.18, c2, 'white', radius * 0.5, radius * 1.35, 0.4, 1);
   const ticks = Math.round(dur * 60);
   const popTick = Math.round((dur - close) * 60);
-  const st = { x, z, radius, mote, spark, lightCol, c2 };
+  const st = { x, z, radius, mote, spark, lightCol, c2, t: 0 };
   for (let t = 4; t < popTick - 2; t += 3) later(t, portalMotes, st);
+  for (let t = 2; t < popTick - 4; t += 4) later(t, portalPull, st);
+  for (let t = 0; t < popTick - 4; t += 12) later(t || 1, portalGlow, st);
   later(popTick, portalPop, st);
   return { ticks, popTick };
 }
@@ -273,6 +426,23 @@ function portalMotes(s) {
     if (i < 0) break;
     P.drag[i] = 0.97; P.wob[i] = 2; P.ph[i] = rr(0, TAU); P.fadeAt[i] = 0.55;
   }
+}
+function portalPull(s) {
+  // motes drawn in along the spiral, from well outside the rim toward the hole
+  for (let k = 0; k < 3; k++) {
+    const a = rr(0, TAU), r = s.radius * rr(1.3, 1.8);
+    const life = rr(0.32, 0.45);
+    const inward = r * 0.85 / life, swirl = 2.4;
+    const i = add(s.x + Math.sin(a) * r, rr(0.05, 0.3), s.z + Math.cos(a) * r,
+      -Math.sin(a) * inward + Math.cos(a) * swirl, rr(-0.2, 0.2), -Math.cos(a) * inward - Math.sin(a) * swirl,
+      life, pick([1, 1, 2]), s.mote, STREAK);
+    if (i < 0) break;
+    P.stretch[i] = 0.04; P.drag[i] = 0.99; P.fadeIn[i] = 0.2; P.fadeAt[i] = 0.75; P.pop[i] = 1;
+  }
+}
+function portalGlow(s) {
+  // the floor light under the portal pulses while it is open
+  light(s.x, 0.25, s.z, s.lightCol, 1.4, 2.2 * s.radius + 0.6, 150);
 }
 function portalPop(s) {
   addShape(STAR, FACING, s.x, 0.55, s.z, 0.16, s.c2, 'white', 0.75, 0.22);
@@ -364,4 +534,4 @@ export function heal(x, y, z, { n = 16 } = {}) {
   }
 }
 
-export const EFFECTS = { hitSpark, slash, dust, step, land, dash, afterimage, death, spawnPortal, embers, flash, shockwave, sparkle, twinkle, heal };
+export const EFFECTS = { hitSpark, silhouette, kill, slash, dust, step, land, dash, afterimage, death, spawnPortal, embers, flash, shockwave, sparkle, twinkle, heal };

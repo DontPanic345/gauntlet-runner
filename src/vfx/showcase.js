@@ -1,5 +1,8 @@
 // ?showcase=vfx : the effects reel. Each effect plays in turn, labelled, in a lit crypt corner
-// with the real hero and a skeleton stand-in to act on. The reel loops.
+// with the real hero. HIT, KILL BURST (id death) and SPAWN use the game's real enemies, struck
+// through combat's strike() and bound through vfx.bind(['kill']) exactly as in play, so the
+// look impact layer (stains, chips) and combat's 2D marks and numbers show too. The other
+// entries use a skeleton stand-in. The reel loops.
 //
 // Params:  &fx=<id>      start at this effect and hold it (loop only it). Ids: hit slash dust dash
 //                        death spawn embers flash shock pickup ambient stress
@@ -29,6 +32,9 @@ import { look } from '../render/look.js';
 import '../render/showcase-models.js';
 import { createHeroRig } from '../hero/model.js';
 import { HeroAnim } from '../hero/anim.js';
+import { strike, applyImpact, COMBO } from '../combat/combat.js';
+import { createCombatFx } from '../combat/fx.js';
+import { createEnemies } from '../enemies/index.js';
 import { vfx } from './vfx.js';
 
 // a small gem pickup, for the sparkle
@@ -49,17 +55,18 @@ import { vfx } from './vfx.js';
 
 const HERO = { x: -1.3, z: 0.3 };
 const SKEL = { x: 0.9, z: 0.1 };
+const FOE = { x: -0.1, z: 0.25 };      // where the real enemies stand, in the hero's reach
 const BRAZIERS = [[-3.4, -1.6], [3.4, -1.6]];
 const SLOWS = [1, 0.5, 0.25, 0.1];
 
 // The reel. dur in ticks. run(t, S) is called every tick with the entry's local tick.
 const REEL = [
-  { id: 'hit', label: 'HIT SPARK', note: 'FLARE HOLDS THROUGH HITSTOP, STREAKS FAN ALONG THE BLOW, CHIPS BOUNCE', dur: 170 },
+  { id: 'hit', label: 'HIT SPARK', note: 'REAL COMBO, REAL HUSK. WHITE FLASH, INK FRAME, BURST, CHIPS THAT STAY', dur: 200 },
   { id: 'slash', label: 'SLASH SMEAR', note: 'SWEEPS IN FAST, EATEN FROM THE TAIL. BLADE, ENEMY, BOSS', dur: 170 },
   { id: 'dust', label: 'DUST PUFFS', note: 'FOOTSTEP SCUFFS, THEN A LANDING RING', dur: 200 },
   { id: 'dash', label: 'DASH', note: 'KICK-OFF DUST, SPEED LINES, DITHER-FADING AFTERIMAGES', dur: 150 },
-  { id: 'death', label: 'DEATH BURST', note: 'WHITE POP, CHUNKS IN THE BODY COLOURS, FLOOR RING, SOUL WISPS', dur: 170 },
-  { id: 'spawn', label: 'SPAWN PORTAL', note: 'SNAPS OPEN, SPINS, MOTES RISE, COLLAPSES INTO A FLARE', dur: 150 },
+  { id: 'death', label: 'KILL BURST', note: 'HUSK, BRUTE, MITES. INK FRAME, STARBURST, SMOKE, SCORCH THAT STAYS', dur: 420 },
+  { id: 'spawn', label: 'SPAWN PORTAL', note: 'REAL SPAWN-INS. SNAPS OPEN, PULLS MOTES IN, GLOWS, POPS', dur: 200 },
   { id: 'embers', label: 'EMBERS', note: 'A GUST OF EMBERS OFF THE COALS', dur: 170 },
   { id: 'flash', label: 'LIGHT FLASH', note: 'A LIGHT POP WITH A HOT DISC AND FLARE', dur: 150 },
   { id: 'shock', label: 'SHOCKWAVE', note: 'OVERHEAD SLAM, THEN A BOSS STOMP', dur: 170 },
@@ -79,7 +86,7 @@ export default function vfxShowcase(params) {
   let ambientOn = params.get('ambient') !== '0';
   const stressN = Math.max(100, Math.min(4000, parseInt(params.get('stress') ?? '2400', 10) || 2400));
 
-  let root, rig, anim, skel, gem, braziers = [], amb = null, offs = [];
+  let root, rig, anim, skel, gem, braziers = [], amb = null, offs = [], foes = null, cfx = null;
   let t = 0;                        // local tick in the current entry
   let hx = HERO.x, hz = HERO.z, hFace = Math.PI / 2, hvx = 0;
   let skelShow = 1, skelPop = -1, skelFlash = 0, skelKnock = 0, skelVisible = true;
@@ -114,15 +121,28 @@ export default function vfxShowcase(params) {
     idx = (i + REEL.length) % REEL.length;
     t = 0;
     vfx.clear();                       // a replay starts from a clean slate (the ambient layer restarts, prewarmed)
+    vfx.bind(['kill']);                // the same kill binding every game scene uses (clear() unbinds)
+    look.impact?.clear();              // floor marks are part of an entry: start each one clean
+    look.impact?.seed(idx * 31 + 7);
+    foes?.clear();
     amb = null;
     vfx.seed(idx * 7919 + 1);
     resetActors();
     fpsMin = 999; fpsAcc.length = 0; sr = 1;
     const id = REEL[idx].id;
     startAmbient('crypt');
-    if (id === 'spawn') { skelVisible = false; }
+    if (id === 'spawn' || id === 'hit' || id === 'death') { skelVisible = false; }
+    if (id === 'hit') foe('husk', FOE.x, FOE.z, { hp: 9999 });
     if (id === 'pickup') { gemShow = 1; skelVisible = false; }
   }
+
+  // a real enemy, standing still as a puppet (ai off) so the reel is the same every loop
+  function foe(kind, x, z, { hp = null, instant = true } = {}) {
+    const r = foes.spawn(kind, x, z, { instant, yaw: -Math.PI / 2 });
+    for (const e of [].concat(r)) { e.ai = false; if (hp != null) { e.hp = e.maxHp = hp; } }
+    return r;
+  }
+  const near = (r) => world.enemies.filter((e) => !e.dead && !e.dying && e.state !== 'spawn' && Math.hypot(e.x - hx, e.z - hz) < r + (e.r ?? 0.3));
 
   // hit reaction for the skeleton stand-in
   function strikeSkel(power, dx = 1) {
@@ -136,10 +156,9 @@ export default function vfxShowcase(params) {
   // ---- the entries --------------------------------------------------------------------------
   const RUN = {
     hit(k) {
-      // the hero's real combo on the skeleton; the spark lands on the first active tick
-      if (k === 20) anim.attack(0);
-      if (k === 60) anim.attack(1);
-      if (k === 100) anim.attack(2);
+      // the hero's real combo on a real husk, through combat's strike(): everything a hit
+      // gets in play (flash, ink frame, burst, chips, droplets, stains, numbers)
+      for (const [at, step] of [[20, 0], [36, 1], [54, 2], [115, 0], [131, 1], [149, 2]]) if (k === at) anim.attack(step);
     },
     slash(k) {
       const y = 0.55;
@@ -165,15 +184,18 @@ export default function vfxShowcase(params) {
       if (k === 80) { anim.dash(10); vfx.dash(hx, hz, -1, 0, { obj: rig.group, ticks: 10, palette: 'ghostGold' }); }
     },
     death(k) {
-      if (k === 20) anim.attack(0);
-      if (k === 50) anim.attack(2);
+      // three real kills with the real combo: a husk (size 1), a brute (1.45), a mite swarm (0.5)
+      if (k === 1) foe('husk', FOE.x, FOE.z);
+      for (const [at, step] of [[20, 0], [36, 1], [54, 2]]) if (k === at) anim.attack(step);
+      if (k === 150) { const b = foe('brute', FOE.x + 0.35, FOE.z - 0.1); b.hp = 30; }
+      for (const [at, step] of [[170, 0], [186, 1], [204, 2]]) if (k === at) anim.attack(step);
+      if (k === 300) foe('mites', FOE.x + 0.15, FOE.z);
+      if (k === 330) anim.attack(2);
     },
     spawn(k) {
-      if (k === 15) {
-        const p = vfx.spawnPortal(SKEL.x, SKEL.z, { dur: 1.1 });
-        skelPop = 15 + p.popTick;
-      }
-      if (k === skelPop) { skelVisible = true; skelShow = 0; }
+      // the enemies' own spawn-ins call vfx.spawnPortal (husk: rose; mites: cool)
+      if (k === 15) foe('husk', FOE.x + 0.4, FOE.z, { instant: false });
+      if (k === 100) foe('mites', FOE.x + 0.4, FOE.z, { instant: false });
     },
     embers(k) {
       for (const [at, b] of [[15, 0], [55, 1], [95, 0], [100, 1]]) {
@@ -227,24 +249,16 @@ export default function vfxShowcase(params) {
   };
   const gemPos = new THREE.Vector3(0.9, 0.35, 0.1);
 
-  // spark on the skeleton when the hero's swing connects (hero:swing = first active tick)
+  // a swing connects: strike every real enemy in reach through combat (hero:swing = first active tick)
   function onSwing(e) {
     const id = REEL[idx].id;
     if (id !== 'hit' && id !== 'death') return;
-    const step = e.step;
-    const power = step === 2 ? 2.2 : step === 1 ? 1.2 : 1;
-    const hitX = SKEL.x - 0.15, hitY = step === 2 ? 0.8 : 0.62, hitZ = SKEL.z + 0.05;
-    const delay = step === 2 ? 3 : 1;      // the overhead lands 3 ticks after its swing starts
-    vfx.later(delay, () => {
-      if (!skelVisible) return;
-      if (id === 'death' && step === 2) {
-        vfx.hitSpark(hitX, hitY, hitZ, { dx: 1, dz: 0.1, power: 1.6 });
-        strikeSkel(2.2);
-        vfx.later(6, () => { skelVisible = false; vfx.death(SKEL.x, 0.55, SKEL.z, { colors: ['bone', 'frost', 'fog', 'stone'], power: 1.1 }); feedback.shake(3, 180); });
-        return;
-      }
-      vfx.hitSpark(hitX, hitY, hitZ, { dx: 1, dz: step === 1 ? -0.4 : 0.3, power });
-      strikeSkel(power);
+    const step = Math.max(0, Math.min(2, e.step | 0));
+    const spec = COMBO[step];
+    vfx.later(step === 2 ? 3 : 1, () => {       // the overhead lands 3 ticks after its swing starts
+      const hits = [];
+      for (const t of near(step === 2 ? 1.45 : 1.3)) { const h = strike(t, { x: hx, z: hz }, spec, { step }); if (h) hits.push(h); }
+      applyImpact(hits, spec);
     });
   }
 
@@ -276,6 +290,10 @@ export default function vfxShowcase(params) {
       root.add(skel);
       gem = voxelMesh('vfx.gem');
       root.add(gem);
+      // the real enemies and combat effects (2D marks, damage numbers; particles go to vfx)
+      world.hero = null;
+      foes = createEnemies(root, { bounds: { minX: -5, maxX: 5, minZ: -3.5, maxZ: 2.5 } });
+      cfx = createCombatFx(root, { numbers: true });
 
       offs = [
         events.on('hero:swing', onSwing),
@@ -292,6 +310,7 @@ export default function vfxShowcase(params) {
 
     exit() {
       offs.forEach((f) => f());
+      cfx?.dispose(); foes?.dispose(); cfx = foes = null;
       loop.setTimeScale(1);
       look.mood('crypt');
     },
@@ -313,6 +332,8 @@ export default function vfxShowcase(params) {
     tick() {
       const e = REEL[idx];
       RUN[e.id](t, e);
+      foes.tick();
+      cfx.tick();
       // hero
       hx += hvx * DT;
       hx = Math.max(-3.6, Math.min(3.6, hx));
@@ -330,6 +351,8 @@ export default function vfxShowcase(params) {
       const time = (loop.tick + alpha) * DT;
       display.setCameraTarget(0, 0.55, -0.35);
       anim.render(alpha);
+      foes.render(alpha);
+      cfx.render(alpha);
       for (const g of rig.ghosts) g.group.visible = false;   // the reel shows vfx's afterimages, not the hero's own
       // skeleton: pops in with a squash-stretch overshoot, flashes white when hit
       skel.visible = skelVisible;
@@ -352,6 +375,7 @@ export default function vfxShowcase(params) {
 
     ui(g) {
       const W = display.width, H = display.height;
+      cfx.ui(g);
       if (status.text && loop.realTime < status.until) drawText(g, status.text, W / 2, 64, 'gold', { align: 'center', outline: 'ink' });
       if (!hud) return;
       const e = REEL[idx];

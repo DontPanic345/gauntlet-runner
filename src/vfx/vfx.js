@@ -5,7 +5,9 @@
 //   vfx.hitSpark(x, y, z, { dx, dz, power, palette })     vfx.slash(x, y, z, yaw, { span, radius, palette, mirror })
 //   vfx.dust(x, z, { dx, dz, n, size })   vfx.step(x, z)   vfx.land(x, z)
 //   vfx.dash(x, z, dx, dz, { obj })       vfx.afterimage(obj, { palette, life })
+//   vfx.kill(x, y, z, { size, colors, obj, dx, dz })   the kill burst (bound to combat:kill)
 //   vfx.death(x, y, z, { colors, power }) vfx.spawnPortal(x, z, { dur }) -> { popTick }
+//   vfx.silhouette(obj, { color: 'ink'|'white', ticks })   a solid flat frame drawn over a body
 //   vfx.embers(x, y, z, { n })            vfx.flash(x, y, z, { color, size })
 //   vfx.shockwave(x, z, { radius, color }) vfx.sparkle(x, y, z)  vfx.twinkle(x, y, z)  vfx.heal(x, y, z)
 //   vfx.ambient({ preset, box, sources }) -> layer   (dust motes + embers, see ambient.js)
@@ -22,6 +24,7 @@ import * as fx from './effects.js';
 import { ambient } from './ambient.js';
 import { events } from '../core/events.js';
 import { debug } from '../core/debug.js';
+import { look } from '../render/look.js';
 
 // ---- event bindings: one line for a scene to get the standard effects --------------------------
 const BINDINGS = {
@@ -39,6 +42,14 @@ const BINDINGS = {
       fx.hitSpark(h.x, h.y, h.z, { dx: h.tx || h.dx, dz: h.tz || h.dz, power: h.power, light: false });
       const cols = h.target?.debris;
       if (cols) chips(h, cols);
+      // white / black alternation: the target's own white flash holds through hitstop, then one
+      // ink silhouette frame (a kill gets its own, longer one from the kill burst)
+      if (!h.target?.dead) {
+        const obj = bodyOf(h.target);
+        if (obj) core.later(Math.max(2, Math.ceil((h.flashTicks ?? 3) / 2) + 1), inkFrame, obj);
+      }
+      // a white-hot pin light at the contact, on top of combat's warmer pool light
+      if (look.lights) look.flash(h.x, h.y, h.z, { color: 'white', intensity: 2.2 + h.power * 0.5, radius: 1.2 + h.power * 0.2, ms: 50 });
     },
     'hero:slam': (e) => fx.shockwave(e.x + Math.sin(e.yaw) * 0.9, e.z + Math.cos(e.yaw) * 0.9, { radius: 1.4 }),
     'combat:heroHurt': (e) => fx.hitSpark(e.x - e.dx * 0.2, 0.7, e.z - e.dz * 0.2, { dx: e.dx, dz: e.dz, power: 1.3, palette: 'hurt', light: false }),
@@ -47,10 +58,32 @@ const BINDINGS = {
   // deaths only (safe to add next to combat/fx.js, which has no death effect). Targets with
   // `ownDeath` (the enemies piece's archetypes) play their own death and are skipped here.
   kill: {
-    'combat:kill': (e) => e.target?.ownDeath || fx.death(e.x, (e.target?.h ?? 1) * 0.5, e.z, { colors: e.target?.debris ?? ['bone', 'frost', 'stone'] }),
+    'combat:kill': (e) => {
+      const t = e.target;
+      const cols = t?.debris ?? ['bone', 'frost', 'stone'];
+      if (!t?.noKillBurst) fx.kill(e.x, killY(t), e.z, { size: killSize(t), colors: cols, obj: bodyOf(t), dx: t?.lastHit?.dx ?? 0, dz: t?.lastHit?.dz ?? 1 });
+      if (!t?.ownDeath) fx.death(e.x, (t?.h ?? 1) * 0.5, e.z, { colors: cols, power: Math.min(2, killSize(t)) });
+    },
     'combat:heroDeath': (e) => fx.death(e.x, 0.5, e.z, { colors: ['navy', 'blue', 'bone'], power: 0.8, ring: 'sky' }),
   },
 };
+/** The burst scale of a target: 1 = a husk (1.5 tall), mites ~0.5, the brute ~1.45, the Warden 3. */
+export function killSize(t) {
+  if (!t) return 1;
+  return Math.max(0.45, Math.min(3, Math.max((t.h ?? 1.5) / 1.5, (t.r ?? 0.34) / 0.4)));
+}
+function killY(t) {
+  const h = t?.h ?? 1.2;
+  if (t?.kind === 'wisp') return (t.D?.float ?? 0.55) + 0.1;
+  return Math.min(1.6, h * 0.45);
+}
+/** The Object3D that is the target's body (for silhouette flashes), or null. */
+export function bodyOf(t) {
+  if (!t) return null;
+  const o = t.group ?? t.body ?? t.rig?.group ?? t.mesh ?? null;
+  return o && o.isObject3D ? o : null;
+}
+function inkFrame(obj) { if (obj.parent && obj.visible !== false) fx.silhouette(obj, { color: 'ink', ticks: 2 }); }
 function chips(h, cols) {
   const n = Math.round(2 + h.power * 2);
   for (let k = 0; k < n; k++) {
@@ -79,6 +112,8 @@ export const vfx = {
   ambient,
   bind,
   BINDINGS,
+  killSize,
+  bodyOf,
   seed: fx.seedVfx,
   render: core.render,
   clear: core.clear,
@@ -106,6 +141,7 @@ debug.add('vfx', (action, ...a) => {
     const [name, x = 0, y = 0.6, z = 0, opts = {}] = a;
     const f = fx.EFFECTS[name];
     if (!f) return { ok: false, error: `no effect "${name}"`, effects: Object.keys(fx.EFFECTS) };
+    if (name === 'silhouette') return { ok: false, error: 'silhouette needs an Object3D: call vfx.silhouette(obj) from code' };
     if (name === 'afterimage') return { ok: false, error: 'afterimage needs an Object3D: call vfx.afterimage(obj) from code' };
     if (name === 'slash') f(x, y, z, opts.yaw ?? 0, opts);
     else if (['dust', 'step', 'land', 'shockwave', 'spawnPortal'].includes(name)) f(x, z, opts);

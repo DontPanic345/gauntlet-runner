@@ -174,6 +174,7 @@ void main() {
   ivec2 P = ivec2(gl_FragCoord.xy);
   ivec2 maxP = ivec2(resolution) - 1;
   vec3 col = texelFetch(tColor, P, 0).rgb;
+  vec3 base = toSrgb(clamp(col, 0.0, 1.0));   // unlit emissive colour as drawn (vfx: reserved fire colours pass through)
   bool hot = whiteHotOn > 0.5 && all(greaterThanEqual(col, vec3(0.985)));
   float rawDepth = texelFetch(tDepth, P, 0).r;
   float d = viewDepth(P);
@@ -249,7 +250,7 @@ void main() {
 
   // reserved fire colours pass through untouched (emissive voxels, fire particles)
   for (int i = 0; i < ${RESERVED.length}; i++) {
-    if (all(lessThan(abs(srgb - reserved[i]), vec3(0.03)))) { fragColor = vec4(reserved[i], 1.0); return; }
+    if (all(lessThan(abs(srgb - reserved[i]), vec3(0.03))) || all(lessThan(abs(base - reserved[i]), vec3(0.01)))) { fragColor = vec4(reserved[i], 1.0); return; }
   }
   ivec3 q = ivec3(srgb * ${LUT_N - 1}.0 + 0.5);
   ivec2 tc = ivec2((q.b % 8) * ${LUT_N} + q.r, (q.b / 8) * ${LUT_N} + q.g);
