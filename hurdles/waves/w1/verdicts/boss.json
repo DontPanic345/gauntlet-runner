@@ -1,0 +1,19 @@
+{
+  "winner": "A",
+  "margin": "decisive",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A frames a towering armored boss in a torch-lit arena with a title card, while B shows a small top-hat sprite floating over a flat tile slab with an empty grey bar and no sense of occasion."},
+    {"pair": "02", "winner": "A", "why": "A's intro has a real camera move from a close-up push-in to a wide reveal, a shockwave ring and a title-card slam; B's twelve frames are nearly identical, with only a palette flicker and a puff at the end."},
+    {"pair": "03", "winner": "A", "why": "A's sweep has a cone that fills in over eight frames, then a bright slash arc with smear frames, so it is both readable and spectacular; B's projectile throw is fair but tiny, with a flat white glove and a small yellow spark as the only feedback."},
+    {"pair": "04", "winner": "A", "why": "A's slam shows a red landing circle that tracks the player, fills in and flashes before impact; B's beam fires almost instantly from a faint thin line, so the timing is hard to read, even though the color-cycling HUD is a nice touch."},
+    {"pair": "05", "winner": "A", "why": "A's phase-III cage arena, with a named phase, a boss health bar and a damage number, feels like a climax; B's six colored clones look charming but flat, and they pile up in one place without making the danger clear."}
+  ],
+  "loser_biggest_gap": "Give the boss real scale and presence: a much larger, more detailed multi-part sprite with idle animation, plus an intro that names the boss (a title card), moves the camera or zooms, and lands an impact beat (shake, flash, shockwave), instead of a small static sprite that just appears.",
+  "loser_other_gaps": [
+    "Telegraph the beam on the ground: draw a thin warning column or hatched lane on the floor for 400-600 ms that thickens and flashes before the beam fires, so players can see where and when it will hit.",
+    "Add impact feedback on attacks: screen shake, a hit-stop freeze, debris or particles, and a short flash, instead of a small yellow spark and a quietly removed heart.",
+    "Dress the arena: the flat repeating tile slab on black, with a few magenta lines, gives no sense of place; add lighting, depth and props that suit the boss's theme.",
+    "Make the boss HUD tell a story: label the boss and its phase on the health bar, and change the environment or palette per phase, so later phases feel like an escalation."
+  ],
+  "reasoning": "A wins clearly on every pair. It reads like a polished indie boss: a big boss with distinct parts, warm torchlight against dark stone, a staged intro with a title card, and attacks whose warnings grow over many frames before a punchy, colorful strike. Fairness is also better in A, because the cone and circle markers show where and when each attack lands well before it hits. B is clean and consistent, and the color-coded HUD on the beam is clever. But the boss is small, the intro does almost nothing, the arena is bare, and the beam warning is too faint and too brief. A has flaws too: the subtitle 'JAILER OF' is cut off, the boss's dark grey silhouette sometimes blends into the floor, and the cage bars in phase III clutter the view of the player. None of these come close to closing the gap."
+}

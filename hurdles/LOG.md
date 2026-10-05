@@ -259,3 +259,7 @@ where the outputs are.
 ## 2026-10-05 — w1 judge: budget stop
 
 - The budget guard tripped after the second judge batch: the session window was at 50%, at the 50% limit. Weekly was at 56%. 8 of the 14 verdicts are on disk. The next run judges boons, boss, hud, audio, title and run-flow, then resolves wave 1.
+
+## 2026-10-05 — w1 judge: boons, boss, hud, audio
+
+- Four blind judges, run in parallel the same way. Each one saw only its packet path and the piece's `judge_focus`. Their verdicts are in `waves/w1/verdicts/`.

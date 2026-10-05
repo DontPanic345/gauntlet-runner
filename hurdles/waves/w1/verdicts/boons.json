@@ -1,0 +1,20 @@
+{
+  "winner": "B",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "B", "why": "B's three big illustrated cards with rarity tabs, large titles, keyword-highlighted numbers, a synergy hint and a bracketed selection read as a crafted reward, while A is a flat grey list of small icons and plain text in a basic box."},
+    {"pair": "02", "winner": "B", "why": "B dims the scene, deals face-down cards in one by one, flips each to reveal it with a white flash and saves the rare card for last, while A gives a single chest and spinning panel moment, then a static menu for most of the strip."},
+    {"pair": "03", "winner": "B", "why": "B's chosen card flares with rays while the others dissolve, then shrinks into a boon icon that flies to the player, so the pick lands with payoff; A cuts to a black frame and goes back to play with no sign that anything was gained."},
+    {"pair": "04", "winner": "B", "why": "B's hits land with big white impact flashes, star bursts, rings and chunky damage numbers around the player, while A's small blue orbiting books and faint hit sparks barely read against the field, although B's orbit ring itself is thin and faint."},
+    {"pair": "05", "winner": "A", "why": "A's fully built screen is a storm of fireball volleys, lightning, whirling axes and lances filling the frame, which reads as more raw power fantasy than B's busier but more contained bursts, CRIT/WILDFIRE callouts and shield rings."},
+    {"pair": "06", "winner": "A", "why": "A's pickup moment has a chain of white hits and a burst of damage numbers, then flows straight into a level-up chest, while B's tiny pickups drift in under a static ARENA CLEARED banner with almost no collection feedback."}
+  ],
+  "loser_biggest_gap": "Rebuild the level-up choice into a presented reward: dim the field, animate the options in one at a time (slide or flip with a flash), give each option a large icon, a bold title and rarity or level framing, and on picking, play a confirm burst that carries the chosen icon into the HUD, instead of a grey list panel that cuts to black and drops you back into play.",
+  "loser_other_gaps": [
+    "Give the take moment visible feedback in play: a flash or aura on the player and a HUD slot that pops, so the player can see the upgrade was gained.",
+    "Make single upgrades read early on: make orbiting objects larger and brighter with trails, and give hit sparks enough size and contrast to stand out against the busy grass.",
+    "Improve the choice screen typography and layout: larger, higher-contrast text, numbers highlighted inside descriptions, and a stronger highlight on the selected option than small side arrows.",
+    "Add hierarchy to the late-game chaos (crit or proc callouts, impact flashes on enemies) so the full build reads as distinct effects rather than overlapping lines."
+  ],
+  "reasoning": "On how the choice is presented and how picking feels, B wins easily. Its card deal, flip reveals, rare-card emphasis and fly-to-HUD confirm feel like a polished, rewarding beat, while A's static grey list and cut-to-black pick feel like a placeholder menu. In play, B's hits pack more punch at low upgrade counts, though its orbit visual is faint and its pickup collection is nearly invisible under the clear banner. A only pulls ahead on the late-game screen-filling spectacle and the hit burst in its pickup strip. Since the choice and pick moments count most for an upgrade system, B is the clear winner overall."
+}
