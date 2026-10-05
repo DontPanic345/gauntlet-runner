@@ -251,3 +251,7 @@ where the outputs are.
 ## 2026-10-05 — w1 judge: look, hero, movement, combat
 
 - Four blind judges, one per packet, run in parallel. Each one saw only its packet path and the piece's `judge_focus`. Their verdicts are in `waves/w1/verdicts/`; the clerk opens the keys at resolve.
+
+## 2026-10-05 — w1 judge: vfx, enemies, arenas, gauntlet
+
+- Four more blind judges, run in parallel the same way. Their verdicts are in `waves/w1/verdicts/`.

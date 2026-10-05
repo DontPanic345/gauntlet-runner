@@ -1,0 +1,18 @@
+{
+  "winner": "A",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A's spike blocks cycle from yellow-hot armed to red-outlined telegraph while a disintegrating wall chases the player, so every frame carries pressure; B's character just hops calmly past static spikes that never threaten her."},
+    {"pair": "02", "winner": "A", "why": "B's dash reads more cleanly (hair colour swap, white streak), but A's dash through a red gate, with cyan afterimages and the wall right behind, conveys far more urgency and risk."},
+    {"pair": "03", "winner": "A", "why": "A's death has a red slash ring, the wall swallowing the player, desaturation, a red letterbox and a 'RISE AGAIN' prompt, so it lands as a dramatic beat; B's death is a small dust puff on the spikes and a quiet reset."},
+    {"pair": "04", "winner": "A", "why": "A's single frame shows a looming crumbling wall, red-telegraphed spike traps and a torn-up corridor, which reads as immediate danger; B's frame is a calm, static room whose only threat is a few small floor spikes."}
+  ],
+  "loser_biggest_gap": "Add an active, moving threat with a timer feel to the hazard sections. B's spikes are static floor dressing, and nothing pursues the player or changes state. Introduce hazards that telegraph and then fire (for example spikes that extend after a 2-3 frame warning flash, falling blocks, or a rising/chasing hazard), so each dodge has a visible 'almost hit' moment.",
+  "loser_other_gaps": [
+    "Make death a real beat: hold a hit-pause frame, flash or shake the screen, and burst the character into colour-coded particles before the reset, not just a small dust puff.",
+    "Give the dash impact and consequence: a short freeze on start, a screen nudge in the dash direction, and a hazard the dash visibly slips past, so it reads as an escape rather than traversal.",
+    "Add on-screen urgency cues (a warning text, a danger tint, or a pulsing vignette) during hazard sections, so the sequence communicates pressure even in a still frame.",
+    "Animate the environment around hazards (crumbling tiles, debris, flickering light) so the room feels hostile and alive instead of a flat, still backdrop."
+  ],
+  "reasoning": "Measured on tension and excitement, A is clearly ahead: a disintegrating wall chases the player, the 'RUN!' banner sets the stakes, traps telegraph in two stages (yellow armed, red outlined), and the death sequence has a full dramatic arc with desaturation, a letterbox and a retry prompt. B is crisper and more readable, with a clean silhouette, a strong colour-coded dash and immaculate pixel consistency, but its hazards are static spikes that never move or pursue, so the strips read as calm platforming rather than a chase. A's weakness is clutter: the player sprite is small and often swallowed by particle noise and the busy wall, which hurts readability. That costs it some margin but not the pair. On the question asked, B conveys little danger or urgency in any of the four pairs."
+}

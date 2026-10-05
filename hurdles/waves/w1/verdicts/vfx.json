@@ -1,0 +1,18 @@
+{
+  "winner": "A",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A alternates full-silhouette white and black hit flashes on the enemy, with fat tracer streaks and hot yellow muzzle and impact ellipses, so every hit is a strong, high-contrast pop; B's white slash smear and small starburst read fine but are small and get lost in the warm torch glow."},
+    {"pair": "02", "winner": "A", "why": "A's kill goes black smoke puff, then a huge jagged orange starburst, then smoke and embers, then lasting blood pools and debris, a textbook pop followed by a readable decay; B's kill is a white flash, a thin ring and a few cyan shards that clear almost at once and leave little behind."},
+    {"pair": "03", "winner": "B", "why": "B's dash has a cyan-to-blue afterimage smear, a dust ring where it took off, red speed chevrons and a dithered trail that decays over several frames; A's dash is a single tan dust streak with no anticipation or afterimage."},
+    {"pair": "04", "winner": "A", "why": "A's still shows a bold white flash covering the enemy's whole silhouette, crossed by bright tracer beams, which is instantly readable; B's flash and starburst are half hidden behind a large damage number and blend into the warm light pool."}
+  ],
+  "loser_biggest_gap": "Make the kill much bigger. On death, spawn a large high-contrast burst: a 1-2 frame full-white silhouette flash, then a jagged starburst or shockwave at about 2-3x the enemy's size in a color that contrasts with the scene, then smoke and embers. Leave lasting floor decals (scorch, splatter, debris) so a kill clearly marks the arena.",
+  "loser_other_gaps": [
+    "Hit flashes should cover the enemy's whole silhouette, solid white or alternating white and black, rather than a small slash smear near the weapon, so contact reads at a glance.",
+    "Hit sparks need to contrast with the warm torch glow (cooler or hotter, with a dark outline) and should not sit under the damage number, which currently hides the impact.",
+    "Add persistent debris or particles that stay on the floor after hits and kills (chips, sparks, stains) so the arena builds up a visible history of the fight.",
+    "Sharpen the timing: give a 1-2 frame peak with stronger screen-level feedback (a brief flash or a bloom spike) before the decay, instead of the soft, even fade seen now."
+  ],
+  "reasoning": "A's effects are louder and more legible: whole-sprite flash frames, chunky tracers, and a big orange explosion that settles into smoke and lasting gore. These give a clear pop and then a readable decay, and they leave marks in the world. B's effects are neat and nicely made (slash smears, rings, sparkle particles, and an especially good dash afterimage), but they are small and low in contrast against the warm lighting, and the kill effect in particular has little weight. B wins the dash clearly, while A wins on hit and kill punch, which matter more for juice. Overall A clearly looks more crafted and punchy."
+}

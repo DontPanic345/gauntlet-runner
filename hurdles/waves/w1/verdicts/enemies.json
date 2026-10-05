@@ -1,0 +1,18 @@
+{
+  "winner": "A",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "A", "why": "A's wasp, moth and mushroom-folk are distinct hand-drawn creatures with bold dark outlines and saturated red/white that pop off the green floor, while B's green husks are muddy, low-contrast blocky figures that blend into the dark stone and read as generic zombies, with only the cyan crawlers standing out."},
+    {"pair": "02", "winner": "B", "why": "B's floor lane fills in progressively and flashes yellow on commit, a textbook-legible telegraph, while A's wasp only gives a brief white-red flash before lunging, which is characterful but easy to miss in a busy scene."},
+    {"pair": "03", "winner": "A", "why": "A's kill bursts into a dense red-and-white particle shower with a lingering scorch on the ground, while B's husk gives a small pale flash, a faint green ring and a few sparse green flecks that read as weak and dim against the dark floor."},
+    {"pair": "04", "winner": "B", "why": "B's husk visibly takes a white hit-flash, a crosshair ring and a knockback stagger on each hit, while in A the enemy is nearly hidden under the lightning effects, so its own hurt reaction barely reads."}
+  ],
+  "loser_biggest_gap": "Give each enemy a strong, characterful silhouette and colour identity that separates it from the floor: replace the muddy dark-green, low-contrast husk bodies with a brighter, distinct palette per type (light rim or outline, saturated accent colour, a readable head/eye feature), so each type reads instantly as a specific creature rather than a generic blocky zombie on dark stone.",
+  "loser_other_gaps": [
+    "Make deaths satisfying: a bigger, brighter burst of colour-matched body chunks or voxels with a short hit-stop and a lasting corpse/scorch decal, instead of a faint ring and a few sparse specks that vanish into the dark floor.",
+    "Add a body-level wind-up to telegraphs (crouch, rear-back, colour flash on the enemy itself) so the attacker announces itself as well as the floor lane does.",
+    "Add idle/locomotion animation personality (bob, squash-stretch, wing or limb flaps) so enemies feel alive between attacks rather than static rigid blocks.",
+    "Increase enemy-vs-floor value contrast across the board (the dark red brute and green husks sit near the floor's value range); add a drop shadow or light outline under each enemy."
+  ],
+  "reasoning": "A's cast is far more characterful: each enemy is a recognisable creature (wasp, moth, mushroom-folk) with a clean outlined silhouette and saturated colours that separate instantly from the green floor, and its deaths are punchy, dense particle bursts. B has the more functional telegraph, a progressive floor lane with a clear commit flash, and a cleaner hurt reaction with white flash and knockback, so B wins on pure attack and hit legibility. But B's enemies themselves are dim, muddy voxel figures that blend into the dark stone, with weak, sparse death effects and little personality. Since the question weighs readability of the cast and character, A's stronger silhouettes, colour identity and death feedback outweigh B's better telegraph UI."
+}
