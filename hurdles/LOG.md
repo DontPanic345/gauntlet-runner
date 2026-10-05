@@ -255,3 +255,7 @@ where the outputs are.
 ## 2026-10-05 — w1 judge: vfx, enemies, arenas, gauntlet
 
 - Four more blind judges, run in parallel the same way. Their verdicts are in `waves/w1/verdicts/`.
+
+## 2026-10-05 — w1 judge: budget stop
+
+- The budget guard tripped after the second judge batch: the session window was at 50%, at the 50% limit. Weekly was at 56%. 8 of the 14 verdicts are on disk. The next run judges boons, boss, hud, audio, title and run-flow, then resolves wave 1.
