@@ -1,0 +1,20 @@
+{
+  "winner": "B",
+  "margin": "clear",
+  "per_pair": [
+    {"pair": "01", "winner": "B", "why": "B's custom pixel logo with sword divider, framed forge scene and styled menu read as one authored piece, while A's strong key art is undercut by mixed pixel scales, soft upscaled sprites and a plain system-font 'PRESS TO START' sitting on top of the whip."},
+    {"pair": "02", "winner": "B", "why": "B's idle loop has flickering braziers, drifting embers and a breathing hero so the scene feels alive, whereas A only shimmers the fairy's sigils and is otherwise a static poster."},
+    {"pair": "03", "winner": "B", "why": "B's menu uses a consistent pixel font with a flame-marker cursor, underline and input hints, while A's flat blue/green rounded buttons in a generic font look like placeholder web UI pasted over the art."},
+    {"pair": "04", "winner": "B", "why": "B's selection visibly slides the highlighted item in with an orange marker and underline sweep on every press, while A shows no readable change in focus across the strip."},
+    {"pair": "05", "winner": "A", "why": "A at least animates the arrow pointers flanking BACK as the options open, while B's settings panel appears with no transition: all 8 frames are identical."},
+    {"pair": "06", "winner": "B", "why": "B's settings panel has segmented volume bars, percentage readouts, grouped rows, a clear focused row and a key-hint footer, versus A's sparse flat checkbox list in a mismatched monospace font."}
+  ],
+  "loser_biggest_gap": "Replace the generic flat rounded buttons and system/monospace fonts (START, POWER UP, COLLECTION, Options panel, 'PRESS TO START') with a bespoke pixel-art UI kit (a pixel font at the same scale as the art, beveled or ornate frames that match the gothic key art) so the menu looks authored, not like a placeholder web overlay.",
+  "loser_other_gaps": [
+    "Give menu focus strong visible feedback: a cursor or marker, a scale or pulse on the selected button, and a short tween when focus moves, so Down/Up presses are readable.",
+    "Unify pixel density: the vampire, hunter and fairy are drawn at different effective resolutions and some look smoothly upscaled, so re-render them at one consistent pixel scale with crisp nearest-neighbour edges.",
+    "Add ambient idle motion to the title (drifting bats or fog, cape and whip sway, a moon glow pulse, flickering particles) so the screen breathes instead of reading as a static poster.",
+    "Rebuild the options screen with richer controls (sliders with values, grouped sections, a highlighted focused row, input hints) and an open transition, and drop the off-theme Steam badge and coin counter from the composition."
+  ],
+  "reasoning": "A has the more striking illustration, with a big menacing vampire face and dramatic characters, but its craft falls apart around it: mixed pixel scales, soft upscaling, and generic flat buttons in system fonts that clash with the gothic art. B is cohesive from logo to footer, with a custom chunky pixel logo, a lit forge scene with firelight and embers that make the idle frames feel alive, a styled menu with a clear animated cursor, and a well-organised settings screen with segmented bars and key hints. B's weaknesses are a muddy, noisy dithered backdrop, clutter behind the menu text and no transition into settings, but it reads as a finished, authored indie title screen far more than A does. On polish, feedback and cohesion B clearly wins, even if A's raw key art has more pull."
+}

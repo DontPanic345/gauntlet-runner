@@ -1,0 +1,19 @@
+{
+  "winner": "B",
+  "margin": "decisive",
+  "per_pair": [
+    {"pair": "01", "winner": "B", "why": "B stages death as an event (impact, crack-web shatter, red bleed, a summary that types itself in), while A just tints the screen red and sits on a static GAME OVER/QUIT for nine of twelve frames."},
+    {"pair": "02", "winner": "B", "why": "B's summary names the cause and location of death, shows depth progress, a portrait, six readable stats, unlocked lore and clear R/E/Esc retry options; A is a sparse four-line stat panel on a mostly empty slate box."},
+    {"pair": "03", "winner": "B", "why": "B's victory banner is crisp and framed against a readable boss arena, while A's STAGE COMPLETED text is buried under a tangle of effect lines and gem clutter."},
+    {"pair": "04", "winner": "B", "why": "B's victory summary stacks a sunset palette shift, a full depth track, collected boons, records and lore into a cohesive celebratory screen; A adds a weapon row and an achievement toast but is still a plain list in a flat box."},
+    {"pair": "05", "winner": "B", "why": "B goes from summary to a new run with an arena title card in about one frame, while A drops to the title screen, press-to-start, the main menu and character select, and is still not back in play after twelve frames."}
+  ],
+  "loser_biggest_gap": "Replace the bare GAME OVER + QUIT overlay with a staged death beat (hit-stop, character death animation or shatter, camera push) that hands off to a summary with an immediate one-key Run Again, so the player is not routed back through the title screen and character select.",
+  "loser_other_gaps": [
+    "Expand the results screen: give the cause and location of death, a progress or depth indicator, best and record comparisons, and something unlocked or learned, so it tells the story of the run.",
+    "Make victory readable: clear or dim the effect clutter behind the STAGE COMPLETED banner and give the win its own framing and palette, so it differs from the death screen.",
+    "Animate the end screens (stats counting up, panel slide-in) instead of a static result card on a flat red background.",
+    "Fill the dead space in the results panel and match its UI style (slate box, blue DONE button) to the in-game art direction."
+  ],
+  "reasoning": "B treats both endings as authored events: a visible shatter on death, a distinct sunset-palette victory, and summaries that report the cause, progress, boons, records and lore, which makes the loop feel complete and gives a reason to go again. B is also built for replay, with Run Again and Same Seed on one key each and almost no delay before the next arena. A has the bones (a death state, a win state, a results list) but each one is a static, sparse overlay, its victory moment is hard to read, and play again takes a long menu trip through the title and character select. B still has rough edges: the death frames go dark and murky before the summary, the summary title is half-typed on its first frame, and the victory summary shows a debug-looking 'SHOWCASE: STAGED RUN HISTORY' label. Even so, B is clearly more polished across all five pairs."
+}

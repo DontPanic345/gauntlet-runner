@@ -263,3 +263,8 @@ where the outputs are.
 ## 2026-10-05 — w1 judge: boons, boss, hud, audio
 
 - Four blind judges, run in parallel the same way. Each one saw only its packet path and the piece's `judge_focus`. Their verdicts are in `waves/w1/verdicts/`.
+
+## 2026-10-05 — w1 judge: title, run-flow
+
+- Two more blind judges, run in parallel the same way. Their verdicts are in `waves/w1/verdicts/`.
+- Wave 1 judging is complete: all 14 verdicts are on disk. The next phase is resolve.
