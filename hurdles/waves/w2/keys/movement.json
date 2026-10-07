@@ -1,0 +1,20 @@
+{
+  "ours": "A",
+  "pairs": 5,
+  "sources": {
+    "A": [
+      "hurdles/waves/w2/critic/movement/ours/01-start-stop-strip.png",
+      "hurdles/waves/w2/critic/movement/ours/02-reversal-turn-strip.png",
+      "hurdles/waves/w2/critic/movement/ours/03-eight-way-turns-strip.png",
+      "hurdles/waves/w2/critic/movement/ours/04-double-dash-strip.png",
+      "hurdles/waves/w2/critic/movement/ours/05-wall-slide-strip.png"
+    ],
+    "B": [
+      "hurdles/waves/w2/critic/movement/ref/01-start-stop-strip.png",
+      "hurdles/waves/w2/critic/movement/ref/02-reversal-turn-strip.png",
+      "hurdles/waves/w2/critic/movement/ref/03-eight-way-turns-strip.png",
+      "hurdles/waves/w2/critic/movement/ref/04-double-dash-strip.png",
+      "hurdles/waves/w2/critic/movement/ref/05-wall-slide-strip.png"
+    ]
+  }
+}

@@ -345,3 +345,7 @@ where the outputs are.
 ## 2026-10-07 — w2 critique: hero
 
 - The critic used the pinned reference, Bright Lancer. Their unblinded verdict is that the reference is still better, by less than in wave 1. Their biggest gap is that the hood is still the whole character: about 55% of the hero's height as one flat rose box hiding the face, arms and legs, so the hero reads as a pink mitten from the side and a box on a cape slab from behind. Must-haves: silhouette readable at 1x fails (side and back); cape and scarf motion, run cycle (weakly), attack anticipation and smear, and turns pass. The reference build would not leave its opening level headless, so the ref side reuses the wave 1 critic's live captures of the same game in the same format. Blind packet: 5 pairs (4 strips of 18 frames, 1 still). Review: `waves/w2/critic/hero/review.md`.
+
+## 2026-10-07 — w2 critique: movement
+
+- The critic used the pinned reference, Bright Lancer. Their unblinded verdict is that the reference is still better, by a small margin. Their biggest gap is that in arenas the camera is held within about ±1.1 units by the room bounds, so it does not move while the hero crosses about 60% of the room and the look-ahead never shows. Must-haves: start/stop, dash and wall sliding pass; camera look-ahead passes in the showcase but is weak in play. Our strips come from the showcase, which the review says flatters our camera compared with normal play; the reference strips reuse wave 1's live captures. Blind packet: 5 pairs. Review: `waves/w2/critic/movement/review.md`.
