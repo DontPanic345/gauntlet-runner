@@ -1,0 +1,20 @@
+{
+  "ours": "A",
+  "pairs": 5,
+  "sources": {
+    "A": [
+      "hurdles/waves/w2/critic/hero/ours/01-idle-strip.png",
+      "hurdles/waves/w2/critic/hero/ours/02-run-strip.png",
+      "hurdles/waves/w2/critic/hero/ours/03-dash-strip.png",
+      "hurdles/waves/w2/critic/hero/ours/04-attack-combo-strip.png",
+      "hurdles/waves/w2/critic/hero/ours/05-hero-in-scene-still.png"
+    ],
+    "B": [
+      "hurdles/waves/w2/critic/hero/ref/01-idle-strip.png",
+      "hurdles/waves/w2/critic/hero/ref/02-run-strip.png",
+      "hurdles/waves/w2/critic/hero/ref/03-dash-strip.png",
+      "hurdles/waves/w2/critic/hero/ref/04-attack-combo-strip.png",
+      "hurdles/waves/w2/critic/hero/ref/05-hero-in-scene-still.png"
+    ]
+  }
+}

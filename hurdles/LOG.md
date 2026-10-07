@@ -341,3 +341,7 @@ where the outputs are.
 ## 2026-10-07 — w2 critique: look
 
 - The critic used the pinned reference, Gaunt Valkyr. Their unblinded verdict is that the reference is still better, by a smaller margin than in wave 1. Their biggest gap is that in normal play light does not shape the frame: one flat band of mid-violet stone, with the light pressed against the top edge and pools that read as dithered stains. Must-haves: texel snapping, one palette and torch flicker pass; 1-px outlines fail (weak); the finished-looking still passes in the showcase but fails in play. Blind packet: 5 pairs (3 stills, 2 twelve-frame strips). Review: `waves/w2/critic/look/review.md`.
+
+## 2026-10-07 — w2 critique: hero
+
+- The critic used the pinned reference, Bright Lancer. Their unblinded verdict is that the reference is still better, by less than in wave 1. Their biggest gap is that the hood is still the whole character: about 55% of the hero's height as one flat rose box hiding the face, arms and legs, so the hero reads as a pink mitten from the side and a box on a cape slab from behind. Must-haves: silhouette readable at 1x fails (side and back); cape and scarf motion, run cycle (weakly), attack anticipation and smear, and turns pass. The reference build would not leave its opening level headless, so the ref side reuses the wave 1 critic's live captures of the same game in the same format. Blind packet: 5 pairs (4 strips of 18 frames, 1 still). Review: `waves/w2/critic/hero/review.md`.
