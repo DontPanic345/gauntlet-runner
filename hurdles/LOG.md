@@ -331,3 +331,9 @@ where the outputs are.
 ## 2026-10-05 — w2 build: budget stop
 
 - The budget guard tripped after audio: the session window was at 67%, over the 50% limit. Weekly was at 74%. The wave 2 build is complete (enemies, arenas and audio were built this run). The next run starts the wave 2 integrate phase.
+
+## 2026-10-07 — w2 integrate
+
+- The integrator played the title, arena 1 through its three waves and clear, a shrine boon choice, corridor 1, arena 2, death, the summary and an R restart, and the Warden through all three phases to victory. Fixes: the hero now uses the same self-lit material as the enemies, so it no longer reads darker (`src/render/voxel/material.js`, `src/enemies/material.js`, `src/hero/model.js`); look's kill frame now shows a white body on an ink disc instead of a white blob (`src/render/look.js`); the Warden opts out of vfx's generic kill burst so its own staged death plays (`src/boss/warden.js`); the hero's death debris and the victory screen's runner use the new hero colours (`src/vfx/vfx.js`, `src/run/endings.js`); the enemies fight showcase binds the vfx kill burst. The camera void strip and room-build stall were checked and need no fix. Foundation: all must-haves pass.
+- Seams left: the brute shares the hero's rose, rooms are dark between lights, big boss flares quantise to green rings, the title label still says "V0.1 WAVE 1 BUILD", the dash and attack buffers differ, and the open wave 1 seams. Report: `waves/w2/integration.md`.
+- Next phase critique. Queue: look, hero, movement, vfx, enemies, arenas, boss, audio, run-flow. boss and run-flow return because the integrator edited files they own since their wave 1 win.

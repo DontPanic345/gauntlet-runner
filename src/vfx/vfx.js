@@ -64,7 +64,7 @@ const BINDINGS = {
       if (!t?.noKillBurst) fx.kill(e.x, killY(t), e.z, { size: killSize(t), colors: cols, obj: bodyOf(t), dx: t?.lastHit?.dx ?? 0, dz: t?.lastHit?.dz ?? 1 });
       if (!t?.ownDeath) fx.death(e.x, (t?.h ?? 1) * 0.5, e.z, { colors: cols, power: Math.min(2, killSize(t)) });
     },
-    'combat:heroDeath': (e) => fx.death(e.x, 0.5, e.z, { colors: ['navy', 'blue', 'bone'], power: 0.8, ring: 'sky' }),
+    'combat:heroDeath': (e) => fx.death(e.x, 0.5, e.z, { colors: ['rose', 'red', 'cyan'], power: 0.8, ring: 'sky' }),   // the wave 2 hero: rose hood, red cape, cyan scarf
   },
 };
 /** The burst scale of a target: 1 = a husk (1.5 tall), mites ~0.5, the brute ~1.45, the Warden 3. */

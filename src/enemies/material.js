@@ -14,30 +14,14 @@
 //   const m = makeEnemyMaterial();            // same flash API as makeVoxelMaterial()
 //   enemyLook.selfLit.value = 0.85;           // live, every enemy (debug.enemies('lit', v))
 
-import { makeVoxelMaterial } from '../render/voxel/index.js';
+// The shader patch itself moved to the shared voxel material (makeSelfLitMaterial) at wave 2
+// integration, so the hero uses the same floor and never reads darker than the enemies.
+import { makeSelfLitMaterial } from '../render/voxel/index.js';
 
 export const enemyLook = {
   selfLit: { value: 0.9 },     // 0 = plain scene lighting
 };
 
-const EMIT_LINE = 'outgoingLight = mix(outgoingLight, voxelBase * emitBoost, vEmit);';
-
 export function makeEnemyMaterial() {
-  const m = makeVoxelMaterial();
-  const base = m.onBeforeCompile;
-  m.onBeforeCompile = (shader, renderer) => {
-    base(shader, renderer);
-    shader.uniforms.selfLit = enemyLook.selfLit;
-    shader.fragmentShader = shader.fragmentShader
-      .replace('uniform float aoMin;', 'uniform float aoMin;\nuniform float selfLit;')
-      .replace(EMIT_LINE, `{
-  vec3 wN = inverseTransformDirection(normal, viewMatrix);
-  float face = wN.y > 0.5 ? 1.0 : (wN.z > 0.5 ? 0.78 : (wN.x < -0.5 ? 0.7 : 0.56));
-  if (wN.y < -0.5) face = 0.4;
-  outgoingLight = max(outgoingLight, diffuseColor.rgb * selfLit * face);
-}
-${EMIT_LINE}`);
-  };
-  m.customProgramCacheKey = () => 'gr-voxel-v2-enemy';
-  return m;
+  return makeSelfLitMaterial(enemyLook.selfLit);
 }

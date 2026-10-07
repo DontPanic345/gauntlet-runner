@@ -16,7 +16,7 @@ import { meshGrid } from './mesher.js';
 import { voxelMaterial, makeVoxelMaterial } from './material.js';
 
 export { VoxelGrid, defineModel, modelNames, parseLayers, VOXEL } from './model.js';
-export { voxelMaterial, makeVoxelMaterial, voxelUniforms } from './material.js';
+export { voxelMaterial, makeVoxelMaterial, makeSelfLitMaterial, voxelUniforms } from './material.js';
 export { meshGrid } from './mesher.js';
 
 const cache = new Map(); // name -> { spec, geometry, grid, ms }

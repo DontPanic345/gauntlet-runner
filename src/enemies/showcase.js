@@ -518,7 +518,7 @@ function fightScene(params, which) {
       setZoom(O.zoom);
       cam.reset(START[0], START[1]);
       cfx = createCombatFx(root, { numbers: numbersOn });
-      vfx.bind(['move']);
+      vfx.bind(['move', 'kill']);   // kill: the same kill burst as play (wave 2 integration)
       mgr = createEnemies(root, { collision: cw, bounds: ROOM });
       debug.handle('spawn', spawnHandler(mgr));
       const on = (n, f) => offs.push(events.on(n, f));

@@ -66,7 +66,10 @@ function pipeline(renderer, scene, camera) {
   const U = post.uniforms.impact.value;
   if (kf && postOptions.impact && settings.get('flashes') >= 0.5) {
     v.set(kf.x, kf.y, kf.z).project(camera);
-    U.set((v.x + 1) / 2 * display.width, (v.y + 1) / 2 * display.height, (kf.k > 0.75 ? 38 : 24) * camera.zoom, kf.k > 0.75 ? 0.22 : 0.4);
+    // Luma thresholds (wave 2 integration): only the white-hot kill flash (combat's body flash,
+    // the hero's smear) stays white and everything else in the disc drops to ink. At the old
+    // 0.22 / 0.4 any torch-lit floor also went white and the frame read as one white blob.
+    U.set((v.x + 1) / 2 * display.width, (v.y + 1) / 2 * display.height, (kf.k > 0.75 ? 38 : 24) * camera.zoom, kf.k > 0.75 ? 0.72 : 0.6);
   } else U.w = 0;
 
   // torch haze positions in pixels (bottom-left origin, like gl_FragCoord)

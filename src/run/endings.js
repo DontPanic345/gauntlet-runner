@@ -300,12 +300,12 @@ function createDawn(seed) {
       for (let r = 0; r < fig.length; r++) for (let c = 0; c < 6; c++) {
         const ch = fig[r][c];
         if (ch === '.') continue;
-        g.fillStyle = css(ch === 'k' ? 'ink' : r < 3 ? 'navy' : 'blue');
+        g.fillStyle = css(ch === 'k' ? 'ink' : r < 3 ? (c < 3 ? 'rose' : 'plum') : 'red');   // the wave 2 hero: rose hood, red cape
         g.fillRect(fx + c, fy + r, 1, 1);
       }
       // scarf
       const wave = Math.round(Math.sin(t * 6) * 1);
-      g.fillStyle = css('red'); g.fillRect(fx + 6, fy + 3, 3, 1); g.fillRect(fx + 9, fy + 3 + wave, 2, 1);
+      g.fillStyle = css('cyan'); g.fillRect(fx + 6, fy + 3, 3, 1); g.fillRect(fx + 9, fy + 3 + wave, 2, 1);
       // the keys
       if (Math.floor(t * 3) % 3 !== 0) { g.fillStyle = css('gold'); g.fillRect(fx - 1, fy + 5, 1, 2); g.fillStyle = css('torch'); g.fillRect(fx - 2, fy + 5, 1, 1); }
       sparks.draw(g);

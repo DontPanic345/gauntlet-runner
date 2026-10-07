@@ -92,6 +92,7 @@ export class Warden extends Enemy {
   constructor(mgr, opts = {}) {
     super(mgr, 'warden', { id: 'WARDEN', ...opts, spawn: 'instant' });
     this.collision = null;            // knockback never moves it; we clamp to the pit ourselves
+    this.noKillBurst = true;          // its staged death (beams, collapse) is the climax: vfx's generic kill burst would cover the pit first
     this.ringR = PIT.RP;              // the playable radius (shrinks to the cage in phase 3)
     this.phase = opts.phase ?? 1;
     this.force = null;                // showcase: loop one attack

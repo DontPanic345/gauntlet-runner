@@ -26,7 +26,7 @@
 // The sword is in the +x hand.
 
 import * as THREE from 'three';
-import { defineModel, VoxelGrid, VOXEL, voxelMesh, makeVoxelMaterial } from '../render/voxel/index.js';
+import { defineModel, VoxelGrid, VOXEL, voxelMesh, makeSelfLitMaterial } from '../render/voxel/index.js';
 import { hex } from '../render/palette.js';
 import { look } from '../render/look.js';
 
@@ -238,8 +238,12 @@ const GHOST_COLORS = ['frost', 'sky', 'cyan'].map((n) => new THREE.MeshBasicMate
  * Build one hero. Returns the rig: THREE objects plus a few helpers. Every part shares one
  * private material, so rig.flash() lights the whole body at once.
  */
+// The hero uses the same self-light floor as the enemies (wave 2 integration): plain scene light
+// let the rose hood fall to plum between torches while the self-lit enemies stayed bright.
+export const heroLook = { selfLit: { value: 0.9 } };
+
 export function createHeroRig() {
-  const material = makeVoxelMaterial();
+  const material = makeSelfLitMaterial(heroLook.selfLit);
   const group = new THREE.Group();
   group.name = 'hero';
   const root = new THREE.Group();
