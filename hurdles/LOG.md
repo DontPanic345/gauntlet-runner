@@ -349,3 +349,7 @@ where the outputs are.
 ## 2026-10-07 — w2 critique: movement
 
 - The critic used the pinned reference, Bright Lancer. Their unblinded verdict is that the reference is still better, by a small margin. Their biggest gap is that in arenas the camera is held within about ±1.1 units by the room bounds, so it does not move while the hero crosses about 60% of the room and the look-ahead never shows. Must-haves: start/stop, dash and wall sliding pass; camera look-ahead passes in the showcase but is weak in play. Our strips come from the showcase, which the review says flatters our camera compared with normal play; the reference strips reuse wave 1's live captures. Blind packet: 5 pairs. Review: `waves/w2/critic/movement/review.md`.
+
+## 2026-10-07 — w2 critique: budget stop
+
+- The budget guard tripped after movement: the session window was at 67%, over the 50% limit. Weekly was at 88%. look, hero and movement are critiqued. The next run critiques vfx, enemies, arenas, boss, audio and run-flow, then judges all nine.
