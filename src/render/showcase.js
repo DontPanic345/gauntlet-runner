@@ -1,22 +1,15 @@
-// ?showcase=look : a lit crypt arena at game scale. Wall sconces and braziers (real
-// flickering point lights), props, rising embers and dust, and a slow camera pan that
-// exercises texel snapping. By default a real fight runs in it: the game's hero rig,
-// controller and combat against the game's enemies (husks, a brute, mites), driven by an
-// autopilot through the same input path as a keyboard, so the frame shows the look under
-// combat: hit flashes, droplets, stains and debris that stay on the floor, contact shadows,
-// and the kill frame. Any movement/attack key takes the hero over (LIVE).
+// ?showcase=look : a lit crypt arena vignette at game scale. Hero, two enemies, wall
+// sconces and braziers (real flickering point lights), props, rising embers and dust, and
+// a slow camera pan that exercises texel snapping.
 //
-// Params:  &fight=0    the still vignette instead: look's stand-in hero and two enemies, idle
-//          &pan=0      hold the camera still (default: slow sideways pan)
+// Params:  &pan=0      hold the camera still (default: slow sideways pan)
 //          &t=<s>      start the pan this many seconds in (deterministic captures)
 //          &zoom=1..3  integer zoom (default 1 = game scale)
 //          &mood=crypt|collapse|boss
 //          &hud=0      no labels at all (clean stills)
 //          &raw=1      post-processing off (the unprocessed frame, for comparison)
-//          &seed=<n>   fight randomness (enemy AI, effect scatter); default 1
 // Keys:    1 post on/off   2 outlines   3 palette quantise   4 dither   5 creases   6 haze
-//          M mood   Space pan on/off   Z zoom   H labels   P/Esc pause   B fight autopilot
-//          WASD/J/K take the hero (LIVE)
+//          M mood   Space pan on/off   Z zoom   H labels   P/Esc pause
 
 import * as THREE from 'three';
 import { display } from '../core/display.js';
@@ -29,17 +22,6 @@ import { css, hex } from './palette.js';
 import { voxelMesh, VOXEL } from './voxel/index.js';
 import { look } from './look.js';
 import { FLOOR, WALL, SCONCES } from './showcase-models.js';
-import { events } from '../core/events.js';
-import { debug } from '../core/debug.js';
-import { CollisionWorld, setCollision } from '../core/collision.js';
-import { createHeroRig } from '../hero/model.js';
-import { HeroAnim } from '../hero/anim.js';
-import { HeroController } from '../hero/controller.js';
-import { HeroCombat, HeroHealth } from '../combat/combat.js';
-import { createCombatFx } from '../combat/fx.js';
-import { createEnemies, spawnHandler } from '../enemies/index.js';
-import { createHud } from '../ui/hud.js';
-import { vfx } from '../vfx/vfx.js';
 
 const FLOOR_BACK = -5;   // world z of the back wall face
 const PAN_AMP = 2.2;     // world units either side
@@ -53,10 +35,7 @@ export default function lookShowcase(params) {
   const zoomParam = Math.max(1, Math.min(3, parseInt(params.get('zoom') ?? '1', 10) || 1));
   let zoom = zoomParam;
   let moodIndex = Math.max(0, MOODS.indexOf(params.get('mood') ?? 'crypt'));
-  const fightOn = params.get('fight') !== '0';
-  const fightSeed = parseInt(params.get('seed') ?? '1', 10) || 1;
   const saved = { ...look.options };
-  let fight = null;
 
   let root, fx, hero, skel, ooze, panT = t0, prevPanT = t0;
   let t = 0;
@@ -128,21 +107,19 @@ export default function lookShowcase(params) {
       root.add(shaft);
       look.torch(shaft, { y: 2.4, color: 'frost', intensity: 2.4, radius: 4.6, flicker: 0, haze: 0 });
 
-      fx = makeFireFx(root, fires, rng.fork('look-fx'));
-      t = 0;
-      if (fightOn) { fight = makeFight(root, fightSeed); return; }
-
-      // cast (the still vignette: look's own stand-ins)
+      // cast
       hero = place('look.hero', 0.2, 1.2, 0.55);
       skel = place('look.skeleton', 3.5, 0.0, -1.2);
       ooze = place('look.ooze', -3.3, 2.2, 1.05);
       hero.userData.base = hero.position.clone();
       skel.userData.base = skel.position.clone();
       ooze.userData.base = ooze.position.clone();
+
+      fx = makeFireFx(root, fires, rng.fork('look-fx'));
+      t = 0;
     },
 
     exit() {
-      fight?.dispose(); fight = null;
       Object.assign(look.options, saved);
       look.mood('crypt');
     },
@@ -161,7 +138,6 @@ export default function lookShowcase(params) {
       if (k('Space')) { panning = !panning; say(panning ? 'PAN ON' : 'PAN OFF'); }
       if (k('KeyZ')) { zoom = zoom >= 3 ? 1 : zoom + 1; display.setZoom(zoom); say(`ZOOM ${zoom}X`); }
       if (k('KeyH')) hud = !hud;
-      if (k('KeyB') && fight) { fight.autopilot(); say('FIGHT AUTOPILOT'); }
     },
 
     tick() {
@@ -169,7 +145,6 @@ export default function lookShowcase(params) {
       prevPanT = panT;
       if (panning) panT += DT;
       fx.tick();
-      fight?.tick();
     },
 
     render(alpha) {
@@ -177,12 +152,7 @@ export default function lookShowcase(params) {
       // slow sinusoidal pan: the camera target glides, display snaps it to whole texels
       const pt = prevPanT + (panT - prevPanT) * alpha;
       const cx = Math.sin((pt / PAN_PERIOD) * Math.PI * 2) * PAN_AMP;
-      // zoomed in on a fight, the camera follows the hero (the pan rides on top, smaller)
-      const fz = fight && display.zoom > 1 ? fight.focus(alpha) : null;
-      if (fz) display.setCameraTarget(fz.x + cx * 0.25, 0.5, fz.z - 0.4);
-      else display.setCameraTarget(cx, 0.5, -0.6);
-      fx.render(alpha);
-      if (fight) { fight.render(alpha); return; }
+      display.setCameraTarget(cx, 0.5, -0.6);
 
       // idle life, in whole-texel steps (pixel-art timing, not smooth tweening)
       const texel = 1 / (display.PPU * display.zoom);
@@ -199,6 +169,8 @@ export default function lookShowcase(params) {
       ooze.scale.set(1 / Math.sqrt(q), q, 1 / Math.sqrt(q));
       ooze.position.copy(ooze.userData.base);
       look.snap(ooze.position);
+
+      fx.render(alpha);
     },
 
     ui(g) {
@@ -206,12 +178,10 @@ export default function lookShowcase(params) {
       if (statusMsg.text && loop.realTime < statusMsg.until) {
         drawText(g, statusMsg.text, W / 2, 8, 'gold', { align: 'center', outline: 'ink' });
       }
-      fight?.ui(g);
       if (!hud) return;
-      const ly = fight ? 34 : 6;
-      drawText(g, 'RENDER LOOK', 6, ly, 'bone', { outline: 'ink' });
-      drawText(g, `${look.lights.moodName.toUpperCase()}  ${W}X${H}  ${display.zoom}X${fight ? (fight.live ? '  LIVE' : '  AUTOPILOT') : ''}`, 6, ly + 10, 'mist', { shadow: 'ink' });
-      const help = (fight ? 'WASD J K FIGHT  B AUTO  ' : '') + '1 POST  2 OUTLINE  3 PALETTE  4 DITHER  5 CREASE  6 HAZE  M MOOD  SPACE PAN  Z ZOOM  H HIDE';
+      drawText(g, 'RENDER LOOK', 6, 6, 'bone', { outline: 'ink' });
+      drawText(g, `${look.lights.moodName.toUpperCase()}  ${W}X${H}  ${display.zoom}X`, 6, 16, 'mist', { shadow: 'ink' });
+      const help = '1 POST  2 OUTLINE  3 PALETTE  4 DITHER  5 CREASE  6 HAZE  M MOOD  SPACE PAN  Z ZOOM  H HIDE';
       const w = textWidth(help) + 8;
       g.fillStyle = css('ink');
       g.fillRect(Math.round((W - w) / 2), H - 12, w, 12);
@@ -222,159 +192,7 @@ export default function lookShowcase(params) {
       const o = look.options;
       return { showcase: { id: 'look', panning, panT: +panT.toFixed(3), camX: +display.cameraTarget.x.toFixed(4),
         zoom: display.zoom, mood: look.lights.moodName, post: o.enabled, outline: o.outline, quantize: o.quantize,
-        torches: look.lights.torches.size, impact: look.impact.stats(), fight: fight ? fight.state() : null } };
-    },
-  };
-}
-
-
-// ---------------------------------------------------------------------------------------
-// The fight: the real hero, combat and enemies in this room, so the look is judged under
-// combat. An autopilot walks up to the nearest enemy, runs the 3-hit combo, and now and then
-// dashes out; enemies are topped back up through their own spawn-in. God mode: the hero takes
-// hits (flash, knockback, numbers) but never dies.
-const ARENA = { minX: -10.2, maxX: 10.2, minZ: -3.7, maxZ: 5.0 };
-const CYCLE = ['husk', 'husk', 'brute', 'husk', 'husk', 'mites'];
-const ZONE = { minX: -6.2, maxX: 6.2, minZ: -2.4, maxZ: 3.4 };   // where the fight is kept: the lit middle of the room
-
-function makeFight(root, seed) {
-  const r = rng.fork(`look-fight-${seed}`);
-  look.impact.seed(seed * 7919);
-  vfx.seed?.(seed);
-  const cw = new CollisionWorld();
-  cw.addBox(ARENA.minX - 2, ARENA.minZ - 2, ARENA.maxX + 2, ARENA.minZ, 'wall');
-  cw.addBox(ARENA.minX - 2, ARENA.maxZ, ARENA.maxX + 2, ARENA.maxZ + 2, 'wall');
-  cw.addBox(ARENA.minX - 2, ARENA.minZ, ARENA.minX, ARENA.maxZ, 'wall');
-  cw.addBox(ARENA.maxX, ARENA.minZ, ARENA.maxX + 2, ARENA.maxZ, 'wall');
-  for (const bx of [-5.6, 5.6]) cw.addCircle(bx, 2.2, 0.55, 'prop');
-  cw.addBox(-10.3, -4.9, -7.6, -2.5, 'prop');   // barrels
-  cw.addBox(5.6, -5, 8.1, -2.6, 'prop');        // crates
-  setCollision(cw);
-
-  const pilot = {
-    mv: { x: 0, z: 0 }, want: {},
-    move() { return this.mv; },
-    consume(a) { if (this.want[a]) { this.want[a] = false; return true; } return false; },
-    buffered(a) { return !!this.want[a]; },
-  };
-  const start = { x: 0.2, z: 1.4, yaw: 0.6 };
-  const rig = createHeroRig();
-  root.add(rig.group);
-  const anim = new HeroAnim(rig, { x: start.x, z: start.z, yaw: start.yaw });
-  const ctl = new HeroController({ ...start, anim, collision: cw, source: pilot });
-  const health = new HeroHealth({ ctl, anim, rig, hp: 5 });
-  const combat = new HeroCombat({ ctl, anim, health, targets: () => world.enemies });
-  world.hero = health;
-  world.god = true;
-  world.room = { index: 0, kind: 'showcase', id: 'look' };
-  const foes = createEnemies(root, { collision: cw, bounds: ARENA });
-  const cfx = createCombatFx(root, { numbers: false });   // hud draws the numbers; particles go to vfx
-  vfx.bind(['move', 'kill']);
-  const hud = createHud({ health, track: false, shards: false, boons: false, intro: false });
-  debug.handle('spawn', spawnHandler(foes));
-
-  foes.spawn('husk', 2.4, 0.6, { instant: true, yaw: -1.6 });
-  foes.spawn('husk', -2.6, 2.6, { instant: true, yaw: 1.2 });
-  let cyc = 0, spawnCool = 90;
-  let live = false;
-  // pilot state
-  const P = { combo: 0, gap: 0, rest: 0, combos: 0, dashT: 0 };
-
-  const offs = [events.on('input:press', (e) => {
-    if (live || !['attack', 'dash', 'up', 'down', 'left', 'right', 'move'].includes(e.action)) return;
-    live = true; ctl.source = input;
-  })];
-
-  function fighting(e) { return !e.dead && !e.dying && e.state !== 'spawn' && e.state !== 'spawning'; }
-
-  function pilotTick() {
-    pilot.mv = { x: 0, z: 0 };
-    const foesNow = world.enemies.filter(fighting);
-    let tgt = null, best = 1e9;
-    for (const e of foesNow) { const d = Math.hypot(e.x - ctl.x, e.z - ctl.z); if (d < best) { best = d; tgt = e; } }
-    if (P.rest > 0) { P.rest--; return; }
-    if (P.dashT > 0) { P.dashT--; return; }
-    if (P.combo === 0 && (ctl.x < ZONE.minX - 0.8 || ctl.x > ZONE.maxX + 0.8 || ctl.z < ZONE.minZ - 0.8 || ctl.z > ZONE.maxZ + 0.8)) {
-      const dx = 0 - ctl.x, dz = 0.8 - ctl.z, d = Math.hypot(dx, dz);
-      pilot.mv = { x: dx / d, z: dz / d };
-      return;
-    }
-    if (!tgt) {   // nothing to fight: drift back toward the middle of the light
-      const dx = 0 - ctl.x, dz = 1.2 - ctl.z, d = Math.hypot(dx, dz);
-      if (d > 0.5) pilot.mv = { x: dx / d * 0.6, z: dz / d * 0.6 };
-      return;
-    }
-    const dx = (tgt.x - ctl.x) / (best || 1), dz = (tgt.z - ctl.z) / (best || 1);
-    if (P.combo > 0) {
-      if (--P.gap <= 0) {
-        pilot.mv = { x: dx * 0.2, z: dz * 0.2 };
-        pilot.want.attack = true;
-        P.combo--; P.gap = 13;
-        if (P.combo === 0) {
-          P.combos++;
-          P.rest = 24;
-          if (P.combos % 3 === 0) {   // break off: a dash to the side, then come back in
-            P.rest = 18; P.dashT = 24;
-            let side = r.chance(0.5) ? 1 : -1;
-            const ex = ctl.x - dz * side * 2, ez = ctl.z + dx * side * 2;
-            if (ex < ZONE.minX || ex > ZONE.maxX || ez < ZONE.minZ || ez > ZONE.maxZ) side = -side;
-            pilot.mv = { x: -dz * side, z: dx * side };
-            pilot.want.dash = true;
-          }
-        }
-      }
-      return;
-    }
-    const reach = 0.95 + (tgt.r ?? 0.35);
-    if (best > reach) { const k = Math.min(1, (best - reach) / 0.4 + 0.35); pilot.mv = { x: dx * k, z: dz * k }; return; }
-    P.combo = 3; P.gap = 1;
-  }
-
-  function spawnTick() {
-    if (spawnCool > 0) { spawnCool--; return; }
-    if (foes.alive >= 2 || (foes.alive >= 1 && cyc % 2)) return;
-    const kind = CYCLE[cyc++ % CYCLE.length];
-    // a spot 2.6 to 3.6 units from the hero, inside the room and off the braziers
-    for (let tries = 0; tries < 30; tries++) {
-      const a = r.range(0, Math.PI * 2), d = r.range(2.4, 3.4);
-      const x = ctl.x + Math.sin(a) * d, z = ctl.z + Math.cos(a) * d;
-      if (x < ZONE.minX || x > ZONE.maxX || z < ZONE.minZ || z > ZONE.maxZ) continue;
-      if (Math.abs(Math.abs(x) - 5.6) < 1.1 && Math.abs(z - 2.2) < 1.1) continue;
-      if (Math.abs(x) > 5 && z < -1.8) continue;
-      foes.spawn(kind, x, z);
-      break;
-    }
-    spawnCool = 70;
-  }
-
-  return {
-    get live() { return live; },
-    autopilot() { live = false; ctl.source = pilot; },
-    focus(alpha) { const p = ctl.at(alpha); return { x: Math.max(-6, Math.min(6, p.x)), z: Math.max(-1.5, Math.min(2.5, p.z)) }; },
-    tick() {
-      if (!live) pilotTick();
-      combat.tick();
-      foes.tick();
-      cfx.tick();
-      spawnTick();
-    },
-    render(alpha) {
-      anim.render(alpha);
-      health.render();
-      const p = ctl.at(alpha);
-      rig.group.position.set(p.x, 0, p.z);
-      look.snap(rig.group.position);
-      foes.render(alpha);
-      cfx.render(alpha);
-    },
-    ui(g) { cfx.ui(g); hud.ui(g); },
-    state() { return { live, combos: P.combos, alive: foes.alive, kills: foes.kills, hero: { x: +ctl.x.toFixed(2), z: +ctl.z.toFixed(2) } }; },
-    dispose() {
-      offs.forEach((f) => f());
-      hud.dispose(); cfx.dispose(); foes.dispose();
-      setCollision(null);
-      world.god = false;
-      debug.handle('spawn', () => ({ ok: false, error: 'no spawner in this scene' }));
+        torches: look.lights.torches.size } };
     },
   };
 }

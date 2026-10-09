@@ -71,35 +71,5 @@ export function makeVoxelMaterial() {
   });
 }
 
-/**
- * An actor material (hero and enemies): the voxel material plus a "self light" floor, so a
- * body away from the torches stays on its own palette colours instead of sinking into the
- * floor's values (GAME.md, readability first). A lit voxel is never darker than
- *   palette colour x AO x selfLit x face
- * where `face` is a fixed flat ramp (top 1.0, toward camera 0.78, upper-left key 0.7, other
- * sides 0.56, undersides 0.4). Torches still brighten it. Same flash API as makeVoxelMaterial().
- *   const lit = { value: 0.9 }; const m = makeSelfLitMaterial(lit);   // lit.value is live
- */
-const EMIT_LINE = 'outgoingLight = mix(outgoingLight, voxelBase * emitBoost, vEmit);';
-export function makeSelfLitMaterial(selfLit) {
-  const m = makeVoxelMaterial();
-  const base = m.onBeforeCompile;
-  m.onBeforeCompile = (shader, renderer) => {
-    base(shader, renderer);
-    shader.uniforms.selfLit = selfLit;
-    shader.fragmentShader = shader.fragmentShader
-      .replace('uniform float aoMin;', 'uniform float aoMin;\nuniform float selfLit;')
-      .replace(EMIT_LINE, `{
-  vec3 wN = inverseTransformDirection(normal, viewMatrix);
-  float face = wN.y > 0.5 ? 1.0 : (wN.z > 0.5 ? 0.78 : (wN.x < -0.5 ? 0.7 : 0.56));
-  if (wN.y < -0.5) face = 0.4;
-  outgoingLight = max(outgoingLight, diffuseColor.rgb * selfLit * face);
-}
-${EMIT_LINE}`);
-  };
-  m.customProgramCacheKey = () => 'gr-voxel-v2-selflit';
-  return m;
-}
-
 /** The default shared material used by voxelMesh(). Do not set its flash; clone per entity. */
 export const voxelMaterial = makeVoxelMaterial();

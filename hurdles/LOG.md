@@ -353,3 +353,7 @@ where the outputs are.
 ## 2026-10-07 — w2 critique: budget stop
 
 - The budget guard tripped after movement: the session window was at 67%, over the 50% limit. Weekly was at 88%. look, hero and movement are critiqued. The next run critiques vfx, enemies, arenas, boss, audio and run-flow, then judges all nine.
+
+## 2026-10-09 — loop closed
+
+- The loop was stopped by hand. src/ is restored to the wave 1 integrate commit (58bc14d), the best build the critics saw. Everything under hurdles/ is kept as it stood. The site is served from GitHub Pages.

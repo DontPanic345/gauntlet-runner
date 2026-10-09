@@ -221,49 +221,45 @@ export function buildPropModels() {
 
   // --- pillars ------------------------------------------------------------------------
   const pillar = (variant) => {
-    const H = variant === 2 ? 9 : 18;
+    const H = variant === 2 ? 9 : 17;
     const g = new VoxelGrid(8, H + 1, 8);
     const r = new Rng('arena.pillar' + variant);
-    // a square plinth, then a round fluted shaft (it must read as a column from above, not a box)
-    g.box(0, 0, 0, 7, 0, 7, 'stoneDark'); g.box(0, 1, 0, 7, 1, 7, 'stone');
-    g.box(1, 2, 1, 6, 2, 6, 'stoneLight');
-    for (let y = 3; y < H - 2; y++) for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) {
-      const d = Math.hypot(x + 0.5 - 4, z + 0.5 - 4);
-      if (d > 2.9) continue;
-      const a = Math.atan2(z + 0.5 - 4, x + 0.5 - 4);
-      const flute = Math.floor((a + Math.PI) / (Math.PI / 4)) % 2 === 0;
-      let c = d > 2.1 ? (flute ? 'stoneLight' : 'stone') : 'stone';
-      if (y === 9 && variant !== 2) c = d > 2.1 ? 'mist' : 'slate';   // a carved band
-      if (!flute && r.chance(0.05)) c = 'dusk';
-      g.set(x, y, z, c);
+    // plinth
+    g.box(0, 0, 0, 7, 1, 7, 'stone'); g.box(0, 1, 0, 7, 1, 7, 'stoneLight');
+    for (let y = 2; y < H - 2; y++) {
+      const course = Math.floor((y - 2) / 3);
+      const mortar = (y - 2) % 3 === 2;
+      for (let z = 1; z <= 6; z++) for (let x = 1; x <= 6; x++) {
+        const edge = x === 1 || x === 6 || z === 1 || z === 6;
+        if (!edge) { g.set(x, y, z, 'stone'); continue; }
+        let c = mortar ? 'dusk' : course % 2 ? 'stoneLight' : 'stone';
+        if (!mortar && (x === 1 || z === 1)) c = 'stone';            // the shaded far faces
+        if (!mortar && r.chance(0.07)) c = r.chance(0.5) ? 'fog' : 'dusk';
+        if (y === 8 && variant !== 2) c = (x + z) % 2 ? 'slate' : 'mist'; // a carved band
+        g.set(x, y, z, c);
+      }
     }
     if (variant === 2) {
       // broken stump: a jagged top
-      for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) {
-        if (Math.hypot(x + 0.5 - 4, z + 0.5 - 4) > 2.9) continue;
+      for (let z = 1; z <= 6; z++) for (let x = 1; x <= 6; x++) {
         const top = H - 2 + Math.round(Math.sin(x * 1.7 + z) * 1.2 + (x + z > 7 ? 1 : -0.5));
-        for (let y = H - 3; y <= top; y++) g.set(x, y, z, y === top ? 'fog' : 'stone');
+        for (let y = H - 3; y <= top; y++) g.set(x, y, z, y === top ? 'stoneLight' : 'stone');
       }
     } else {
-      // capital: a round cushion and a square abacus, a dark top so it never reads as a lit box
-      for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) {
-        const d = Math.hypot(x + 0.5 - 4, z + 0.5 - 4);
-        if (d <= 3.5) g.set(x, H - 2, z, 'stoneLight');
-      }
-      for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) {
-        const d = Math.hypot(x + 0.5 - 4, z + 0.5 - 4);
-        if (d <= 4) g.set(x, H - 1, z, d > 3.2 ? (z > 4 ? 'stoneLight' : 'stone') : 'stone');
-        if (d <= 2.6) g.set(x, H, z, d > 1.6 ? 'stoneLight' : 'mist');
-      }
+      // capital: a wider slab and a lighter crown
+      g.box(0, H - 2, 0, 7, H - 1, 7, 'stone');
+      g.box(0, H - 1, 0, 7, H - 1, 7, 'stoneLight');
+      g.box(1, H, 1, 6, H, 6, 'stoneLight');
+      g.box(2, H, 2, 5, H, 5, 'fog');
       if (variant === 1) {
-        // a chunk knocked out of the shaft, cracks running from it
-        g.box(5, 9, 5, 7, 12, 7, null);
-        g.set(4, 10, 6, 'ink'); g.set(3, 9, 6, 'ink'); g.set(5, 8, 6, 'ink');
+        // a chunk knocked out of the front corner, cracks running from it
+        g.box(5, 9, 5, 6, 12, 6, null); g.box(6, 8, 6, 6, 13, 6, null);
+        g.set(4, 10, 6, 'ink'); g.set(3, 9, 6, 'ink'); g.set(3, 8, 6, 'ink'); g.set(6, 7, 4, 'ink');
       }
-      if (variant === 0) for (let x = 1; x <= 6; x++) g.set(x, 6 + (x % 2), 6, x % 2 ? 'slate' : 'mist');   // a chain wrapped round
+      if (variant === 0) for (let x = 1; x <= 6; x++) g.set(x, 5 + (x % 2), 6, x % 2 ? 'slate' : 'mist');   // a chain wrapped round
     }
     // moss creeping up from the floor
-    for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) for (let y = 0; y < 6; y++) if (g.get(x, y, z) && r.chance(0.2 - y * 0.03)) g.set(x, y, z, r.chance(0.3) ? 'leaf' : 'moss');
+    for (let z = 0; z < 8; z++) for (let x = 0; x < 8; x++) for (let y = 0; y < 5; y++) if (g.get(x, y, z) && r.chance(0.18 - y * 0.035)) g.set(x, y, z, r.chance(0.3) ? 'leaf' : 'moss');
     return g;
   };
   defineModel('arena.pillar.0', { grid: pillar(0) });
@@ -343,213 +339,6 @@ export function buildPropModels() {
     skull(1, 1, 6); skull(4, 1, 7); skull(7, 1, 6); skull(2, 3, 4); skull(6, 3, 5); skull(4, 5, 3); skull(4, 7, 2, true);
     g.set(5, 8, 3, 'frost');
     defineModel('arena.skullpile', { grid: g });
-  }
-
-  // ===== set-pieces: one per room, at least 3x3 tiles or well over the hero's height =====
-
-  // --- the fallen colossus: a giant hooded head lying face-up, half sunk in the floor. The face
-  //     is drawn on its top, so it reads from the high camera: hood, brow, two hollow eyes, the
-  //     nose ridge, a split lip, and a crack running through it all
-  {
-    const SX = 30, SY = 16, SZ = 26;
-    const g = new VoxelGrid(SX, SY, SZ);
-    const r = new Rng('arena.colossus');
-    const cx = 15, cz = 12, cy = -6;
-    const topAt = new Int8Array(SX * SZ).fill(-1);
-    for (let z = 0; z < SZ; z++) for (let x = 0; x < SX; x++) {
-      // the head: an egg, wider at the hood (back) and narrowing to the chin (front)
-      const t = (z + 0.5 - cz) / 12;
-      const rx = 13 * (1 - Math.max(0, t) * 0.35);
-      const dx = (x + 0.5 - cx) / rx;
-      const k = 1 - dx * dx - t * t;
-      if (k <= 0) continue;
-      const h = Math.min(SY - 1, Math.round(cy + 21 * Math.sqrt(k)));
-      if (h < 0) continue;
-      topAt[x + SX * z] = h;
-      const face = t > -0.15 && Math.abs(dx) < 0.72 && t < 0.92;
-      for (let y = 0; y <= h; y++) {
-        let c = face ? 'mist' : (Math.floor(y / 3) + Math.floor(x / 5)) % 4 === 0 ? 'dusk' : 'violet';
-        if (y === h) c = face ? ((x * 3 + z) % 11 === 0 ? 'frost' : 'fog') : (r.chance(0.25) ? 'slate' : 'violet');
-        if (y < h && !face && y < 2) c = 'stoneDark';
-        g.set(x, y, z, c);
-      }
-    }
-    const top = (x, z) => topAt[x + SX * z];
-    const paint = (x, z, c, dy = 0) => { const h = top(x, z); if (h < 0) return; if (dy < 0) { for (let y = h + dy + 1; y <= h; y++) g.set(x, y, z, null); g.set(x, h + dy, z, c); } else for (let y = h + 1; y <= h + dy; y++) g.set(x, y, z, c); if (dy === 0) g.set(x, h, z, c); };
-    // the hood's rim: a raised fold of cloth-stone round the face
-    for (let z = 0; z < SZ; z++) for (let x = 0; x < SX; x++) {
-      if (top(x, z) < 0) continue;
-      const t = (z + 0.5 - cz) / 12, dx = (x + 0.5 - cx) / (13 * (1 - Math.max(0, t) * 0.35));
-      const rim = Math.abs(Math.hypot(dx / 0.8, (t - 0.38) / 0.62) - 1) < 0.1 && t < 0.85;
-      if (rim) paint(x, z, 'slate', 1);
-    }
-    // brow ridge
-    for (let x = cx - 8; x <= cx + 7; x++) paint(x, cz + 1, Math.abs(x + 0.5 - cx) < 6 ? 'frost' : 'fog', 1);
-    // the eyes: big hollow sockets, moss grown in one, a cold glint deep in the other
-    for (const ex of [cx - 6, cx + 3]) for (let z = cz + 2; z <= cz + 5; z++) for (let x = ex - 1; x <= ex + 3; x++) {
-      if ((x === ex - 1 || x === ex + 3) && (z === cz + 2 || z === cz + 5)) continue;
-      paint(x, z, 'ink', -2);
-    }
-    for (let x = cx - 9; x <= cx + 8; x++) for (const z of [cz + 6]) if (Math.abs(x + 0.5 - cx) > 2.5) paint(x, z, 'frost', 0);   // cheekbones
-    paint(cx - 6, cz + 4, 'moss', -1); paint(cx - 5, cz + 4, 'leaf', -1); paint(cx - 4, cz + 3, 'moss', -1);
-    paint(cx + 4, cz + 3, 'cyan', -2);
-    // the nose ridge, its tip broken off
-    for (let z = cz + 2; z <= cz + 7; z++) for (let x = cx - 1; x <= cx; x++) paint(x, z, z === cz + 7 ? 'fog' : 'frost', z < cz + 7 ? 2 : 1);
-    paint(cx - 2, cz + 7, 'slate', 0); paint(cx + 1, cz + 7, 'slate', 0);
-    // the mouth: a stern line, the lower lip split
-    for (let x = cx - 4; x <= cx + 3; x++) { paint(x, cz + 9, 'ink', -1); paint(x, cz + 10, x === cx + 1 ? 'ink' : 'frost', 0); }
-    // the crack: from the crown down the right of the brow, round the eye, to the jaw
-    let x = cx + 7, z = 1;
-    for (let k = 0; k < 40 && z < SZ - 1; k++) {
-      if (top(x, z) >= 0 && g.get(x, top(x, z), z)) paint(x, z, 'ink', 0);
-      if (r.chance(0.55)) z++; else x += r.pick([-1, 0, 1, 1]);
-      if (x > cx + 10) x--;
-    }
-    // a chunk knocked out of the hood, moss in the hollows and down the sides
-    for (let z = 2; z < 7; z++) for (let x2 = cx + 7; x2 < cx + 12; x2++) if (top(x2, z) > 2) for (let y = top(x2, z) - 2; y <= top(x2, z); y++) g.set(x2, y, z, y === top(x2, z) - 2 ? 'stoneDark' : null);
-    for (let z = 0; z < SZ; z++) for (let x2 = 0; x2 < SX; x2++) {
-      const h = top(x2, z);
-      if (h < 0) continue;
-      const t = (z + 0.5 - cz) / 12;
-      if (t < -0.2 && r.chance(0.16)) g.set(x2, h, z, r.chance(0.35) ? 'leaf' : 'moss');
-      if (h < 4 && r.chance(0.35)) g.set(x2, h, z, r.chance(0.3) ? 'leaf' : 'moss');
-    }
-    defineModel('arena.colossus', { grid: g });
-  }
-
-  // --- the Warden's throne: a high-backed stone seat with gilded trim and a navy cushion
-  {
-    const SX = 18, SY = 30, SZ = 13;
-    const g = new VoxelGrid(SX, SY, SZ);
-    // steps
-    g.box(0, 0, 0, 17, 1, 12, 'mist'); g.box(1, 2, 0, 16, 2, 10, 'fog'); g.box(0, 1, 12, 17, 1, 12, 'frost');
-    // seat
-    g.box(3, 3, 1, 14, 8, 10, 'slate'); g.box(3, 8, 1, 14, 8, 10, 'mist');
-    g.box(4, 9, 2, 13, 9, 9, 'navy'); g.box(4, 9, 9, 13, 9, 9, 'blue'); g.set(4, 9, 9, 'gold'); g.set(13, 9, 9, 'gold');
-    // armrests ending in carved skulls
-    for (const ax of [1, 14]) {
-      g.box(ax, 3, 1, ax + 2, 12, 10, 'slate'); g.box(ax, 12, 1, ax + 2, 12, 10, 'fog');
-      g.box(ax, 10, 10, ax + 2, 12, 11, 'bone'); g.set(ax, 11, 11, 'ink'); g.set(ax + 2, 11, 11, 'ink');
-    }
-    // the back: tall, a pointed crown, a gold band and a sigil
-    for (let y = 9; y < SY; y++) {
-      const w = y < 24 ? 7 : Math.max(0, 7 - (y - 23) * 1.4);
-      for (let x = 0; x < SX; x++) {
-        const dx = Math.abs(x + 0.5 - 9);
-        if (dx > w) continue;
-        let c = dx > w - 1 ? 'mist' : (y % 6 === 0 ? 'violet' : 'slate');
-        if (y === 18 || y === 19) c = 'gold';
-        if (y >= 20 && y <= 23 && dx < 2) c = y === 21 && dx < 1 ? 'gold' : 'navy';
-        g.set(x, y, 0, c); g.set(x, y, 1, c === 'gold' ? 'gold' : 'slate');
-      }
-    }
-    g.set(8, SY - 1, 0, 'gold'); g.set(9, SY - 1, 0, 'gold');
-    // finials on the back's shoulders
-    for (const fx of [1, 16]) { g.box(fx - 1, 24, 0, fx, 25, 1, 'fog'); g.set(fx - 1, 26, 0, 'gold'); }
-    defineModel('arena.throne', { grid: g });
-  }
-
-  // --- the root tree: an old tree that grew down through the vault, roots gripping the floor
-  {
-    const SX = 34, SY = 40, SZ = 34;
-    const g = new VoxelGrid(SX, SY, SZ);
-    const r = new Rng('arena.tree');
-    const c = 17;
-    // trunk: thick, twisting, bark in two tones
-    for (let y = 0; y < 30; y++) {
-      const rr = 3.6 - y * 0.03 + (y < 4 ? (4 - y) * 0.9 : 0);
-      const ox = Math.sin(y * 0.18) * 1.6, oz = Math.cos(y * 0.13) * 1.2;
-      for (let z = 0; z < SZ; z++) for (let x = 0; x < SX; x++) {
-        const d = Math.hypot(x + 0.5 - c - ox, z + 0.5 - c - oz);
-        if (d > rr) continue;
-        const ridge = Math.floor(Math.atan2(z - c, x - c) * 3 + y * 0.25) % 2;
-        g.set(x, y, z, d > rr - 1 ? (ridge ? 'wood' : 'woodLight') : 'wood');
-      }
-    }
-    // roots: snaking out across the floor
-    for (let k = 0; k < 9; k++) {
-      const a = (k / 9) * Math.PI * 2 + r.range(-0.2, 0.2);
-      let x = c + Math.cos(a) * 3, z = c + Math.sin(a) * 3, y = 2.5;
-      const len = r.int(10, 15);
-      for (let s = 0; s < len; s++) {
-        const th = Math.max(0, 1.6 - s * 0.1);
-        for (let dy = 0; dy <= Math.round(y); dy++) for (let ddx = -th; ddx <= th; ddx++) for (let ddz = -th; ddz <= th; ddz++) {
-          if (Math.hypot(ddx, ddz) > th + 0.2) continue;
-          g.set(Math.round(x + ddx), dy, Math.round(z + ddz), s % 4 === 3 ? 'woodLight' : 'wood');
-        }
-        x += Math.cos(a + Math.sin(s * 0.7) * 0.4); z += Math.sin(a + Math.sin(s * 0.7) * 0.4);
-        y = Math.max(0, y - 0.25);
-      }
-    }
-    // the crown: lumpy leaf masses, lit on top, a few gold blossoms
-    const blobs = [[c, 34, c, 9], [c - 7, 31, c + 1, 6], [c + 7, 32, c - 2, 6], [c + 1, 31, c + 7, 6], [c - 2, 33, c - 7, 6]];
-    for (const [bx, by, bz, br] of blobs) for (let y = by - br; y < Math.min(SY, by + br); y++) for (let z = 0; z < SZ; z++) for (let x = 0; x < SX; x++) {
-      const d = Math.hypot(x - bx, (y - by) * 1.4, z - bz);
-      if (d > br || r.chance(0.18)) continue;
-      const top = y >= by + br * 0.35;
-      g.set(x, y, z, top ? (r.chance(0.04) ? 'gold' : r.chance(0.35) ? 'leaf' : 'leaf') : r.chance(0.5) ? 'moss' : 'leaf');
-    }
-    // hanging vines from the crown
-    for (let k = 0; k < 14; k++) {
-      const x = r.int(4, SX - 5), z = r.int(4, SZ - 5);
-      let top = -1; for (let y = SY - 1; y > 20; y--) if (g.get(x, y, z)) { top = y; }
-      if (top < 0) continue;
-      for (let y = top - 1; y > top - r.int(4, 10) && y > 6; y--) g.set(x, y, z, y % 3 ? 'moss' : 'leaf');
-    }
-    defineModel('arena.tree', { grid: g });
-  }
-
-  // --- the fountain: a round basin of dark water round a broken spout pillar
-  {
-    const S = 26, c = 13;
-    const g = new VoxelGrid(S, 18, S);
-    for (let z = 0; z < S; z++) for (let x = 0; x < S; x++) {
-      const d = Math.hypot(x + 0.5 - c, z + 0.5 - c);
-      if (d > 12.6) continue;
-      if (d > 10.5) {
-        for (let y = 0; y < 4; y++) g.set(x, y, z, y === 3 ? ((x + z) % 4 ? 'mist' : 'fog') : y === 0 ? 'stoneDark' : (Math.floor(Math.atan2(z - c, x - c) * 4) % 2 ? 'slate' : 'stone'));
-      } else {
-        g.set(x, 0, z, 'stoneDark');
-        const ripple = Math.abs(Math.sin(d * 1.1)) > 0.93;
-        g.set(x, 1, z, ripple ? 'teal' : (x * 7 + z * 3) % 41 === 0 ? 'sky' : 'navy');
-      }
-    }
-    // the spout: a fluted pillar, broken, with a bowl and a trickle
-    for (let y = 1; y < 15; y++) for (let z = 0; z < S; z++) for (let x = 0; x < S; x++) {
-      const d = Math.hypot(x + 0.5 - c, z + 0.5 - c);
-      const rr = y < 3 ? 3.2 : y < 10 ? 1.9 : y < 12 ? 3.6 : 0;
-      if (d > rr) continue;
-      if (y >= 10 && y < 12 && d < rr - 1 && y === 11) { g.set(x, y, z, 'teal'); continue; }
-      g.set(x, y, z, y >= 10 ? (d > rr - 1 ? 'fog' : 'mist') : (Math.floor(Math.atan2(z - c, x - c) * 3) % 2 ? 'mist' : 'slate'));
-    }
-    for (let y = 2; y < 11; y++) g.set(c + 3, y, c + 1, y % 2 ? 'cyan' : 'sky');
-    g.set(c + 3, 1, c + 2, 'frost'); g.set(c + 4, 1, c + 1, 'frost');
-    for (let k = 0; k < 18; k++) { const a = k * 2.4, d = 4 + (k % 5) * 1.3; g.set(Math.round(c + Math.cos(a) * d), 2, Math.round(c + Math.sin(a) * d), k % 3 ? 'leaf' : 'moss'); }
-    defineModel('arena.fountain', { grid: g });
-  }
-
-  // --- the bone mound: the ossuary's heart, a great heap of skulls crowned with candles
-  {
-    const S = 24, c = 12;
-    const g = new VoxelGrid(S, 15, S);
-    const r = new Rng('arena.mound');
-    lathe(g, c, [11.5, 11, 10, 9, 8, 7, 6, 5, 4, 3], () => (r.chance(0.35) ? 'frost' : r.chance(0.2) ? 'stoneLight' : 'bone'));
-    // skulls studded over the surface, facing out
-    for (let k = 0; k < 34; k++) {
-      const a = r.range(0, Math.PI * 2), y = r.int(0, 8), rr = [11.5, 11, 10, 9, 8, 7, 6, 5, 4][y] - 0.5;
-      const x = Math.round(c + Math.cos(a) * rr), z = Math.round(c + Math.sin(a) * rr);
-      g.box(x - 1, y, z - 1, x + 1, y + 2, z + 1, 'bone');
-      g.box(x - 1, y + 2, z - 1, x + 1, y + 2, z + 1, 'frost');
-      const fx = Math.round(Math.cos(a)), fz = Math.round(Math.sin(a));
-      if (fz >= 0) { g.set(x - 1 + (fx > 0 ? 1 : 0), y + 1, z + 1, 'ink'); g.set(x + 1 - (fx < 0 ? 1 : 0), y + 1, z + 1, 'ink'); }
-    }
-    // candles on the crown
-    for (const [x, z, h] of [[c, c, 3], [c - 2, c + 1, 2], [c + 2, c - 1, 2], [c + 1, c + 2, 1], [c - 1, c - 2, 1]]) {
-      for (let y = 10; y < 10 + h; y++) g.set(x, y, z, 'bone');
-      g.set(x, 10 + h, z, 'torch', true);
-    }
-    for (let k = 0; k < 10; k++) g.set(c + r.int(-3, 3), 10, c + r.int(-3, 3), 'bone');   // pooled wax
-    defineModel('arena.mound', { grid: g });
   }
 }
 
@@ -701,24 +490,18 @@ export const PROP_DEFS = {
   sarcophagus: { models: ['arena.sarcophagus'], boxW: 1.0, boxD: 0.56, h: 0.9, hp: Infinity, solid: true, react: 'stone', debris: [['stone', 'stoneLight', 'gold']] },
   skullpile: { models: ['arena.skullpile'], r: 0.66, h: 1.1, hp: Infinity, solid: true, react: 'bones', debris: [['bone', 'frost']] },
   rubble: { models: ['arena.rubble'], r: 0, h: 0.2, hp: 0, solid: false, decor: true },
-  // set-pieces: big, never break, react like stone (the tree sheds leaves, the mound rattles)
-  colossus: { models: ['arena.colossus'], boxW: 1.45, boxD: 1.25, h: 2.0, hp: Infinity, solid: true, react: 'stone', debris: [['stoneLight', 'stone', 'fog']], setPiece: true },
-  throne: { models: ['arena.throne'], boxW: 1.05, boxD: 0.75, h: 3.6, hp: Infinity, solid: true, react: 'stone', debris: [['mist', 'gold', 'slate']], setPiece: true },
-  tree: { models: ['arena.tree'], r: 0.55, h: 4.5, hp: Infinity, solid: true, react: 'tree', debris: [['leaf', 'moss', 'wood']], setPiece: true },
-  fountain: { models: ['arena.fountain'], r: 1.55, h: 1.6, hp: Infinity, solid: true, react: 'stone', debris: [['mist', 'slate', 'sky']], setPiece: true },
-  mound: { models: ['arena.mound'], r: 1.35, h: 1.6, hp: Infinity, solid: true, react: 'bones', debris: [['bone', 'frost']], setPiece: true },
 };
 
 let propSeq = 0;
 
 class Prop {
-  constructor(set, kind, x, z, { variant = 0, turn = 0, y = 0 } = {}) {
+  constructor(set, kind, x, z, { variant = 0, turn = 0 } = {}) {
     const D = PROP_DEFS[kind];
     this.set = set; this.def = D; this.kind = kind; this.type = 'prop';
     this.id = `${kind}${++propSeq}`;
-    this.x = x; this.z = z; this.y = y;   // y: standing on a ledge
+    this.x = x; this.z = z;
     this.r = D.r ?? (D.box ? D.box * 0.75 : Math.max(D.boxW ?? 0.5, D.boxD ?? 0.5) * 0.8);
-    this.h = D.h; this.hitY = y + Math.min(0.7, D.h * 0.5);
+    this.h = D.h; this.hitY = Math.min(0.7, D.h * 0.5);
     this.hp = D.hp; this.maxHp = D.hp;
     this.variant = variant % D.models.length;
     this.turn = turn;
@@ -728,12 +511,12 @@ class Prop {
     this.tx = 0; this.tz = 0; this.tvx = 0; this.tvz = 0; this.ptx = 0; this.ptz = 0;   // rock spring (rad)
     this.flashT = 0; this.flare = 0;
     this.group = new THREE.Group();
-    this.group.position.set(x, y, z);
+    this.group.position.set(x, 0, z);
     set.root.add(this.group);
     this.mat = null;
     this.mesh = this.makeMesh(D.models[this.variant]);
     this.wreck = null;
-    if (D.solid && !y) {
+    if (D.solid) {
       const cw = set.cw;
       if (D.box) this.collider = cw.addRect(x, z, D.box * 2 * 0.86, D.box * 2 * 0.86, 'prop');
       else if (D.boxW) this.collider = turn % 2 ? cw.addRect(x, z, D.boxD * 2, D.boxW * 2, 'prop') : cw.addRect(x, z, D.boxW * 2, D.boxD * 2, 'prop');
@@ -794,11 +577,6 @@ class Prop {
     } else if (D.react === 'bones') {
       chips(cx, 0.6, cz, dx, dz, D.debris[0], 6, 0.9);
       arenaSfx.bones();
-    } else if (D.react === 'tree') {
-      // bark chips off the trunk, leaves shaken down out of the crown
-      chips(cx, 0.6, cz, dx, dz, ['wood', 'woodLight'], 4, 0.8);
-      leaves(this.x, 3.4, this.z, cause === 'hit' ? 10 : 22);
-      arenaSfx.wood(false);
     } else {
       // stone: chips off the face, grit and pebbles shaken off the top
       chips(cx, this.hitY + 0.2, cz, dx, dz, D.debris[0], cause === 'hit' ? 5 : 9, 0.9);
@@ -823,8 +601,6 @@ class Prop {
       vfx.dust(this.x, this.z, { dx, dz, n: 7, size: 1, palette: 'dustWarm' });
       if (this.kind !== 'bones') vfx.hitSpark(this.x, this.hitY, this.z, { dx, dz, power: 0.6, palette: 'hit', light: false });
     }
-    // a few pieces stay on the floor for the rest of the room
-    if (this.kind !== 'candles') look.impact?.chips?.(this.x, this.hitY, this.z, dx, dz, { n: this.kind === 'bones' ? 3 : 5, colors: cols, speed: 2.2 });
     arenaSfx[D.sound]?.(true);
     if (cause === 'hit') { feedback.hitstop(45); feedback.kick(dx, dz * 0.77, 1.4); feedback.shake(1.2, 90); }
     this.swapModel(D.wreck);
@@ -896,18 +672,6 @@ function smoke(x, y, z) {
     if (i < 0) break;
     const P = vfx.core.P;
     P.drag[i] = 0.93; P.grav[i] = -0.3; P.shrinkAt[i] = 0.4; P.fadeAt[i] = 0.55; P.wob[i] = 0.6;
-  }
-}
-
-/** Leaves shaken out of a crown: they flutter and drift down. */
-function leaves(x, y, z, n) {
-  for (let k = 0; k < n; k++) {
-    const a = k * 2.399, d = 0.4 + (k % 5) * 0.3;
-    const i = vfx.core.add(x + Math.sin(a) * d, y + (k % 3) * 0.15, z + Math.cos(a) * d * 0.8, Math.sin(a) * 0.4, -0.2, Math.cos(a) * 0.3,
-      2.2 + (k % 4) * 0.3, k % 3 === 0 ? 2 : 1, k % 4 === 0 ? 'moss' : 'leaf', vfx.core.CUBE);
-    if (i < 0) break;
-    const P = vfx.core.P;
-    P.grav[i] = 1.6; P.drag[i] = 0.96; P.wob[i] = 2.5; P.delay[i] = (k % 7) * 0.05; P.floorY[i] = 0.03; P.fadeAt[i] = 0.85;
   }
 }
 

@@ -9,8 +9,7 @@
 //                   STREAK  a camera-facing line stretched along its screen velocity
 //   shapes     up to SHAPES flat shapes in one InstancedMesh, drawn per fragment at the
 //              internal resolution, so every edge is a hard pixel edge: shockwave rings,
-//              flash discs, star flares, jagged starbursts, slash arcs, portals. Floor-flat
-//              or camera-facing.
+//              flash discs, star flares, slash arcs, portals. Floor-flat or camera-facing.
 //   ghosts     GHOSTS afterimage slots: flat-coloured copies of any posed Object3D.
 //
 // Every colour is a palette colour (ramps are lists of palette names). Every particle and
@@ -34,7 +33,7 @@ export const SHAPES = 256;
 export const GHOSTS = 24;
 
 export const SPRITE = 0, CUBE = 1, STREAK = 2;
-export const RING = 0, DISC = 1, STAR = 2, ARC = 3, PORTAL = 4, BURST = 5;
+export const RING = 0, DISC = 1, STAR = 2, ARC = 3, PORTAL = 4;
 export const FLOOR = 0, FACING = 1;
 
 const cp = Math.cos(CAMERA_PITCH), sp = Math.sin(CAMERA_PITCH);
@@ -101,11 +100,11 @@ export const P = {
   n: 0,
   x: f32(), y: f32(), z: f32(), px: f32(), py: f32(), pz: f32(), vx: f32(), vy: f32(), vz: f32(),
   age: f32(), life: f32(), size: f32(), grav: f32(), drag: f32(), bounce: f32(), wob: f32(), ph: f32(),
-  stretch: f32(), pop: f32(), fadeIn: f32(), fadeAt: f32(), shrinkAt: f32(), floorY: f32(), delay: f32(), grow: f32(),
+  stretch: f32(), pop: f32(), fadeIn: f32(), fadeAt: f32(), shrinkAt: f32(), floorY: f32(), delay: f32(),
   ramp: new Uint8Array(CAP), mode: new Uint8Array(CAP), owner: new Uint8Array(CAP), rest: new Uint8Array(CAP),
 };
 const FIELDS = ['x', 'y', 'z', 'px', 'py', 'pz', 'vx', 'vy', 'vz', 'age', 'life', 'size', 'grav', 'drag', 'bounce',
-  'wob', 'ph', 'stretch', 'pop', 'fadeIn', 'fadeAt', 'shrinkAt', 'floorY', 'delay', 'grow', 'ramp', 'mode', 'owner', 'rest'];
+  'wob', 'ph', 'stretch', 'pop', 'fadeIn', 'fadeAt', 'shrinkAt', 'floorY', 'delay', 'ramp', 'mode', 'owner', 'rest'];
 const FIELD_ARRAYS = FIELDS.map((f) => P[f]);
 export const stats = { spawned: 0, dropped: 0, tickMs: 0, renderMs: 0, peak: 0 };
 const ownerDeath = [];     // per owner id: callback(count) on death (ambient layers track their own)
@@ -115,7 +114,6 @@ const ownerDeath = [];     // per owner id: callback(count) on death (ambient la
  * or -1 when the pool is full (the particle is dropped, never an old one stolen mid-flight).
  * Defaults: a sprite that pops for 2 ticks, holds, then shrinks and dissolves over its last 40%.
  *   size: px at zoom 1 (world size * PPU). life: seconds.
- *   P.grow[i] = g: the size swells to (1 + g) by the end of its life (smoke), before shrinkAt.
  */
 export function add(x, y, z, vx, vy, vz, life, size, rampName, mode = SPRITE) {
   if (P.n >= CAP) { stats.dropped++; return -1; }
@@ -124,7 +122,7 @@ export function add(x, y, z, vx, vy, vz, life, size, rampName, mode = SPRITE) {
   P.vx[i] = vx; P.vy[i] = vy; P.vz[i] = vz;
   P.age[i] = 0; P.life[i] = life; P.size[i] = size;
   P.grav[i] = 0; P.drag[i] = 1; P.bounce[i] = -1; P.wob[i] = 0; P.ph[i] = 0; P.stretch[i] = 0;
-  P.pop[i] = 1.6; P.fadeIn[i] = 0; P.fadeAt[i] = 0.6; P.shrinkAt[i] = 0.6; P.floorY[i] = 0; P.delay[i] = 0; P.grow[i] = 0;
+  P.pop[i] = 1.6; P.fadeIn[i] = 0; P.fadeAt[i] = 0.6; P.shrinkAt[i] = 0.6; P.floorY[i] = 0; P.delay[i] = 0;
   P.ramp[i] = rampId(rampName); P.mode[i] = mode; P.owner[i] = 0; P.rest[i] = 0;
   stats.spawned++;
   if (P.n > stats.peak) stats.peak = P.n;
@@ -214,8 +212,7 @@ function tickShapes() {
 const ghostSlots = [];
 let ghostRoot = null;
 const ghostVert = /* glsl */`
-uniform float uBias;
-void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z -= uBias * gl_Position.w; }`;
+void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
 const ghostFrag = /* glsl */`
 uniform vec3 uCol; uniform float uFade; uniform vec2 ditherOrigin;
 ${bayerGLSL()}
@@ -227,7 +224,7 @@ void main() {
 
 function makeGhostSlot() {
   const mat = new THREE.ShaderMaterial({
-    uniforms: { uCol: { value: new THREE.Color() }, uFade: { value: 1 }, uBias: { value: 0 }, ditherOrigin: voxelUniforms.ditherOrigin },
+    uniforms: { uCol: { value: new THREE.Color() }, uFade: { value: 1 }, ditherOrigin: voxelUniforms.ditherOrigin },
     vertexShader: ghostVert, fragmentShader: ghostFrag,
     // pushed back in depth so the live body always draws over its own trail
     polygonOffset: true, polygonOffsetFactor: 0, polygonOffsetUnits: 40000,
@@ -238,7 +235,7 @@ function makeGhostSlot() {
   group.layers.set(LAYER_NO_OUTLINE);
   group.userData.noShadow = true;
   ghostRoot.add(group);
-  return { group, mat, meshes: [], used: 0, age: 0, life: 1, ramp: 0, delay: 0, hard: false };
+  return { group, mat, meshes: [], used: 0, age: 0, life: 1, ramp: 0, delay: 0 };
 }
 
 const stack = [];
@@ -272,17 +269,10 @@ function collectMeshes(obj, slot) {
 }
 
 let ghostNext = 0;
-/**
- * Stamp an afterimage of obj's current pose. Returns the slot, or null.
- *   front: draw it OVER the live body (a silhouette flash) instead of behind it.
- *   hard: no dither fade-out (a solid 1-2 tick frame).
- */
-export function stampGhost(obj, rampName = 'ghost', life = 0.3, delay = 0, { front = false, hard = false } = {}) {
-  if (!ensure() || !obj) return null;
+/** Stamp an afterimage of obj's current pose. Returns the slot, or null. */
+export function stampGhost(obj, rampName = 'ghost', life = 0.3, delay = 0) {
+  ensure();
   const slot = ghostSlots[ghostNext];
-  slot.hard = hard;
-  slot.mat.uniforms.uBias.value = front ? 0.03 : 0;
-  slot.mat.polygonOffsetUnits = front ? 0 : 40000;
   ghostNext = (ghostNext + 1) % GHOSTS;
   obj.updateWorldMatrix(true, true);
   slot.used = 0;
@@ -401,22 +391,6 @@ void main() {
       col = s < 0.28 ? vCol : (s < 0.36 && r > 0.35 ? vCol2 : vCol3);
       if (r < 0.18) col = vCol3;
     }
-  } else if (type == 5) {                   // BURST: p1 = core fraction, p2 = hole; p3 = spikes, p4 = seed
-    // a jagged starburst: long and short spikes of random length round a hot core, inside a
-    // fat ink outline so it reads on a lit floor, in a torch pool, or over a white flash
-    float N = vQ.x;
-    float s = (atan(uv.y, uv.x) / TAU + 0.5) * N + fract(vQ.y * 0.618);
-    float i = mod(floor(s), N);
-    float f = fract(s);
-    float L = 0.62 + 0.38 * fract(sin((i + 1.0) * 12.9898 + vQ.y * 78.233) * 43758.5453);
-    if (mod(i, 2.0) > 0.5) L *= 0.66;
-    float tri = 1.0 - abs(2.0 * f - 1.0);
-    float o = px * 2.0;
-    float inner = 0.42;
-    float edge = inner + ((L - inner) * (1.0 - o)) * pow(tri, 1.6);
-    if (r > edge + o || r < vP.w) discard;
-    col = r > edge ? vCol3 : (r < max(edge * vP.z, px) ? vCol2 : vCol);
-    if (vP.w > 0.0 && r < vP.w + px * 1.5) col = vCol3;
   }
   if (fade < 0.999 && fade <= bayer4(gl_FragCoord.xy + ditherOrigin)) discard;
   gl_FragColor = vec4(col, 1.0);
@@ -505,8 +479,6 @@ function renderParticles(alpha) {
     // size: a fast pop for the first 2 ticks, hold, then shrink in whole texels
     let size = P.size[i];
     if (age < DT * 2) size *= P.pop[i];
-    const g = P.grow[i];
-    if (g) size *= 1 + g * Math.min(1, k / Math.max(0.05, P.shrinkAt[i]));
     const sa = P.shrinkAt[i];
     if (k > sa) size *= 1 - (k - sa) / (1 - sa) * 0.85;
     const n = Math.max(1, Math.round(size * zoom));
@@ -561,8 +533,6 @@ const ease = {
  *   STAR   a = radius, b = arm width
  *   ARC    a = radius, b = span (rad), c = thickness, d = head time (fraction of life)
  *   PORTAL a = radius, b = open time (s), c = close time (s, from the end), d = spin speed
- *   BURST  a = radius, b = core fraction, c = spikes, d = seed. Pops past full size in 2 ticks,
- *          holds, then is eaten from the inside out (only the spike tips are left at the end).
  */
 const fr = { R: 0, fade: 1, p1: 0, p2: 0, p3: 0, p4: 0 };
 function shapeFrame(i, k, age) {
@@ -600,15 +570,6 @@ function shapeFrame(i, k, age) {
       const ht = d;
       fr.p3 = k < ht ? ease.out(k / ht) : 1;                        // head sweeps fast
       fr.p4 = k < ht ? 0 : Math.pow((k - ht) / (1 - ht), 0.8);      // tail eats toward the head
-      break;
-    }
-    case BURST: {
-      const steps = [0.55, 1.12, 1.04, 1, 0.97, 0.93, 0.88, 0.82, 0.76];
-      const f = Math.min(steps.length - 1, Math.floor(age * 60));
-      fr.R = a * (f < steps.length - 1 ? steps[f] : steps[steps.length - 1] - (k - 0.5) * 0.2);
-      fr.p1 = b * (k < 0.3 ? 1 : Math.max(0, 1 - (k - 0.3) / 0.4));
-      fr.p2 = k < 0.45 ? 0 : Math.min(0.95, Math.floor(((k - 0.45) / 0.55) * 6) / 6 * 0.95 + 0.2);
-      fr.p3 = c; fr.p4 = d;
       break;
     }
     case PORTAL: {
@@ -649,7 +610,7 @@ function renderShapes() {
     }
     colInto(A, j * 3, S.col[i]); colInto(B, j * 3, S.col2[i]); colInto(C3, j * 3, S.col3[i]);
     PA[j * 4] = S.type[i]; PA[j * 4 + 1] = f.fade; PA[j * 4 + 2] = f.p1; PA[j * 4 + 3] = f.p2;
-    QA[j * 4] = f.p3; QA[j * 4 + 1] = f.p4; QA[j * 4 + 2] = texR; QA[j * 4 + 3] = S.orient[i] === FLOOR ? 0.0005 : S.type[i] === BURST ? 0.06 : 0.01;   // a burst draws over the bodies round it
+    QA[j * 4] = f.p3; QA[j * 4 + 1] = f.p4; QA[j * 4 + 2] = texR; QA[j * 4 + 3] = S.orient[i] === FLOOR ? 0.0005 : 0.01;
     j++;
   }
   shapeMesh.count = j;
@@ -666,7 +627,7 @@ function renderGhosts() {
     while (s < rampLen[rid] - 1 && k >= stops[s]) s++;
     const ci = rampCols[rid][s] * 3;
     g.mat.uniforms.uCol.value.setRGB(LIN[ci], LIN[ci + 1], LIN[ci + 2]);
-    g.mat.uniforms.uFade.value = g.hard || k < 0.35 ? 1 : 1 - (k - 0.35) / 0.65;
+    g.mat.uniforms.uFade.value = k < 0.35 ? 1 : 1 - (k - 0.35) / 0.65;
   }
 }
 

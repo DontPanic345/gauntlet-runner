@@ -6,8 +6,6 @@
 //   tele.sector(x, z, yaw, reach, arcDeg, p, { firing, t, inner })   a swipe's reach (arc each side)
 //   tele.lane(x, z, yaw, length, width, p, { firing, t })             a charge's path
 //   tele.disc(x, z, r, p, { firing, t })                              a slam or a hop's landing
-//   tele.line(x, z, yaw, length, p, { t, locked, from })               a shot's aim: a solid rasterised
-//                                                                     line with an ink edge, growing out
 //   tele.dot(x, z, color)                                             one tile (decals, orb shadows)
 //
 // The look is one language for every enemy, so a player learns it once:
@@ -37,7 +35,7 @@ export function createFloorTiles(root) {
   root.add(inst);
   const m = new THREE.Matrix4(), c = new THREE.Color();
   const COL = {};
-  for (const n of ['red', 'blood', 'gold', 'plum', 'torch', 'rose', 'ink', 'white']) COL[n] = hex(n);
+  for (const n of ['red', 'blood', 'gold', 'plum', 'torch', 'rose']) COL[n] = hex(n);
   let n = 0;
 
   function put(ix, iz, col, y = 0.012) {
@@ -112,29 +110,6 @@ export function createFloorTiles(root) {
     /** A slam or landing: a disc, filling from the centre. */
     disc(x, z, r, p, o = {}) {
       zone(x, z, 0, r + V, (lx, lz) => Math.hypot(lx, lz) <= r, (lx, lz) => Math.hypot(lx, lz) / r, p, o, r);
-    },
-    /**
-     * A shot's aim line: one tile wide, rasterised cell by cell (no stair-step gaps), `rose`
-     * with an `ink` edge so it reads on any floor. It grows from `from` (units out from the
-     * shooter) to `length` as p goes 0..1; once locked it blinks gold.
-     */
-    line(x, z, yaw, length, p, { t = 0, locked = false, from = 0.45 } = {}) {
-      const dx = Math.sin(yaw), dz = Math.cos(yaw);
-      const end = from + (length - from) * Math.min(1, p);
-      const core = new Set(), cells = [];
-      for (let d = from; d <= end; d += V * 0.35) {
-        const ix = Math.floor((x + dx * d) / V), iz = Math.floor((z + dz * d) / V), k = ix * 4096 + iz;
-        if (core.has(k)) continue;
-        core.add(k); cells.push([ix, iz]);
-      }
-      const blink = locked && ((t >> 1) & 1);
-      const edge = new Set();
-      for (const [ix, iz] of cells) for (const [ox, oz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        const k = (ix + ox) * 4096 + (iz + oz);
-        if (core.has(k) || edge.has(k)) continue;
-        edge.add(k); put(ix + ox, iz + oz, 'ink', 0.011);
-      }
-      cells.forEach(([ix, iz], i) => put(ix, iz, blink ? 'gold' : i === cells.length - 1 && !locked ? 'torch' : 'rose'));
     },
     /** One tile at a world point. */
     dot(x, z, col, y) { put(Math.floor(x / V), Math.floor(z / V), col, y); },
