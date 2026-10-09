@@ -17,29 +17,25 @@ import { vfx } from '../vfx/vfx.js';
 import { events } from '../core/events.js';
 import { DT } from '../core/loop.js';
 import { Enemy, part, pivot, ease, smooth, clamp01, wrap, V } from './enemy.js';
-import { makeVoxelMaterial, voxelMesh } from '../render/voxel/index.js';
+import { makeVoxelMaterial } from '../render/voxel/index.js';
 import { enemySfx } from './sfx.js';
 import { dmg } from './data.js';
-import { look } from '../render/look.js';
 
 export class Wisp extends Enemy {
   build() {
     const M = this.material;
-    this.shadow = voxelMesh('enemies.shadow');      // shared material: hit flashes and tells never light it
+    this.shadow = part('enemies.shadow', M);
     this.shadow.position.y = 0.005;
     this.group.add(this.shadow);
     this.floater = pivot(this.body, 0, 0, 0);
     this.core = pivot(this.floater, 0, 0, 0, part('enemies.wisp.core', M));
-    this.ring = voxelMesh('enemies.wisp.ring');      // an ink halo behind the skull (never flashes)
-    this.ring.position.set(0, 0.1 * V, -2.3 * V);
-    this.core.add(this.ring);
     this.flameMat = makeVoxelMaterial();      // the tell tints only the skull; fire stays fire
     this.flames = [0, 1, 2].map((f) => part(`enemies.wisp.flame${f}`, this.flameMat));
     this.flame = pivot(this.floater, 0, 0, 0, ...this.flames);
     this.orbit = this.rand() < 0.5 ? 1 : -1;
     this.flipT = 90 + Math.floor(this.rand() * 120);
     this.aim = 0;
-    Object.assign(this.pose, { fy: this.D.float * 8, fs: 1, fh: 1, lean: 0, roll: 0, cy: 0, ct: 0, sh: 1, cs: 1 });
+    Object.assign(this.pose, { fy: this.D.float * 8, fs: 1, fh: 1, lean: 0, roll: 0, cy: 0, ct: 0, sh: 1 });
   }
 
   get attacking() { return this.state === 'windup'; }
@@ -85,10 +81,6 @@ export class Wisp extends Enemy {
           if (this.flipT > 30) { this.orbit = -this.orbit; this.flipT = 30; }
           wx = (th.dx * radial * 0.3 - tx * 0.8) * sp; wz = (th.dz * radial * 0.3 - tz * 0.8) * sp;
         }
-        // stay out of torch pools (a flame in a fire is camouflaged) and off the top edge of
-        // the room, where the wave banner is drawn
-        const av = this.avoid();
-        wx += av.x * sp; wz += av.z * sp;
         this.want.x = wx; this.want.z = wz;
         this.turnTo(th.yaw, 0.14);
         if (this.cool > 0) this.cool--;
@@ -109,23 +101,6 @@ export class Wisp extends Enemy {
         if (this.st >= A.recover) { this.cool = this.cooldownTicks(); this.setState('move'); }
         break;
     }
-  }
-
-  /** A push (unit-ish vector) away from torch pools and the room's far edge. */
-  avoid() {
-    const out = { x: 0, z: 0 };
-    const D = this.D, R = D.avoidLight ?? 0;
-    const torches = R > 0 ? look.lights?.torches : null;
-    if (torches) for (const t of torches) {
-      if (t.intensity < 1 || !t.haze || !t.world) continue;   // fires only: high cold shafts have no haze
-      const dx = this.x - t.world.x, dz = this.z - t.world.z, d = Math.hypot(dx, dz);
-      if (d >= R || d < 1e-4) continue;
-      const k = (1 - d / R) * 1.4;
-      out.x += dx / d * k; out.z += dz / d * k;
-    }
-    const B = this.bounds, band = D.avoidTop ?? 0;
-    if (B && band > 0 && this.z < B.minZ + band) out.z += (1 - (this.z - B.minZ) / band) * 1.2;
-    return out;
   }
 
   startWindup() {
@@ -170,14 +145,20 @@ export class Wisp extends Enemy {
   telegraph(T) {
     if (this.state !== 'windup') return;
     const A = this.A, n = Math.max(1, A.orbs | 0);
-    const p = Math.min(1, this.st / (A.windup - 12));          // full length by the lock
+    const p = Math.min(1, this.st / A.windup);
     const locked = this.st >= A.windup - 12;
-    const th = this.toHero();
-    // the line grows from the wisp to just past the hero (so it points AT you), at least 2.5 units
-    const len = Math.max(2.5, Math.min(A.range, (th ? th.d : 3.2) + 0.6));
     for (let k = 0; k < n; k++) {
       const a = this.aim + (n === 1 ? 0 : (k / (n - 1) - 0.5) * 2 * A.spread);
-      T.line(this.x, this.z, a, len, p, { t: this.st, locked });
+      const dx = Math.sin(a), dz = Math.cos(a);
+      // a dotted line: dots march outward as it charges; solid and blinking once locked
+      const len = 3.2;
+      for (let d = 0.5; d < len; d += 0.25) {
+        const on = d / len <= p;
+        if (!on) continue;
+        const blink = locked && ((this.st >> 1) & 1);
+        T.dot(this.x + dx * d, this.z + dz * d, blink ? 'gold' : (Math.round(d * 4) % 2 ? 'red' : 'blood'));
+        if (locked) { T.dot(this.x + dx * d + dz * 0.125, this.z + dz * d - dx * 0.125, 'blood'); }
+      }
     }
   }
 
@@ -207,7 +188,7 @@ export class Wisp extends Enemy {
     // lean into movement (in the wisp's own frame)
     const rel = wrap(Math.atan2(this.mvx, this.mvz) - this.yaw);
     const leanF = Math.cos(rel) * lean * 0.25, leanS = Math.sin(rel) * lean * 0.2;
-    let fy = D.float * 8 + bob, fs = 1, fh = 1, cy = 0, ct = 0, sh = 1, cs = 1;
+    let fy = D.float * 8 + bob, fs = 1, fh = 1, cy = 0, ct = 0, sh = 1;
     switch (this.state) {
       case 'spawn': {
         const k = Math.max(0, s - (this.popAt ?? 0));
@@ -217,16 +198,13 @@ export class Wisp extends Enemy {
         break;
       }
       case 'windup': {
-        // swells (the flame by up to 40%, the skull by 20%), rises, rears back; the skull
-        // pulses white at 6 Hz, then strobes for the last 12 ticks before the shot
         const u = smooth(s / A.windup);
-        fs = 1 + 0.4 * u + (s > A.windup - 12 ? ((s >> 1) & 1) * 0.1 : 0);
+        fs = 1 + 0.35 * u + (s > A.windup - 12 ? ((s >> 1) & 1) * 0.08 : 0);
         fh = 1 + 0.25 * u;
         fy += 2 * u;
         ct = -0.25 * u;
-        cs = 1 + 0.2 * smooth(s / 10);
-        this.tell = s > A.windup - 12 ? ((s >> 1) & 1 ? 0.8 : 0) : (s % 10 < 5 ? 0.55 : 0);
-        this.tellColor = 'white';
+        this.tell = s > A.windup - 12 ? ((s >> 1) & 1 ? 0.5 : 0) : 0;
+        this.tellColor = 'torch';
         break;
       }
       case 'recover': {
@@ -251,7 +229,7 @@ export class Wisp extends Enemy {
     P.fy = ease(P.fy, fy, 0.3);
     P.fs = this.state === 'death' || this.state === 'spawn' ? fs : ease(P.fs, fs, 0.35);
     P.fh = ease(P.fh, fh, 0.35);
-    P.cy = cy; P.ct = ease(P.ct, ct, 0.3); P.sh = sh; P.cs = ease(P.cs ?? 1, cs, 0.5);
+    P.cy = cy; P.ct = ease(P.ct, ct, 0.3); P.sh = sh;
     P.lean = ease(P.lean, leanF, 0.15); P.roll = ease(P.roll, -leanS, 0.15);
     if (this.recoil > 0.05) { P.ct += this.recoil * 0.4; P.fs *= 1 - this.recoil * 0.25; }
   }
@@ -261,8 +239,6 @@ export class Wisp extends Enemy {
     this.floater.rotation.set(p.lean, 0, p.roll);
     this.core.position.y = p.cy * V;
     this.core.rotation.x = p.ct;
-    const cs = Math.round((p.cs ?? 1) * 8) / 8;      // stepped, like the flame
-    this.core.scale.setScalar(cs);
     // the flame: one of three frames at ~10 fps, stepped scale (no smooth swell)
     const f = Math.floor(this.t / 6) % 3;
     this.flames.forEach((m, i) => { m.visible = i === f; });

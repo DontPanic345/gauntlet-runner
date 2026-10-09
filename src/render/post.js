@@ -24,7 +24,7 @@ export const postOptions = {
   outlineDepth: 0.2,   // world units: a neighbour this much nearer draws an outline
   crease: true,        // lighten convex edges between faces (normal edges)
   creaseStrength: 0.45,
-  rim: 0.8,            // top silhouette edge lit (reads against dark floors); 0 = off
+  rim: 0.55,           // top silhouette edge lit (reads against dark floors); 0 = off
   rimColor: 'frost',
   quantize: true,      // snap every pixel to the palette
   dither: true,        // ordered dither between the two nearest palette colours
@@ -37,9 +37,7 @@ export const postOptions = {
   exposure: 1.0,
   shoulder: 0.75,      // soft highlight roll-off above this (linear); keeps lit surfaces from clipping to white
   shadowTint: 'violet', // lifted into the darkest tones, so shadow reads cool, not black
-  shadowLift: 0.08,
-  whiteHot: true,      // pixels lit to pure white (hit flashes) skip the shoulder and stay exact `white`
-  impact: true,        // kill frame: a two-tone ink/white frame around a kill for ~3 frames (settings.flashes scales it)
+  shadowLift: 0.05,
 };
 
 // ---- palette LUT: 64^3 cells, each holding the nearest and second-nearest palette
@@ -141,10 +139,6 @@ uniform vec4 glowPos[${MAX_GLOWS}];   // xy = pixel position, z = radius px, w =
 uniform vec3 glowColor[${MAX_GLOWS}];
 uniform float exposure, shadowLift;
 uniform vec3 shadowTint;
-uniform float whiteHotOn;
-uniform vec3 whiteCol;
-uniform vec4 impact;        // xy = pixel centre, z = radius px, w = 0 off, else threshold scale
-uniform vec3 impactHi, impactLo;
 
 float bayer4(vec2 p) {
   vec2 q = mod(floor(p), 4.0);
@@ -174,8 +168,6 @@ void main() {
   ivec2 P = ivec2(gl_FragCoord.xy);
   ivec2 maxP = ivec2(resolution) - 1;
   vec3 col = texelFetch(tColor, P, 0).rgb;
-  vec3 base = toSrgb(clamp(col, 0.0, 1.0));   // unlit emissive colour as drawn (vfx: reserved fire colours pass through)
-  bool hot = whiteHotOn > 0.5 && all(greaterThanEqual(col, vec3(0.985)));
   float rawDepth = texelFetch(tDepth, P, 0).r;
   float d = viewDepth(P);
   vec3 n = viewNormal(P);
@@ -233,24 +225,12 @@ void main() {
   float lum = dot(srgb, vec3(0.299, 0.587, 0.114));
   srgb += shadowTint * shadowLift * (1.0 - smoothstep(0.0, 0.35, lum));
   srgb = clamp(srgb, 0.0, 1.0);
-  if (hot && outer < 0.5) srgb = whiteCol;
-
-  // kill frame: inside the radius the world drops to two tones for a few frames
-  if (impact.w > 0.0) {
-    float ir = length((px - impact.xy) * vec2(1.0, 1.3));
-    if (ir < impact.z) {
-      float l = dot(srgb, vec3(0.299, 0.587, 0.114));
-      bool edge = ir > impact.z - 2.0;
-      fragColor = vec4(edge ? impactHi : (l > impact.w ? impactHi : impactLo), 1.0);
-      return;
-    }
-  }
 
   if (quantizeOn < 0.5) { fragColor = vec4(srgb, 1.0); return; }
 
   // reserved fire colours pass through untouched (emissive voxels, fire particles)
   for (int i = 0; i < ${RESERVED.length}; i++) {
-    if (all(lessThan(abs(srgb - reserved[i]), vec3(0.03))) || all(lessThan(abs(base - reserved[i]), vec3(0.01)))) { fragColor = vec4(reserved[i], 1.0); return; }
+    if (all(lessThan(abs(srgb - reserved[i]), vec3(0.03)))) { fragColor = vec4(reserved[i], 1.0); return; }
   }
   ivec3 q = ivec3(srgb * ${LUT_N - 1}.0 + 0.5);
   ivec2 tc = ivec2((q.b % 8) * ${LUT_N} + q.r, (q.b / 8) * ${LUT_N} + q.g);
@@ -297,8 +277,6 @@ export function createPost(renderer) {
     fogOn: { value: 1 }, fogDepth: { value: 2.5 }, fogColor: { value: new THREE.Color() },
     glowAmount: { value: 0.2 }, glowPos: { value: glowPos }, glowColor: { value: glowColor },
     exposure: { value: 1 }, shadowLift: { value: 0.05 }, shadowTint: { value: new THREE.Vector3() },
-    whiteHotOn: { value: 1 }, whiteCol: { value: srgbVec('white') },
-    impact: { value: new THREE.Vector4() }, impactHi: { value: srgbVec('white') }, impactLo: { value: srgbVec('ink') },
   };
   const mat = new THREE.RawShaderMaterial({
     glslVersion: THREE.GLSL3,
@@ -357,8 +335,6 @@ export function createPost(renderer) {
       U.exposure.value = o.exposure;
       U.shadowLift.value = o.shadowLift;
       U.shadowTint.value.copy(srgbVec(o.shadowTint));
-      U.whiteHotOn.value = o.whiteHot ? 1 : 0;
-      if (!o.impact) U.impact.value.w = 0;
 
       // 1. colour (all layers)
       const layers = camera.layers.mask;

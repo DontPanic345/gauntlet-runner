@@ -18,8 +18,6 @@ import { hex, PALETTE } from './palette.js';
 import { loop } from '../core/loop.js';
 
 export const MAX_LIGHTS = 8;
-export const LIGHT_GAIN = 4.6;   // candela per unit of torch intensity
-export const LIGHT_DECAY = 1.7;
 const tmp = new THREE.Vector3();
 
 // Mood presets: ambient sky/ground, key light, and how warm/strong torches are.
@@ -129,22 +127,13 @@ export function createLights(display) {
       return name;
     },
 
-    /**
-     * Flicker value (about 0.45..1.15) for a torch at sim time t. Stepped at 12 Hz: pixel-art
-     * flicker. A slow breath, a fast crackle, gusts, and now and then a 2-step dip where the
-     * flame gutters, so the pool visibly changes palette step a few times a second.
-     */
+    /** Flicker value (about 0.75..1.08) for a torch at sim time t. Stepped at 12 Hz: pixel-art flicker. */
     flickerAt(phase, t) {
       const s = Math.floor(t * 12) / 12;
-      const step = Math.floor(t * 12);
-      const slow = noise1(s * 1.6 + phase);
-      const fast = hash(step + phase * 13.7);
+      const slow = noise1(s * 1.3 + phase);
+      const fast = hash(Math.floor(s * 12) + phase * 13.7);
       const gust = noise1(s * 0.35 + phase * 2.1);
-      let f = 0.66 + 0.34 * slow + 0.16 * fast - 0.18 * Math.max(0, 0.55 - gust);
-      // gutter: two 12 Hz steps at about 60% (seeded per 6-step window, about once every 2 s)
-      const win = Math.floor(step / 6);
-      if (hash(win * 3.1 + phase * 5.3) < 0.28 && step % 6 >= 2 && step % 6 < 4) f *= 0.62;
-      return f;
+      return 0.8 + 0.18 * slow + 0.08 * fast - 0.12 * Math.max(0, 0.55 - gust);
     },
 
     /** Per frame, before the colour pass: flicker, assign pool lights, aim the shadow light. */
@@ -181,9 +170,7 @@ export function createLights(display) {
         const jf = api.flickerOn ? tc.flicker : 0;
         const jx = (hash(Math.floor(t * 12) + tc.phase) - 0.5) * 0.08 * jf;
         const jz = (hash(Math.floor(t * 12) + tc.phase + 3.3) - 0.5) * 0.08 * jf;
-        // the pool breathes: its radius follows the flicker, about one texel ring either way
-        const r = tc.radius * (api.flickerOn ? 1 + (f - 0.9) * 0.35 * tc.flicker : 1);
-        cands.push({ pos: tmp.copy(tc.world).add(new THREE.Vector3(jx, 0, jz)).clone(), color: tc.color, i: tc.live, r, haze: tc.haze, src: tc });
+        cands.push({ pos: tmp.copy(tc.world).add(new THREE.Vector3(jx, 0, jz)).clone(), color: tc.color, i: tc.live, r: tc.radius, haze: tc.haze, src: tc });
       }
       for (let k = flashes.length - 1; k >= 0; k--) {
         const f = flashes[k];
@@ -200,11 +187,9 @@ export function createLights(display) {
         L.position.copy(c.pos);
         L.color.copy(c.color);
         // point light intensity is in candela; 3.2 per unit of torch intensity lights floor ~1.5 units below to about full
-        // a hot core with a harder fall-off: surfaces near the flame climb the warm ramp
-        // (torch, gold) instead of getting a flat brown wash
-        L.intensity = c.i * LIGHT_GAIN;
+        L.intensity = c.i * 3.2;
         L.distance = c.r;
-        L.decay = LIGHT_DECAY;
+        L.decay = 1.15;
       }
       api.active = cands.slice(0, MAX_LIGHTS);
     },

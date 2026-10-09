@@ -33,28 +33,26 @@ export const ENEMY_DATA = {
     hurt: 14,                // hit-stun ticks (interrupts a windup)
     poise: 0,                // damage it can take in 1 s before a hit staggers it (0: every hit does)
     token: 1,
-    debris: ['leaf', 'bone', 'leaf', 'white', 'woodLight'],   // the lightest colours: debris must read on dark stone
+    debris: ['leaf', 'moss', 'bone', 'dirt'],
   },
   wisp: {
     name: 'EMBER WISP', blurb: 'RANGED, KITES', color: 'flame',
     hp: 22, speed: 2.1, accel: 0.08, radius: 0.3, height: 1.35, weight: 0.7, aggression: 1,
     keep: [3.4, 5.4],        // it tries to stay between these distances from the hero
     float: 0.55,             // hover height of the core
-    avoidLight: 2.2,         // it steers out of torch pools this wide (a flame in a fire is camouflaged); 0 = off
-    avoidTop: 1.8,           // and off the room's far edge (the wave banner sits over it)
     attack: { range: 7.5, windup: 42, recover: 26, cooldown: [80, 140], dmg: 1,
       orbs: 1, spread: 0.32, orbSpeed: 3.1, orbLife: 190, orbRadius: 0.2 },
     hurt: 12, poise: 0, token: 0,
-    debris: ['bone', 'red', 'white', 'flame'],
+    debris: ['stoneDark', 'ember', 'flame', 'stone'],
   },
   brute: {
-    name: 'BRUTE', blurb: 'CHARGES, STUNS ITSELF ON WALLS', color: 'rose',
+    name: 'BRUTE', blurb: 'CHARGES, STUNS ITSELF ON WALLS', color: 'plum',
     hp: 160, speed: 1.0, accel: 0.06, radius: 0.58, height: 1.95, weight: 3.2, aggression: 1,
     standoff: 1.5,
     charge: { min: 2.6, max: 8, windup: 50, speed: 10.5, width: 1.3, stun: 110, skid: 16, recover: 44, cooldown: [60, 110], dmg: 2, knock: 11 },
     slam: { range: 1.9, radius: 1.25, ahead: 0.95, windup: 34, active: 4, recover: 46, cooldown: [40, 80], dmg: 1 },
     hurt: 18, poise: 50, token: 2,
-    debris: ['rose', 'bone', 'rose', 'frost', 'plum'],
+    debris: ['plum', 'slate', 'rose', 'bone'],
   },
   mite: {
     name: 'MITE', blurb: 'TINY, FAST, FIVE AT ONCE', color: 'cyan',
@@ -62,10 +60,9 @@ export const ENEMY_DATA = {
     group: 5,                // how many a 'mites' spawn makes
     standoff: 1.85,          // they circle the hero at this distance, just outside sword reach
     orbit: 0.014,            // how far ahead round the ring each mite aims (x25 rad): the ring's turn speed
-    attack: { range: 2.0, hop: 1.75, radius: 0.34, windup: 16, active: 11, recover: 40, cooldown: [40, 110], dmg: 1,
-      stagger: 9 },          // ticks between one mite's windup and the next one's (a swarm hops in sequence)
+    attack: { range: 2.0, hop: 1.75, radius: 0.34, windup: 16, active: 11, recover: 40, cooldown: [40, 110], dmg: 1 },
     hurt: 8, poise: 0, token: 0.5,
-    debris: ['cyan', 'sky', 'teal'],
+    debris: ['teal', 'cyan', 'navy'],
   },
 };
 

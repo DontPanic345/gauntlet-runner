@@ -83,31 +83,13 @@ export class EnemyManager {
     if (kind === 'mites' || kind === 'swarm') return this.spawnSwarm(x, z, opts);
     const C = CLASSES[kind];
     if (!C) throw new Error(`enemies: no archetype "${kind}"`);
-    [x, z] = this.freeSpot(x, z, ENEMY_DATA[kind].radius);
     const e = new C(this, kind, { x, z, spawn: opts.instant ? 'instant' : 'default', ...opts });
     this.add(e);
     return e;
   }
 
-  /**
-   * The nearest point to (x, z) where a body of radius r fits (not inside a pillar, a brazier
-   * or a wall), searched on rings out to 3 units. A spawn asked for inside a prop lands beside it.
-   */
-  freeSpot(x, z, r) {
-    const cw = this.collision;
-    if (!cw || !cw.blocked(x, z, r)) return [x, z];
-    for (let d = 0.25; d <= 3; d += 0.25) for (let k = 0; k < 12; k++) {
-      const a = (k / 12) * Math.PI * 2, px = x + Math.sin(a) * d, pz = z + Math.cos(a) * d;
-      const B = this.bounds;
-      if (B && (px < B.minX + r || px > B.maxX - r || pz < B.minZ + r || pz > B.maxZ - r)) continue;
-      if (!cw.blocked(px, pz, r)) return [px, pz];
-    }
-    return [x, z];
-  }
-
   /** Five mites from one portal, flung out to a ring round it. */
   spawnSwarm(x, z, { instant = false, n = ENEMY_DATA.mite.group, ...opts } = {}) {
-    [x, z] = this.freeSpot(x, z, 0.7);
     let pop = 0;
     if (!instant) { pop = vfx.spawnPortal(x, z, { dur: 0.75, radius: 0.7, palette: 'cool' }).popTick; enemySfx.spawn('mite'); }
     const out = [];
@@ -254,7 +236,7 @@ export class EnemyManager {
       }
       let pop = null;
       if (o.t >= o.life) pop = 'fizzle';
-      else if (cw && cw.blocked(o.x, o.z, o.r * 0.7, true)) pop = 'wall';   // orbs fly over pits and water
+      else if (cw && cw.blocked(o.x, o.z, o.r * 0.7)) pop = 'wall';
       else if (hero && !hero.dead && Math.hypot(hero.x - o.x, hero.z - o.z) < o.r + 0.3) {
         const r = hero.hurt ? hero.hurt(dmg(o.dmg), { x: o.x - o.vx * 0.05, z: o.z - o.vz * 0.05 }) : { ok: false };
         if (r.ok || r.reason !== 'dodged') pop = 'hit';        // a dash passes through it

@@ -53,34 +53,30 @@ function trim(obj, name, db, duck = null) {
     return withBoost(dB(d), () => orig.apply(this, a));
   };
 }
-// Tells go through audio.cue: the music ducks (8 ms attack, 8-9 dB) and its 1.5-4 kHz band dips for the
-// tell's length. TELL_DB lifts every tell 5 dB over its wave-1 trim, so a wind-up sits clearly
-// above the music's own drum peaks.
-const TELL_DB = 5;
-const tellDuck = (db, hold) => (len) => audio.cue(db + 2, typeof len === 'number' ? Math.min(1.5, len) : hold, 0.4);
+const tellDuck = (db, hold) => (len) => audio.duck(db, typeof len === 'number' ? Math.min(1.5, len) : hold, 0.45, 0.03);
 const WINDUP_DB = { husk: 20, wisp: 22, charge: 17, slam: 19, mite: 16 };
 
 // enemies (piece `enemies`)
-trim(enemySfx, 'windup', (kind) => (WINDUP_DB[kind] ?? 12) + TELL_DB, (kind, len = 0.5) => audio.cue(9, Math.min(0.8, len), 0.4));
+trim(enemySfx, 'windup', (kind) => WINDUP_DB[kind] ?? 12, (kind, len = 0.5) => audio.duck(6, Math.min(0.8, len), 0.4, 0.03));
 trim(enemySfx, 'charge', 4, tellDuck(4, 0.5));
 for (const [n, d] of [['swipe', 12], ['orbPop', 10], ['paw', 12], ['dizzy', 10], ['hop', 16], ['crumble', 10], ['fire', 6], ['bite', 4]]) trim(enemySfx, n, d);
 // the Warden (piece `boss`): tells first
-for (const [n, d, duckDb, hold] of [['whirl', 19, 6, 0.9], ['drawback', 20, 6, 0.6], ['creak', 18, 6, 0.5], ['inhale', 17, 6, 0.6], ['keys', 20, 6, 0.5], ['bell', 3, 6, 1.2], ['roar', 3, 7, 1.3], ['rumble', 0, 3, 1.2]]) trim(bossSfx, n, d + (duckDb >= 6 && n !== 'roar' && n !== 'bell' ? TELL_DB : 0), tellDuck(duckDb, hold));
+for (const [n, d, duckDb, hold] of [['whirl', 19, 6, 0.9], ['drawback', 20, 6, 0.6], ['creak', 18, 6, 0.5], ['inhale', 17, 6, 0.6], ['keys', 20, 6, 0.5], ['bell', 3, 6, 1.2], ['roar', 3, 7, 1.3], ['rumble', 0, 3, 1.2]]) trim(bossSfx, n, d, tellDuck(duckDb, hold));
 for (const [n, d] of [['ignite', 6], ['rune', 8], ['hit', 6], ['sweep', 10], ['leap', 8], ['wave', 8], ['yank', 6], ['clatter', 6], ['eyes', 4], ['rise', 4], ['lash', 2]]) trim(bossSfx, n, d);
 // boons (piece `boons`)
 for (const [n, d] of [['hover', 8], ['fly', 12], ['zap', 8], ['burn', 10], ['echo', 10], ['mote', 8], ['cardFlip', 6], ['wardGrow', 8], ['crit', 6], ['wave', 4], ['starFall', 4]]) trim(boonSfx, n, d);
 // arenas and corridors (pieces `arenas`, `gauntlet`)
 for (const [n, d] of [['clank', 10], ['ignite', 12], ['bones', 12], ['clink', 6], ['pot', 4]]) trim(arenaSfx, n, d);
 trim(arenaSfx, 'slam', 0, tellDuck(6, 0.5));
-trim(gauntletSfx, 'rattle', 28 + TELL_DB, (v) => { if (v > 0.3) audio.cue(8, 0.35, 0.3); });
-trim(gauntletSfx, 'hiss', 14 + TELL_DB, (v) => { if (v > 0.3) audio.cue(8, 0.5, 0.3); });
+trim(gauntletSfx, 'rattle', 28, (v) => { if (v > 0.3) audio.duck(5, 0.35, 0.3, 0.02); });
+trim(gauntletSfx, 'hiss', 14, (v) => { if (v > 0.3) audio.duck(5, 0.5, 0.3, 0.03); });
 trim(gauntletSfx, 'whoosh', 14);
 trim(gauntletSfx, 'crack', 6);
 trim(gauntletSfx, 'fall', 6);
 trim(gauntletSfx, 'slam', 0, tellDuck(6, 0.5));
 trim(gauntletSfx, 'quake', -2, () => { audio.duck(6, 0.9, 1.0, 0.02); sfx.play('quakeHit'); });
 // the training dummy (piece `combat`)
-trim(combatSfx, 'creak', 16 + TELL_DB, tellDuck(5, 0.5));
+trim(combatSfx, 'creak', 16, tellDuck(5, 0.5));
 trim(combatSfx, 'whack', 12);
 
 // ---- event sounds -----------------------------------------------------------------------------------
@@ -89,12 +85,12 @@ const hx = () => world.hero?.x;
 events.on('hero:swing', (e) => sfx.play(e.step === 2 ? 'swing.3' : e.step === 1 ? 'swing.2' : 'swing.1', { x: e.x }));
 events.on('combat:hit', (e) => {
   sfx.hit(e.power ?? 1, !!e.finisher, { x: e.x });
-  activity += 0.05 + 0.03 * (e.power ?? 1);
+  activity += 0.04 + 0.03 * (e.power ?? 1);
 });
 events.on('hero:slam', (e) => sfx.play('slam', { x: e.x }));
-events.on('combat:heroHurt', (e) => { sfx.play('hurt', { x: e.x }); activity += 0.15; });
+events.on('combat:heroHurt', (e) => { sfx.play('hurt', { x: e.x }); activity += 0.12; });
 events.on('combat:dodge', (e) => sfx.play('dodge', { x: e.x }));
-events.on('combat:kill', (e) => { if (e.target?.kind !== 'warden' && !e.proc) sfx.play('kill', { x: e.x, gain: 0.8 }); activity += 0.08; });
+events.on('combat:kill', (e) => { if (e.target?.kind !== 'warden' && !e.proc) sfx.play('kill', { x: e.x, gain: 0.8 }); });
 events.on('combat:heroDeath', (e) => heroDied(e));
 events.on('hero:dash', (e) => sfx.play('dash', { x: e.x }));
 events.on('move:dashReady', () => sfx.play('dashReady', { gain: 0.6 }));
@@ -139,38 +135,7 @@ let intensity = 0;
 const stemOn = {};        // hysteresis state for arena layers
 
 const THREAT = { husk: 1, mite: 0.45, wisp: 1.2, brute: 3, warden: 4 };
-
-// ---- which stems play ------------------------------------------------------------------------------
-// Arena (song crypt): the theme is always there. bed, bass and the lead melody play from the
-// moment the gate seals (the lead quieter at low intensity); the rest add energy, not the tune.
-export const ARENA_LAYERS = [['drums', 0.3], ['counter', 0.45], ['arp', 0.58], ['perc', 0.7], ['lead2', 0.82]];
-const BOSS_STEMS = [
-  ['intro'],
-  ['organ', 'drums', 'bass', 'lead'],
-  ['organ', 'drums', 'bass', 'lead', 'bell', 'arp', 'choir'],
-  ['organ', 'drums', 'bass', 'lead', 'bell', 'arp', 'choir', 'lead2', 'perc'],
-];
-export const TITLE_STEMS = ['bed', 'bass', 'harp', 'lead', 'counter', 'perc', 'fx'];
-
-/** The crypt stems for an arena at intensity v (fight: the gate is sealed and enemies are up). */
-export function arenaStems(v, fight = true, held = null) {
-  if (!fight) return ['bed', 'bass', 'lead'];
-  const list = ['bed', 'bass', 'lead'];
-  for (const [sn, th] of ARENA_LAYERS) {
-    // hysteresis: a layer comes in at its threshold and leaves 0.08 below it
-    const on = held?.[sn] ? v > th - 0.08 : v >= th;
-    if (held) held[sn] = on;
-    if (on) list.push(sn);
-  }
-  return list;
-}
-/** Corridor stems. phase: 'intro' | 'run' | 'safe'; near 0..1 (the collapse closing in). */
-export function corridorStems(phase, near = 0) {
-  if (phase === 'run') return near > 0.05 ? ['bed', 'drums', 'bass', 'lead', 'chase', 'alarm'] : ['bed', 'drums', 'bass', 'lead', 'chase'];
-  if (phase === 'intro') return ['bed', 'bass', 'lead'];
-  return ['bed', 'counter'];
-}
-export const bossStems = (phase) => BOSS_STEMS[Math.max(0, Math.min(3, phase))];
+const ARENA_LAYERS = [['drums', 0.2], ['bass', 0.36], ['arp', 0.55], ['lead', 0.78]];
 
 function heroDied() {
   if (dead) return;
@@ -182,25 +147,15 @@ function heroDied() {
   setTimeout(() => { if (mode !== at) return; music.stop(2.5); sfx.play('deathSting'); }, 450);
 }
 
-let modeTimer = null;
-function later(ms, fn) { const m = mode; clearTimeout(modeTimer); modeTimer = setTimeout(() => { if (mode === m) fn(); }, ms); }
-
-// after the dirge: the title's bed and harp, quietly, under the summary
-music.onEnd((name) => {
-  if (name === 'dirge' && mode === 'gameover') { music.play('title', { fade: 3 }); music.only(['bed', 'harp']); }
-});
-
 function enterMode(m, data = {}) {
   if (m === mode && m !== 'boss') return;
   mode = m;
   dead = false;
   activity = 0;
-  clearTimeout(modeTimer);
   music.filter('normal');
-  music.level('lead', 1);
   switch (m) {
     case 'title':
-      music.play('title', { fade: 1.5 }); music.only(TITLE_STEMS);
+      music.play('title', { fade: 1.5 }); music.only(['bed', 'bass', 'arp', 'lead']);
       ambience.set({ wind: 0.9, crackle: 0, drip: 0.15, debris: 0 });
       break;
     case 'arena':
@@ -209,20 +164,18 @@ function enterMode(m, data = {}) {
       break;
     case 'boss':
       bossPhase = 0;
-      music.play('warden', { fade: 2 }); music.only(bossStems(0));
+      music.play('warden', { fade: 2 }); music.only(['intro']);
       ambience.set({ wind: 0.5, crackle: 3, drip: 0, debris: 0 });
       break;
     case 'gameover':
-      // the death sting rings first; then "Fallen", the title phrase slowed down, once
       music.filter('normal');
-      music.stop(1);
-      later(1600, () => { music.only(['bed', 'bass', 'lead', 'counter', 'harp']); music.play('dirge', { fade: 0.3, restart: true }); });
+      music.play('title', { fade: 2.5 }); music.only(['bed', 'bass']);
       ambience.set({ wind: 0.8, crackle: 0, drip: 0.1, debris: 0 });
       break;
     case 'victory':
       music.filter('normal');
+      setTimeout(() => { if (mode === 'victory') { music.play('title', { fade: 2 }); music.only(['bed', 'bass', 'arp', 'lead']); } }, 2500);
       music.stop(1.5);
-      later(2500, () => { music.play('title', { fade: 2, restart: true }); music.only(TITLE_STEMS); });
       ambience.set({ wind: 0.6, crackle: 0, drip: 0.1, debris: 0 });
       break;
     case 'board':      // the audio showcase drives music itself
@@ -258,13 +211,28 @@ events.on('arena:clear', () => { intensity = 0; activity = 0; });
 events.on('arena:wave', () => { activity += 0.15; });
 events.on('gauntlet:start', () => { activity += 0.2; });
 
+function setLayers(on) {
+  for (const [sn] of ARENA_LAYERS) stemOn[sn] = on.includes(sn);
+  music.only(on);
+}
+
+function arenaLayers() {
+  // hysteresis: a layer comes in at its threshold and leaves 0.08 below it
+  const list = ['bed'];
+  for (const [sn, th] of ARENA_LAYERS) {
+    const on = stemOn[sn] ? intensity > th - 0.08 : intensity >= th;
+    stemOn[sn] = on;
+    if (on) list.push(sn);
+  }
+  music.only(list);
+}
+
 let last = performance.now();
 function update() {
   const now = performance.now();
   const dt = Math.min(0.25, (now - last) / 1000);
   last = now;
-  // recent hits, hurts and kills push the music up; it settles over a few seconds
-  activity = Math.max(0, Math.min(0.35, activity) - dt * 0.09);
+  activity = Math.max(0, Math.min(0.3, activity) - dt * 0.12);
   const h = world.hero;
   const paused = scenes.paused;
 
@@ -277,21 +245,18 @@ function update() {
   if (mode === 'arena') {
     const room = world.room;
     const st = room?.state;
-    let target = 0.1;
-    const fight = st === 'fight';
-    if (fight) {
+    let target = 0.08;
+    if (st === 'fight') {
       let threat = 0;
       for (const e of world.enemies) if (!e.dead && (e.hp ?? 1) > 0) threat += THREAT[e.kind ?? e.type] ?? 0.6;
-      // two husks idle ~0.48; two husks while trading hits ~0.65; a full second wave ~0.75+
-      target = 0.28 + Math.min(0.45, threat * 0.1) + ((room.wave ?? 1) - 1) * 0.06 + activity;
-    } else if (st === 'sealing') target = 0.25;
+      target = 0.24 + threat * 0.085 + ((room.wave ?? 1) - 1) * 0.04 + activity;
+    } else if (st === 'sealing') target = 0.22;
     target = Math.max(0, Math.min(1, target));
-    const tau = target > intensity ? 0.6 : 3.5;
+    const tau = target > intensity ? 0.7 : 3.5;
     intensity += (target - intensity) * (1 - Math.exp(-dt / tau));
     music.intensity = intensity;
     music.chase = false;
-    music.only(arenaStems(intensity, fight || st === 'sealing', stemOn));
-    music.level('lead', fight ? 0.62 + 0.38 * Math.min(1, intensity / 0.8) : 0.55);
+    arenaLayers();
     const theme = getActiveArena()?.L?.theme;
     ambience.set({ wind: 0.55, crackle: theme === 'deep' ? 5 : 2, drip: theme === 'sunken' ? 0.6 : 0.08, debris: 0 });
   } else if (mode === 'corridor') {
@@ -302,23 +267,24 @@ function update() {
       const gap = Number.isFinite(col.gap) ? col.gap : 20;
       const near = Math.max(0, Math.min(1, (8 - gap) / 6));
       music.chase = true; music.intensity = 0.75;
-      music.only(corridorStems('run', near));
+      setLayers(near > 0.05 ? ['bed', 'drums', 'bass', 'chase', 'alarm'] : ['bed', 'drums', 'bass', 'chase']);
       music.level('alarm', 0.35 + near * 0.65);
-      music.level('lead', 0.8);
       ambience.set({ wind: 0.3, crackle: 1, drip: 0, debris: 0.25 + near * 0.75, debrisPan: Math.max(-0.9, Math.min(0.2, panFor(col.front) * 1.3 - 0.2)) });
     } else if (st === 'intro') {
       music.chase = false; music.intensity = 0.3;
-      music.only(corridorStems('intro'));
-      music.level('lead', 0.6);
+      setLayers(['bed', 'bass']);
       ambience.set({ wind: 0.45, crackle: 1, drip: 0.1, debris: 0.05, debrisPan: -0.7 });
     } else {
       music.chase = false; music.intensity = 0.1;
-      music.only(corridorStems('safe'));
+      setLayers(['bed']);
       ambience.set({ wind: 0.5, crackle: 1, drip: 0.1, debris: 0 });
     }
   } else if (mode === 'boss') {
     const P = bossPhase;
-    if (P <= 3) { music.intensity = [0, 0.5, 0.65, 0.9][P]; music.only(bossStems(P)); }
+    if (P === 0) music.only(['intro']);
+    else if (P === 1) { music.intensity = 0.5; music.only(['organ', 'drums', 'bass', 'bell']); }
+    else if (P === 2) { music.intensity = 0.65; music.only(['organ', 'drums', 'bass', 'bell', 'arp', 'choir']); }
+    else if (P === 3) { music.intensity = 0.9; music.only(['organ', 'drums', 'bass', 'bell', 'arp', 'choir', 'lead']); }
   }
   ambience.update(dt);
 }
@@ -328,6 +294,5 @@ export const director = {
   get mode() { return mode; },
   enterMode,
   surfaceAt,
-  arenaStems, corridorStems, bossStems,
   info: () => ({ mode, bossPhase, intensity: +intensity.toFixed(2), activity: +activity.toFixed(2), dead }),
 };

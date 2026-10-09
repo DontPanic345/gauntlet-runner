@@ -4,25 +4,24 @@
 // the last plays (variant, pitch, gain) so per-play variation can be read off the screen.
 //
 // Audio starts on the first key press (browser rule). Then:
-//   LEFT PANEL (sounds)   A / D or LEFT / RIGHT: group     UP / DOWN (or S): select
-//                         J / SPACE / ENTER: play          1..9: play row 1..9 of the group
-//                         Q W E R T Y U I O P: play row 10..19 of the group
-//                         Z: repeat the selected sound every 0.7 s (to hear the variation)
-//                         Every key press counts, even several in one frame (own key queue).
-//   RIGHT PANEL (music)   M: next song (TITLE, CRYPT, WARDEN, DIRGE, OFF)
+//   LEFT PANEL (sounds)   A / D or LEFT / RIGHT: group     W / S or UP / DOWN: select
+//                         J / SPACE / ENTER: play          1..9: play row n of the group
+//                         R: repeat the selected sound every 0.7 s (to hear the variation)
+//   RIGHT PANEL (music)   M: next song (TITLE, CRYPT, WARDEN, OFF)
 //                         [ / ]: intensity -/+ (CRYPT: layers by intensity; WARDEN: phases)
 //                         C: corridor chase on/off   G: alarm (collapse distance) step
 //                         L: low health filter on/off   B: boss phase (intro, I, II, III)
-//                         X: a telegraph cue now (music ducks and dips at 1.5-4 kHz)
-//   TOUR                  V: start / stop the scripted 104 s tour (title -> arena fight -> clear ->
-//                         corridor chase -> boss phases -> low health -> death -> game-over dirge)
+//                         X: duck the music now (as a telegraph would)
+//   TOUR                  T: start / stop the scripted 75 s tour (title -> arena fight -> clear ->
+//                         corridor chase -> boss phases -> low health -> death)
 //
 // Params: &tour=1 (start the tour at once; with &t=<seconds> to start part-way)
-//         &song=title|crypt|warden|dirge|off  &intensity=0..1  &chase=1  &alarm=0..1  &lowhp=1  &phase=0..3
+//         &song=title|crypt|warden|off  &intensity=0..1  &chase=1  &alarm=0..1  &lowhp=1  &phase=0..3
 //         &group=<GROUP>  &play=<bank sound> (repeat it)  &unlock=1 (create the context without a
 //         gesture: only for headless capture launched with an autoplay flag)
 
 import { display } from '../core/display.js';
+import { input } from '../core/input.js';
 import { loop } from '../core/loop.js';
 import { world } from '../core/world.js';
 import { drawText, LINE_H } from '../core/pixelfont.js';
@@ -31,7 +30,7 @@ import { audio } from './engine.js';
 import { sfx, SFX } from './bank.js';
 import { music, SONGS } from './music.js';
 import { ambience } from './ambience.js';
-import { director, arenaStems, corridorStems, bossStems, TITLE_STEMS, ARENA_LAYERS } from './director.js';
+import { director } from './director.js';
 import { combatSfx } from '../combat/sfx.js';
 import { enemySfx } from '../enemies/sfx.js';
 import { boonSfx } from '../progression/sfx.js';
@@ -101,10 +100,10 @@ function buildGroups() {
 // [time s, label | null, fn]. Sound-only: a fight is "played" by firing the same calls the game makes.
 function tourScript() {
   const S = [];
-  const at = (t, label, fn) => S.push([t >= 9 ? t + TITLE_EXTRA : t, label, fn]);
+  const at = (t, label, fn) => S.push([t, label, fn]);
   const steps = (t0, t1, every, surface) => { let k = 0; for (let t = t0; t < t1; t += every) { const f = k++ % 2 ? 'R' : 'L'; at(t, null, () => sfx.step(surface, f, { gain: 0.85 })); } };
   // 0: title
-  at(0, 'TITLE THEME', () => { setSong('title'); music.only(TITLE_STEMS); ambience.set({ wind: 0.9, crackle: 0, drip: 0.15, debris: 0 }); music.filter('normal'); });
+  at(0, 'TITLE THEME', () => { setSong('title'); music.only(['bed', 'bass', 'arp', 'lead']); ambience.set({ wind: 0.9, crackle: 0, drip: 0.15, debris: 0 }); music.filter('normal'); });
   // 9: arena
   at(9, 'ARENA: THE GATE SEALS', () => { setSong('crypt'); setIntensity(0.1); ambience.set({ wind: 0.55, crackle: 2, drip: 0.1 }); });
   steps(9.2, 11.5, 0.3, 'stone');
@@ -139,9 +138,9 @@ function tourScript() {
   at(31.5, null, () => sfx.play('heart'));
   for (let i = 0; i < 5; i++) at(32.2 + i * 0.25, null, () => arenaSfx.clank(i));
   // 34: corridor
-  at(34, 'CORRIDOR: THE COLLAPSE BREAKS LOOSE', () => { music.only(corridorStems('intro')); music.chase = false; ambience.set({ wind: 0.4, crackle: 1, drip: 0 }); });
+  at(34, 'CORRIDOR: THE COLLAPSE BREAKS LOOSE', () => { music.only(['bed', 'bass']); music.chase = false; ambience.set({ wind: 0.4, crackle: 1, drip: 0 }); });
   steps(34.2, 36, 0.3, 'grit');
-  at(36, null, () => { gauntletSfx.quake(); music.chase = true; music.intensity = 0.75; music.only(corridorStems('run', 0)); music.level('lead', 0.8); });
+  at(36, null, () => { gauntletSfx.quake(); music.chase = true; music.intensity = 0.75; music.only(['bed', 'drums', 'bass', 'chase']); });
   steps(36.4, 46, 0.22, 'grit');
   for (let i = 0; i < 20; i++) at(36.5 + i * 0.5, null, () => { const near = Math.min(1, i / 14); ambience.set({ debris: 0.25 + near * 0.75, debrisPan: -0.7 }); if (i === 4) music.want({ alarm: true }); music.level('alarm', 0.3 + near * 0.7); });
   at(38, 'CHASE: THE ALARM RISES AS THE ROCK CLOSES IN', () => gauntletSfx.rattle(1));
@@ -153,26 +152,26 @@ function tourScript() {
   at(42.4, null, () => gauntletSfx.crack(1));
   at(42.9, null, () => { gauntletSfx.drop(1); sfx.play('dash'); });
   at(44, null, () => gauntletSfx.whoosh(1));
-  at(46.2, 'SAFE: THE GATE SLAMS', () => { gauntletSfx.slam(); music.chase = false; music.only(corridorStems('safe')); ambience.set({ debris: 0 }); });
+  at(46.2, 'SAFE: THE GATE SLAMS', () => { gauntletSfx.slam(); music.chase = false; music.only(['bed']); ambience.set({ debris: 0 }); });
   at(46.9, null, () => gauntletSfx.boom());
   at(47.6, null, () => gauntletSfx.release());
   // 50: boss
-  at(50, 'THE WARDEN: INTRO', () => { setSong('warden'); music.level('lead', 1); music.only(bossStems(0)); ambience.set({ wind: 0.5, crackle: 3, drip: 0 }); });
+  at(50, 'THE WARDEN: INTRO', () => { setSong('warden'); music.only(['intro']); ambience.set({ wind: 0.5, crackle: 3, drip: 0 }); });
   at(51, null, () => bossSfx.rumble(1.6));
   at(52.5, null, () => bossSfx.eyes());
   at(53.3, null, () => bossSfx.roar());
-  at(55, 'PHASE I: THE CHAIN', () => { music.intensity = 0.5; music.only(bossStems(1)); });
+  at(55, 'PHASE I: THE CHAIN', () => { music.intensity = 0.5; music.only(['organ', 'drums', 'bass', 'bell']); });
   steps(55.2, 57, 0.28, 'stone');
   at(57, null, () => bossSfx.whirl(0.9));
   at(58, null, () => bossSfx.sweep());
   at(58.3, null, () => sfx.play('dodge'));
   for (let i = 0; i < 3; i++) { at(59 + i * 0.35, null, () => sfx.play(['swing.1', 'swing.2', 'swing.3'][i])); at(59.06 + i * 0.35, null, () => { sfx.hit(1 + i * 0.6, i === 2); bossSfx.hit(i === 2); }); }
-  at(60.4, 'PHASE II: THE QUAKE', () => { bossSfx.break(); music.intensity = 0.65; music.only(bossStems(2)); });
+  at(60.4, 'PHASE II: THE QUAKE', () => { bossSfx.break(); music.intensity = 0.65; music.only(['organ', 'drums', 'bass', 'bell', 'arp', 'choir']); });
   at(62, null, () => bossSfx.inhale(0.6));
   at(62.7, null, () => bossSfx.leap());
   at(63.4, null, () => bossSfx.land());
   at(64.2, null, () => sfx.play('hurt'));
-  at(65.2, 'PHASE III: THE CAGE', () => { bossSfx.break(); music.intensity = 0.9; music.only(bossStems(3)); });
+  at(65.2, 'PHASE III: THE CAGE', () => { bossSfx.break(); music.intensity = 0.9; music.only(['organ', 'drums', 'bass', 'bell', 'arp', 'choir', 'lead']); });
   at(66.3, null, () => bossSfx.bell());
   at(67.8, null, () => bossSfx.keys());
   at(68.4, 'ONE HEART LEFT: THE MUSIC CLOSES IN', () => { sfx.play('hurt'); music.filter('lowhp'); });
@@ -181,25 +180,22 @@ function tourScript() {
   at(71.5, null, () => sfx.play('dodge'));
   at(73.3, 'DEATH', () => { sfx.play('heroDeath'); music.filter('dead'); audio.duck(10, 1.5, 1.5, 0.05); });
   at(73.8, null, () => { music.stop(2.5); sfx.play('deathSting'); });
-  at(75.6, 'GAME OVER: "FALLEN"', () => { music.filter('normal'); music.only(['bed', 'bass', 'lead', 'counter', 'harp']); setSong('dirge', true); });
+  at(78.5, null, () => { music.filter('normal'); });
   S.sort((a, b) => a[0] - b[0]);
   return S;
 }
-const TITLE_EXTRA = 7;   // the title gets 16 s: its arrival, then the theme's first phrase
-const TOUR_LEN = 97 + TITLE_EXTRA;
-const VIS = 21;   // visible sound rows
+const TOUR_LEN = 79;
+const VIS = 22;   // visible sound rows
 
 // ---- state ------------------------------------------------------------------------------------------
 let songIdx = 1;
-const SONG_LIST = ['title', 'crypt', 'warden', 'dirge', null];
-function setSong(name, restart = false) { songIdx = SONG_LIST.indexOf(name); music.play(name, { restart }); }
+const SONG_LIST = ['title', 'crypt', 'warden', null];
+function setSong(name) { songIdx = SONG_LIST.indexOf(name); music.play(name); }
 function setIntensity(v) {
   music.intensity = v;
-  music.only(arenaStems(v, true));
-  music.level('lead', 0.62 + 0.38 * Math.min(1, v / 0.8));
+  const layers = [['drums', 0.2], ['bass', 0.36], ['arp', 0.55], ['lead', 0.78]];
+  music.only(['bed', ...layers.filter(([, th]) => v >= th).map(([s]) => s)]);
 }
-const ROW_KEYS = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP'];
-const ROW_LABEL = '123456789QWERTYUIOP';
 
 export default function audioShowcase(params) {
   const P = (k, d) => params.get(k) ?? d;
@@ -222,11 +218,6 @@ export default function audioShowcase(params) {
   const startTour = P('tour', '0') === '1';
   const tourAt = parseFloat(P('t', '0')) || 0;
   let started = false;
-  // a private key queue: input.ui.key() is a per-frame set, so two quick presses of the same
-  // key in one (slow, headless) frame would count once; here every press counts
-  const keyQ = [];
-  const onKey = (e) => { if (!e.repeat) keyQ.push(e.code); };
-  addEventListener('keydown', onKey);
 
   const g0 = P('group', null);
   if (g0) { const k = groups.findIndex((g) => g.name === g0.toUpperCase()); if (k >= 0) gi = k; }
@@ -235,18 +226,17 @@ export default function audioShowcase(params) {
 
   function applyMusic() {
     const song = SONG_LIST[songIdx];
-    music.level('lead', 1);
+    music.play(song);
     if (song === 'crypt') {
-      if (chase) {
-        music.chase = true; music.intensity = 0.75;
-        music.only(corridorStems('run', alarm)); music.level('alarm', 0.35 + alarm * 0.65); music.level('lead', 0.8);
-      } else { music.chase = false; setIntensity(intensity); }
-    } else if (song === 'title') music.only(TITLE_STEMS);
-    else if (song === 'warden') { music.intensity = [0, 0.5, 0.65, 0.9][bossP]; music.only(bossStems(bossP)); }
-    else if (song === 'dirge') music.only(['bed', 'bass', 'lead', 'counter', 'harp']);
-    music.play(song, { restart: song === 'dirge' });
+      if (chase) { music.chase = true; music.intensity = 0.75; music.only(['bed', 'drums', 'bass', 'chase', ...(alarm > 0.05 ? ['alarm'] : [])]); music.level('alarm', 0.3 + alarm * 0.7); }
+      else { music.chase = false; setIntensity(intensity); }
+    } else if (song === 'title') music.only(['bed', 'bass', 'arp', 'lead']);
+    else if (song === 'warden') {
+      music.intensity = [0, 0.5, 0.65, 0.9][bossP];
+      music.only([['intro'], ['organ', 'drums', 'bass', 'bell'], ['organ', 'drums', 'bass', 'bell', 'arp', 'choir'], ['organ', 'drums', 'bass', 'bell', 'arp', 'choir', 'lead']][bossP]);
+    }
     music.filter(lowhp ? 'lowhp' : 'normal');
-    ambience.set(song === 'title' || song === 'dirge' ? { wind: 0.9, crackle: 0, drip: 0.15, debris: 0 }
+    ambience.set(song === 'title' ? { wind: 0.9, crackle: 0, drip: 0.15, debris: 0 }
       : song === 'warden' ? { wind: 0.5, crackle: 3, drip: 0, debris: 0 }
         : { wind: 0.55, crackle: chase ? 1 : 2, drip: 0.1, debris: chase ? 0.25 + alarm * 0.75 : 0, debrisPan: -0.7 });
   }
@@ -283,34 +273,29 @@ export default function audioShowcase(params) {
       if (unlockParam) audio.ensure(true);
       if (audio.ctx) begin();
     },
-    exit() { removeEventListener('keydown', onKey); music.stop(0.5); ambience.set({ wind: 0, crackle: 0, drip: 0, debris: 0 }); },
+    exit() { music.stop(0.5); ambience.set({ wind: 0, crackle: 0, drip: 0, debris: 0 }); },
     tick() {},
     frame(realDt) {
-      if (!started && audio.ctx) { begin(); keyQ.length = 0; return; }   // the key that unlocked audio does nothing else
-      if (!started) { keyQ.length = 0; return; }
-      for (const code of keyQ.splice(0)) {
-        const rows = groups[gi].rows;
-        const row = ROW_KEYS.indexOf(code);
-        if (row >= 0) { if (rows[row]) { ri = row; play(rows[row], row); } continue; }
-        switch (code) {
-          case 'KeyA': case 'ArrowLeft': gi = (gi + groups.length - 1) % groups.length; ri = 0; scroll = 0; break;
-          case 'KeyD': case 'ArrowRight': gi = (gi + 1) % groups.length; ri = 0; scroll = 0; break;
-          case 'ArrowUp': ri = (ri + rows.length - 1) % rows.length; break;
-          case 'ArrowDown': case 'KeyS': ri = (ri + 1) % rows.length; break;
-          case 'KeyJ': case 'Space': case 'Enter': play(rows[ri], ri); break;
-          case 'KeyZ': repeat = repeat ? null : rows[ri]; break;
-          case 'KeyM': songIdx = (songIdx + 1) % SONG_LIST.length; applyMusic(); break;
-          case 'BracketLeft': intensity = Math.max(0, +(intensity - 0.1).toFixed(2)); chase = false; songIdx = 1; applyMusic(); break;
-          case 'BracketRight': intensity = Math.min(1, +(intensity + 0.1).toFixed(2)); chase = false; songIdx = 1; applyMusic(); break;
-          case 'KeyC': chase = !chase; songIdx = 1; applyMusic(); break;
-          case 'KeyG': alarm = alarm >= 1 ? 0 : +(alarm + 0.25).toFixed(2); chase = true; songIdx = 1; applyMusic(); break;
-          case 'KeyL': lowhp = !lowhp; music.filter(lowhp ? 'lowhp' : 'normal'); break;
-          case 'KeyB': bossP = (bossP + 1) % 4; songIdx = 2; applyMusic(); break;
-          case 'KeyX': audio.cue(6, 0.6, 0.5); break;
-          case 'KeyV': tour = tour ? null : { t0: audio.time, i: 0, label: '', script: tourScript() }; break;
-          default:
-        }
-      }
+      if (!started && audio.ctx) { begin(); return; }   // the key that unlocked audio does nothing else
+      if (!started) return;
+      const k = (c) => input.ui.key(c);
+      const rows = groups[gi].rows;
+      if (k('KeyA') || k('ArrowLeft')) { gi = (gi + groups.length - 1) % groups.length; ri = 0; scroll = 0; }
+      if (k('KeyD') || k('ArrowRight')) { gi = (gi + 1) % groups.length; ri = 0; scroll = 0; }
+      if (k('KeyW') || k('ArrowUp')) ri = (ri + rows.length - 1) % rows.length;
+      if (k('KeyS') || k('ArrowDown')) ri = (ri + 1) % rows.length;
+      if (k('KeyJ') || k('Space') || k('Enter')) play(rows[ri], ri);
+      for (let n = 1; n <= 9; n++) if (k(`Digit${n}`) && rows[n - 1]) { ri = n - 1; play(rows[n - 1], n - 1); }
+      if (k('KeyR')) repeat = repeat ? null : rows[ri];
+      if (k('KeyM')) { songIdx = (songIdx + 1) % SONG_LIST.length; applyMusic(); }
+      if (k('BracketLeft')) { intensity = Math.max(0, +(intensity - 0.1).toFixed(2)); chase = false; applyMusic(); }
+      if (k('BracketRight')) { intensity = Math.min(1, +(intensity + 0.1).toFixed(2)); chase = false; applyMusic(); }
+      if (k('KeyC')) { chase = !chase; if (SONG_LIST[songIdx] !== 'crypt') songIdx = 1; applyMusic(); }
+      if (k('KeyG')) { alarm = alarm >= 1 ? 0 : +(alarm + 0.25).toFixed(2); chase = true; songIdx = 1; applyMusic(); }
+      if (k('KeyL')) { lowhp = !lowhp; music.filter(lowhp ? 'lowhp' : 'normal'); }
+      if (k('KeyB')) { bossP = (bossP + 1) % 4; songIdx = 2; applyMusic(); }
+      if (k('KeyX')) audio.duck(6, 0.6, 0.5, 0.03);
+      if (k('KeyT')) tour = tour ? null : { t0: audio.time, i: 0, label: '', script: tourScript() };
       if (ri < scroll) scroll = ri;
       if (ri >= scroll + VIS) scroll = ri - VIS + 1;
 
@@ -351,22 +336,20 @@ export default function audioShowcase(params) {
       const gname = groups[gi].name;
       drawText(g, '<', LX + 4, LY + 4, 'mist');
       drawText(g, `${gname}  ${gi + 1}/${groups.length}`, LX + LW / 2, LY + 4, 'gold', { align: 'center', shadow: 'ink' });
-      const owners = [...new Set(groups[gi].rows.map((r) => r.src))];
-      drawText(g, `BY ${owners.join(', ')}`, LX + LW / 2, LY + 14, owners.length === 1 && owners[0] === 'AUDIO' ? 'cyan' : 'slate', { align: 'center' });
       drawText(g, '>', LX + LW - 8, LY + 4, 'mist');
       const rows = groups[gi].rows;
       for (let i = 0; i < VIS && scroll + i < rows.length; i++) {
         const idx = scroll + i, r = rows[idx];
-        const y = LY + 25 + i * LINE_H + 1;
+        const y = LY + 16 + i * LINE_H + 1;
         const sel = idx === ri;
         if (sel) { g.fillStyle = css('violet'); g.fillRect(LX + 2, y - 1, LW - 4, LINE_H); }
         if (idx === flashRow && flash > 0) { g.fillStyle = css('ember'); g.globalAlpha = flash; g.fillRect(LX + 2, y - 1, 3, LINE_H); g.globalAlpha = 1; }
-        drawText(g, ROW_LABEL[idx] ?? ' ', LX + 8, y, 'mist');
+        drawText(g, idx < 9 ? String(idx + 1) : ' ', LX + 8, y, 'mist');
         drawText(g, r.label.toUpperCase(), LX + 18, y, sel ? 'white' : 'frost');
-        if (owners.length > 1) drawText(g, r.src, LX + LW - 6, y, 'slate', { align: 'right' });
+        drawText(g, r.src, LX + LW - 6, y, r.src === 'AUDIO' ? 'cyan' : 'slate', { align: 'right' });
       }
       if (rows.length > VIS) drawText(g, `${scroll + 1}-${Math.min(rows.length, scroll + VIS)} OF ${rows.length}`, LX + LW - 6, LY + 221, 'mist', { align: 'right' });
-      drawText(g, repeat ? `REPEATING: ${(typeof repeat === 'string' ? repeat : repeat.label).toUpperCase()}  (Z STOPS)` : 'Z: REPEAT SELECTED', LX + 6, LY + 221, repeat ? 'flame' : 'slate');
+      drawText(g, repeat ? `REPEATING: ${(typeof repeat === 'string' ? repeat : repeat.label).toUpperCase()}  (R STOPS)` : 'R: REPEAT SELECTED', LX + 6, LY + 221, repeat ? 'flame' : 'slate');
 
       // ---- right: music ----
       const RX = 312, RY = 24, RW = W - RX - 6;
@@ -374,22 +357,22 @@ export default function audioShowcase(params) {
       const mi = music.info();
       const song = mi.song;
       drawText(g, 'MUSIC', RX + 4, RY + 4, 'gold', { shadow: 'ink' });
-      drawText(g, song ? `${SONGS[song].title}  ${mi.bpm} BPM  ${mi.section || '-'}  BAR ${(mi.bar ?? 0) + 1}/${mi.bars}` : 'OFF', RX + RW - 4, RY + 4, song ? 'bone' : 'mist', { align: 'right' });
+      drawText(g, song ? `${SONGS[song].title}  ${mi.bpm} BPM  BAR ${mi.bar + 1}/8` : 'OFF', RX + RW - 4, RY + 4, song ? 'bone' : 'mist', { align: 'right' });
       if (song) {
         const stems = Object.keys(SONGS[song].stems);
         const mt = music.meters();
         stems.forEach((sn, i) => {
-          const y = RY + 17 + i * LINE_H;
+          const y = RY + 17 + i * (LINE_H + 1);
           const on = (mi.stems[sn] ?? 0) > 0;
           // the meter: live stem RMS on a 36 dB scale, with a slow-falling hold
           const v = mt[sn] ?? 0;
           const k = v > 1e-4 ? Math.max(0, Math.min(1, (20 * Math.log10(v) + 48) / 36)) : 0;
           stemHold[sn] = Math.max(k, (stemHold[sn] ?? 0) - 0.02);
           drawText(g, sn.toUpperCase(), RX + 6, y, on ? 'bone' : 'slate');
-          g.fillStyle = css('ink'); g.fillRect(RX + 58, y, 64, 6);
+          g.fillStyle = css('ink'); g.fillRect(RX + 50, y, 70, 6);
           g.fillStyle = css(sn === 'alarm' || sn === 'chase' ? 'ember' : on ? 'teal' : 'violet');
-          g.fillRect(RX + 58, y, Math.round(64 * stemHold[sn]), 6);
-          if (on) { g.fillStyle = css('bone'); g.fillRect(RX + 54, y + 2, 2, 2); }
+          g.fillRect(RX + 50, y, Math.round(70 * stemHold[sn]), 6);
+          if (on) { g.fillStyle = css('bone'); g.fillRect(RX + 46, y + 2, 2, 2); }
         });
         const iy = RY + 17;
         const lines = [
@@ -400,7 +383,7 @@ export default function audioShowcase(params) {
           ['BOSS PHASE', ['INTRO', 'I', 'II', 'III'][bossP], 'B'],
           ['SONG', 'NEXT', 'M'],
           ['DUCK', 'NOW', 'X'],
-          ['TOUR', tour ? 'STOP' : 'START', 'V'],
+          ['TOUR', tour ? 'STOP' : 'START', 'T'],
         ];
         lines.forEach(([a, b, key], i) => {
           const y = iy + i * (LINE_H + 1);
@@ -412,9 +395,9 @@ export default function audioShowcase(params) {
         const by = RY + 128, bx = RX + 132, bw = RW - 138;
         g.fillStyle = css('ink'); g.fillRect(bx, by, bw, 5);
         g.fillStyle = css('flame'); g.fillRect(bx, by, Math.round(bw * mi.intensity), 5);
-        if (song === 'crypt') for (const [, th] of ARENA_LAYERS) { g.fillStyle = css('bone'); g.fillRect(bx + Math.round(bw * th), by - 2, 1, 9); }
+        if (song === 'crypt') for (const th of [0.2, 0.36, 0.55, 0.78]) { g.fillStyle = css('bone'); g.fillRect(bx + Math.round(bw * th), by - 2, 1, 9); }
       } else {
-        drawText(g, 'M: PLAY A SONG   V: TOUR', RX + 6, RY + 20, 'fog');
+        drawText(g, 'M: PLAY A SONG   T: TOUR', RX + 6, RY + 20, 'fog');
       }
 
       // tour banner
@@ -491,7 +474,7 @@ export default function audioShowcase(params) {
       bar(BY + 12, m.peak, m.peak > 0.9 ? 'red' : 'leaf');
       drawText(g, 'RMS', MX, BY + 22, 'mist'); drawText(g, `${db(m.rms).toFixed(1)} DB`, MX + MW - 4, BY + 22, 'bone', { align: 'right' });
       bar(BY + 31, m.rms, 'gold');
-      const duck = (audio.graph?.musicDuck.gain.value ?? 1) * Math.pow(10, (audio.graph?.musicCue.gain.value ?? 0) / 40);
+      const duck = audio.graph?.musicDuck.gain.value ?? 1;
       drawText(g, 'MUSIC DUCK', MX, BY + 41, 'mist'); drawText(g, `${db(duck).toFixed(1)} DB`, MX + MW - 4, BY + 41, duck < 0.95 ? 'flame' : 'bone', { align: 'right' });
       g.fillStyle = css('ink'); g.fillRect(MX, BY + 50, MW - 4, 4);
       g.fillStyle = css('flame'); g.fillRect(MX, BY + 50, Math.round((MW - 4) * (1 - duck)), 4);

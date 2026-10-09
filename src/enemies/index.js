@@ -30,7 +30,6 @@ import { debug } from '../core/debug.js';
 import { EnemyManager, createEnemies, activeEnemies, SPAWN_TYPES, CLASSES } from './manager.js';
 import { ENEMY_DATA, DIFFICULTY, TOKENS, TYPES } from './data.js';
 import { enemySfx } from './sfx.js';
-import { enemyLook } from './material.js';
 
 export { EnemyManager, createEnemies, activeEnemies, SPAWN_TYPES, CLASSES, ENEMY_DATA, DIFFICULTY, TOKENS, TYPES, enemySfx };
 
@@ -56,7 +55,6 @@ export function spawnHandler(mgr, fallback = null) {
 //   ('freeze', on)                  AI and movement stop (animation poses hold)
 //   ('killall')                     every live enemy dies (with its death animation)
 //   ('clear')                       remove every enemy at once, no deaths
-//   ('lit', v)                      the self-light floor under every enemy's lighting (0..1.2, 0 = off)
 debug.add('enemies', (action, a, b) => {
   const m = activeEnemies();
   if (action === 'data') return { data: ENEMY_DATA, difficulty: DIFFICULTY, tokens: TOKENS };
@@ -66,7 +64,6 @@ debug.add('enemies', (action, a, b) => {
     for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && row[k]) Object.assign(row[k], b[k]); else row[k] = b[k]; }
     return { ok: true, [a]: row };
   }
-  if (action === 'lit') { if (typeof a === 'number') enemyLook.selfLit.value = a; return { ok: true, selfLit: enemyLook.selfLit.value }; }
   if (action === 'difficulty') { if (a && typeof a === 'object') Object.assign(DIFFICULTY, a); return { ok: true, difficulty: DIFFICULTY }; }
   if (!m) return { ok: false, error: 'no enemy manager in this scene' };
   if (action === 'freeze') { m.frozen = a ?? !m.frozen; return { ok: true, frozen: m.frozen }; }
